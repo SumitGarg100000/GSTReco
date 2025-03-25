@@ -1,0 +1,477 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GST Reconciliation Tool</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #F8F9FA; color: #333; }
+        .container { max-width: 1300px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); }
+        h1 { text-align: center; color: #00796b; font-size: 2.5em; margin-bottom: 20px; }
+        h2 { text-align: center; color: #004d40; font-size: 1.8em; margin: 20px 0; }
+        .upload-section, .input-section { display: flex; justify-content: center; align-items: center; margin: 20px 0; gap: 20px; }
+        .upload-section div, .input-section div { display: flex; flex-direction: column; gap: 10px; }
+        label { font-weight: bold; color: #00695c; }
+        input[type="file"], input[type="number"], input[type="text"], input[type="password"], input[type="checkbox"] { 
+            padding: 10px; border: 2px solid #26a69a; border-radius: 5px; background: #f1f8e9; 
+        }
+        .table-container { overflow-x: auto; margin: 10px 0; border: 1px solid #b0bec5; border-radius: 8px; padding: 15px; background: #fafafa; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th, td { border: 1px solid #cfd8dc; padding: 12px; text-align: left; }
+        th { background: #e0ffff; color: #004d40; font-weight: bold; }
+        button { padding: 12px 30px; background: linear-gradient(45deg, #26a69a, #00796b); color: white; border: none; border-radius: 25px; cursor: pointer; margin: 10px auto; display: block; }
+        button:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2); }
+        a { text-align: center; display: block; color: #00796b; text-decoration: none; font-weight: bold; margin: 20px 0; }
+        a:hover { color: #004d40; }
+        .match { background-color: #00ced1; color: white; }
+        .gstn-not-match { background-color: #dc143c; color: white; }
+        .no-match { background-color: #ff00ff; color: white; }
+        #login-section, #tool-section { transition: opacity 0.5s; }
+        #login-section.hidden, #tool-section.hidden { display: none; }
+        #error { color: red; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Login Section -->
+        <div id="login-section">
+            <h1>Login to GST Reconciliation Tool</h1>
+            <div class="input-section">
+                <div>
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" placeholder="Enter username">
+                </div>
+                <div>
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" placeholder="Enter password">
+                </div>
+            </div>
+            <button onclick="login()">Login</button>
+            <p id="error"></p>
+        </div>
+
+        <!-- Tool Section -->
+        <div id="tool-section" class="hidden">
+            <h1>GST Reconciliation Tool</h1>
+            <button onclick="logout()">Logout</button>
+            <a href="#" id="download-sample">Download Sample Excel File</a>
+            <div class="input-section">
+                <div>
+                    <label for="diff-allowed">Difference Allowed (Default: 1):</label>
+                    <input type="number" id="diff-allowed" value="1" min="0" placeholder="0 if blank">
+                </div>
+            </div>
+            <div class="upload-section">
+                <div>
+                    <label for="gst-file">Upload GST Data File (GSTR-2B & GSTR-3B):</label>
+                    <input type="file" id="gst-file" accept=".xlsx">
+                </div>
+            </div>
+            <div style="text-align: center; margin: 10px 0;">
+                <input type="checkbox" id="detailed-reconciliation" name="detailed-reconciliation">
+                <label for="detailed-reconciliation">Detailed Reconciliation</label>
+            </div>
+            <div class="data-container">
+                <h2>GSTR-2B Data</h2>
+                <div id="gstr2b-container" class="table-container"></div>
+                <h2>Client Data</h2>
+                <div id="gstr3b-container" class="table-container"></div>
+                <h2>Summary</h2>
+                <div id="summary-container" class="table-container"></div>
+            </div>
+            <button id="reconcile-btn">Reconcile</button>
+            <div id="output-link" style="display: none;">
+                <h3>Reconciled Output:</h3>
+                <a id="download-output" href="#">Download Reconciled Data</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+    <script>
+        // User Database (tum isko server par replace kar sakte ho)
+        const users = {
+            "user1": { password: "pass123", expiry: "2025-04-30" },
+            "user2": { password: "pass456", expiry: "2025-05-15" }
+        };
+
+        let gstr2bData = [];
+        let gstr3bData = [];
+        const detailedReconciliationCheckbox = document.getElementById('detailed-reconciliation');
+
+        // Page Load Check
+        document.addEventListener("DOMContentLoaded", function() {
+            const loggedInUser = localStorage.getItem("loggedInUser");
+            if (!loggedInUser || !checkSubscription(loggedInUser)) {
+                showLogin();
+            } else {
+                showTool();
+            }
+        });
+
+        // Login Function
+        function login() {
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+            const error = document.getElementById("error");
+
+            if (users[username] && users[username].password === password) {
+                if (checkSubscription(username)) {
+                    localStorage.setItem("loggedInUser", username);
+                    showTool();
+                } else {
+                    error.textContent = "Your subscription has expired!";
+                }
+            } else {
+                error.textContent = "Invalid username or password!";
+            }
+        }
+
+        // Check Subscription Expiry
+        function checkSubscription(username) {
+            const expiryDate = new Date(users[username].expiry);
+            const today = new Date(); // Dynamic date
+            return today <= expiryDate;
+        }
+
+        // Logout Function
+        function logout() {
+            localStorage.removeItem("loggedInUser");
+            showLogin();
+        }
+
+        // Show Login Section
+        function showLogin() {
+            document.getElementById("login-section").classList.remove("hidden");
+            document.getElementById("tool-section").classList.add("hidden");
+        }
+
+        // Show Tool Section
+        function showTool() {
+            document.getElementById("login-section").classList.add("hidden");
+            document.getElementById("tool-section").classList.remove("hidden");
+            // Tool ke event listeners
+            document.getElementById('gst-file').addEventListener('change', handleFileUpload);
+            document.getElementById('reconcile-btn').addEventListener('click', reconcileData);
+            document.getElementById('download-sample').addEventListener('click', generateSampleFile);
+            document.getElementById('diff-allowed').addEventListener('input', reconcileData);
+            detailedReconciliationCheckbox.addEventListener('change', reconcileData);
+        }
+
+        // Existing Tool Functions (Shortened for Brevity)
+        function formatDate(excelDate) {
+            if (!excelDate) return '';
+            const date = new Date((excelDate - 25569) * 86400 * 1000);
+            return `${String(date.getUTCDate()).padStart(2, '0')}-${date.toUTCString().slice(8, 11)}-${date.getUTCFullYear()}`;
+        }
+
+        const gstr2bHeaders = () => ['Match Criteria', 'GSTN', 'Name of Supplier', 'Invoice Number', 'Invoice type', 'Invoice Date', 'Invoice Value', 'Place of supply', 'Reverse Charge', 'Rate (%)', 'Taxable Value', 'IGST', 'CGST', 'SGST', 'Cess', 'GSTR-1/5 Period', 'GSTR-1/5 Filing Date', 'ITC Availability', 'Reason', 'Applicable % of Tax Rate', 'Source', 'IRN', 'IRN Date'];
+        const gstr3bHeaders = () => ['Match Criteria', 'Invoice Date', 'GSTN', 'Name of Supplier', 'Invoice Number', 'Taxable Value', 'IGST', 'CGST', 'SGST', 'Invoice Value'];
+
+        function generateSampleFile(event) {
+            event.preventDefault();
+            const wb = XLSX.utils.book_new();
+            const ws1 = XLSX.utils.aoa_to_sheet([gstr2bHeaders(), ['Match', '27AABCU9603R1ZM', 'Supplier A', 'INV001', 'Regular', '01-Mar-2025', 11800, 'Maharashtra', 'N', 18, 10000, 1800, 0, 0, 0, 'Mar-2025', '15-Mar-2025', 'Yes', 'N/A', 18, 'GSTR-1', 'IRN001', '02-Mar-2025']]);
+            XLSX.utils.book_append_sheet(wb, ws1, 'GST Portal');
+            const ws2 = XLSX.utils.aoa_to_sheet([gstr3bHeaders(), ['Match', '01-Mar-2025', '27AABCU9603R1ZM', 'Supplier A', 'INV001', 15000, 2700, 0, 0, 17700]]);
+            XLSX.utils.book_append_sheet(wb, ws2, 'Client Data');
+            const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+            const blob = new Blob([wbout], { type: 'application/octet-stream' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'Sample_GST_Reconciliation.xlsx';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array', dateNF: 'dd-mmm-yyyy' });
+                if (workbook.Sheets['GST Portal']) {
+                    gstr2bData = XLSX.utils.sheet_to_json(workbook.Sheets['GST Portal'], { header: 1, raw: true, defval: '' }).slice(1);
+                    displayData(gstr2bData, 'gstr2b-container', gstr2bHeaders(), 'gstr2b');
+                }
+                if (workbook.Sheets['Client Data']) {
+                    gstr3bData = XLSX.utils.sheet_to_json(workbook.Sheets['Client Data'], { header: 1, raw: true, defval: '' }).slice(1);
+                    displayData(gstr3bData, 'gstr3b-container', gstr3bHeaders(), 'gstr3b');
+                }
+                reconcileData();
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function displayData(data, containerId, headers, sheetType) {
+            const container = document.getElementById(containerId);
+            let html = '<table><thead><tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr></thead><tbody>';
+            data.forEach((row, i) => {
+                html += `<tr data-row="${i}" data-sheet="${sheetType}">`;
+                headers.forEach((_, j) => {
+                    const value = (typeof row[j] === 'number' && row[j] > 40000 && row[j] < 50000) ? formatDate(row[j]) : (row[j] || '');
+                    html += `<td contenteditable="${j > 0}" data-col="${j}">${value}</td>`;
+                });
+                html += '</tr>';
+            });
+            html += '</tbody></table>';
+            container.innerHTML = html;
+            container.querySelector('table').addEventListener('input', handleCellEdit);
+        }
+
+        function handleCellEdit(event) {
+            const target = event.target;
+            if (target.tagName === 'TD' && target.hasAttribute('contenteditable')) {
+                const rowIndex = parseInt(target.parentElement.getAttribute('data-row'));
+                const colIndex = parseInt(target.getAttribute('data-col'));
+                const sheetType = target.parentElement.getAttribute('data-sheet');
+                const newValue = target.textContent.trim();
+                (sheetType === 'gstr2b' ? gstr2bData : gstr3bData)[rowIndex][colIndex] = newValue;
+                reconcileData();
+            }
+        }
+
+        function reconcileData() {
+            const diffAllowed = Number(document.getElementById('diff-allowed').value) || 1;
+            const gstr2bTable = document.querySelector('#gstr2b-container table tbody');
+            const gstr3bTable = document.querySelector('#gstr3b-container table tbody');
+            const reconciled2bData = gstr2bData.map((row, i) => {
+                const match = findMatch(row, gstr2bData, gstr3bData, false, diffAllowed);
+                const newRow = [match, ...row.slice(1)];
+                updateRow(gstr2bTable.rows[i], newRow);
+                return newRow;
+            });
+            const reconciled3bData = gstr3bData.map((row, i) => {
+                const match = findMatch(row, gstr3bData, gstr2bData, true, diffAllowed);
+                const newRow = [match, ...row.slice(1)];
+                updateRow(gstr3bTable.rows[i], newRow);
+                return newRow;
+            });
+            displaySummary(reconciled2bData, reconciled3bData);
+            generateOutput(reconciled2bData, reconciled3bData);
+        }
+
+        function updateRow(rowElement, newRow) {
+            const match = newRow[0];
+            Array.from(rowElement.cells).forEach((cell, i) => cell.textContent = newRow[i]);
+            colorRow(rowElement, match);
+        }
+
+        function findMatch(row, sourceData, compareData, is3b, diffAllowed) {
+            const headers = is3b ? gstr3bHeaders() : gstr2bHeaders();
+            const invDate = String(row[headers.indexOf('Invoice Date')]).toLowerCase();
+            const gstn = String(row[headers.indexOf('GSTN')]).toLowerCase();
+            const invNum = String(row[headers.indexOf('Invoice Number')]).toLowerCase();
+            const compareGstnIdx = (is3b ? gstr2bHeaders() : gstr3bHeaders()).indexOf('GSTN');
+
+            if (detailedReconciliationCheckbox.checked) {
+                const checks = [
+                    { fn: calculateTotals, label: 'Match - GSTN, Invoice No., Date', args: [invDate, gstn, invNum] },
+                    { fn: calculateTotalsByInv, label: 'Match - GSTN, Invoice No.', args: [gstn, invNum] },
+                    { fn: calculateTotalsByGstnDate, label: 'Match - GSTN, Date', args: [invDate, gstn] },
+                    { fn: calculateTotalsByGstn, label: 'Match - GSTN', args: [gstn] }
+                ];
+                for (let check of checks) {
+                    const sourceTotals = check.fn(sourceData, ...check.args, is3b);
+                    const compareTotals = check.fn(compareData, ...check.args, !is3b);
+                    if (sourceTotals.count > 0 && compareTotals.count > 0 && checkTotals(sourceTotals, compareTotals, diffAllowed)) {
+                        return check.label;
+                    }
+                }
+                return compareData.some(r => String(r[compareGstnIdx]).toLowerCase() === gstn) ? 'Unmatch - Amt Diff' : 'Unmatch - GSTN Not Exist';
+            } else {
+                const checks = [calculateTotals, calculateTotalsByInv, calculateTotalsByGstnDate, calculateTotalsByGstn];
+                const args = [[invDate, gstn, invNum], [gstn, invNum], [invDate, gstn], [gstn]];
+                for (let i = 0; i < checks.length; i++) {
+                    const sourceTotals = checks[i](sourceData, ...args[i], is3b);
+                    const compareTotals = checks[i](compareData, ...args[i], !is3b);
+                    if (sourceTotals.count > 0 && compareTotals.count > 0 && checkTotals(sourceTotals, compareTotals, diffAllowed)) {
+                        return 'Match';
+                    }
+                }
+                return compareData.some(r => String(r[compareGstnIdx]).toLowerCase() === gstn) ? 'Unmatch - Amt Diff' : 'Unmatch - GSTN Not Exist';
+            }
+        }
+
+        function calculateTotals(data, invDate, gstn, invNum, is3b) {
+            const headers = is3b ? gstr3bHeaders() : gstr2bHeaders();
+            let count = 0, taxable = 0, igst = 0, cgst = 0, sgst = 0;
+            data.forEach(row => {
+                if (String(row[headers.indexOf('Invoice Date')]).toLowerCase() === invDate && 
+                    String(row[headers.indexOf('GSTN')]).toLowerCase() === gstn && 
+                    String(row[headers.indexOf('Invoice Number')]).toLowerCase() === invNum) {
+                    count++; taxable += Number(row[headers.indexOf('Taxable Value')]) || 0;
+                    igst += Number(row[headers.indexOf('IGST')]) || 0; cgst += Number(row[headers.indexOf('CGST')]) || 0;
+                    sgst += Number(row[headers.indexOf('SGST')]) || 0;
+                }
+            });
+            return { count, taxable, igst, cgst, sgst };
+        }
+
+        function calculateTotalsByInv(data, gstn, invNum, is3b) {
+            const headers = is3b ? gstr3bHeaders() : gstr2bHeaders();
+            let count = 0, taxable = 0, igst = 0, cgst = 0, sgst = 0;
+            data.forEach(row => {
+                if (String(row[headers.indexOf('GSTN')]).toLowerCase() === gstn && 
+                    String(row[headers.indexOf('Invoice Number')]).toLowerCase() === invNum) {
+                    count++; taxable += Number(row[headers.indexOf('Taxable Value')]) || 0;
+                    igst += Number(row[headers.indexOf('IGST')]) || 0; cgst += Number(row[headers.indexOf('CGST')]) || 0;
+                    sgst += Number(row[headers.indexOf('SGST')]) || 0;
+                }
+            });
+            return { count, taxable, igst, cgst, sgst };
+        }
+
+        function calculateTotalsByGstnDate(data, invDate, gstn, is3b) {
+            const headers = is3b ? gstr3bHeaders() : gstr2bHeaders();
+            let count = 0, taxable = 0, igst = 0, cgst = 0, sgst = 0;
+            data.forEach(row => {
+                if (String(row[headers.indexOf('Invoice Date')]).toLowerCase() === invDate && 
+                    String(row[headers.indexOf('GSTN')]).toLowerCase() === gstn) {
+                    count++; taxable += Number(row[headers.indexOf('Taxable Value')]) || 0;
+                    igst += Number(row[headers.indexOf('IGST')]) || 0; cgst += Number(row[headers.indexOf('CGST')]) || 0;
+                    sgst += Number(row[headers.indexOf('SGST')]) || 0;
+                }
+            });
+            return { count, taxable, igst, cgst, sgst };
+        }
+
+        function calculateTotalsByGstn(data, gstn, is3b) {
+            const headers = is3b ? gstr3bHeaders() : gstr2bHeaders();
+            let count = 0, taxable = 0, igst = 0, cgst = 0, sgst = 0;
+            data.forEach(row => {
+                if (String(row[headers.indexOf('GSTN')]).toLowerCase() === gstn) {
+                    count++; taxable += Number(row[headers.indexOf('Taxable Value')]) || 0;
+                    igst += Number(row[headers.indexOf('IGST')]) || 0; cgst += Number(row[headers.indexOf('CGST')]) || 0;
+                    sgst += Number(row[headers.indexOf('SGST')]) || 0;
+                }
+            });
+            return { count, taxable, igst, cgst, sgst };
+        }
+
+        function checkTotals(source, compare, diffAllowed) {
+            return Math.abs(source.taxable - compare.taxable) <= diffAllowed && 
+                   Math.abs(source.igst - compare.igst) <= diffAllowed && 
+                   Math.abs(source.cgst - compare.cgst) <= diffAllowed && 
+                   Math.abs(source.sgst - compare.sgst) <= diffAllowed;
+        }
+
+        function colorRow(rowElement, match) {
+            rowElement.className = '';
+            if (detailedReconciliationCheckbox.checked) {
+                switch (match) {
+                    case 'Match - GSTN, Invoice No., Date': case 'Match - GSTN, Invoice No.': 
+                    case 'Match - GSTN, Date': case 'Match - GSTN': rowElement.classList.add('match'); break;
+                    case 'Unmatch - GSTN Not Exist': rowElement.classList.add('gstn-not-match'); break;
+                    default: rowElement.classList.add('no-match'); break;
+                }
+            } else {
+                switch (match) {
+                    case 'Match': rowElement.classList.add('match'); break;
+                    case 'Unmatch - GSTN Not Exist': rowElement.classList.add('gstn-not-match'); break;
+                    default: rowElement.classList.add('no-match'); break;
+                }
+            }
+        }
+
+        function calculateSummary(data, is3b) {
+            const headers = is3b ? gstr3bHeaders() : gstr2bHeaders();
+            const criteria = detailedReconciliationCheckbox.checked ? 
+                ['Match - GSTN, Invoice No., Date', 'Match - GSTN, Invoice No.', 'Match - GSTN, Date', 'Match - GSTN', 'Unmatch - GSTN Not Exist', 'Unmatch - Amt Diff'] :
+                ['Match', 'Unmatch - GSTN Not Exist', 'Unmatch - Amt Diff'];
+            const summary = {};
+            criteria.forEach(c => summary[c] = { taxable: 0, igst: 0, cgst: 0, sgst: 0 });
+            data.forEach(row => {
+                let match = row[0];
+                if (!detailedReconciliationCheckbox.checked && match.startsWith('Match')) match = 'Match';
+                summary[match].taxable += Number(row[headers.indexOf('Taxable Value')]) || 0;
+                summary[match].igst += Number(row[headers.indexOf('IGST')]) || 0;
+                summary[match].cgst += Number(row[headers.indexOf('CGST')]) || 0;
+                summary[match].sgst += Number(row[headers.indexOf('SGST')]) || 0;
+            });
+            const total = { taxable: 0, igst: 0, cgst: 0, sgst: 0 };
+            criteria.forEach(c => {
+                total.taxable += summary[c].taxable; total.igst += summary[c].igst;
+                total.cgst += summary[c].cgst; total.sgst += summary[c].sgst;
+            });
+            return { summary, total };
+        }
+
+        function displaySummary(reconciled2bData, reconciled3bData) {
+            const gstr2bSummary = calculateSummary(reconciled2bData, false);
+            const gstr3bSummary = calculateSummary(reconciled3bData, true);
+            const container = document.getElementById('summary-container');
+            let html = '<table><thead><tr><th rowspan="2">Particulars</th><th colspan="4">GST Portal</th><th colspan="4">Client Data</th></tr><tr>' +
+                ['Taxable Value', 'IGST', 'CGST', 'SGST', 'Taxable Value', 'IGST', 'CGST', 'SGST'].map(h => `<th>${h}</th>`).join('') +
+                '</tr></thead><tbody>';
+            const criteria = detailedReconciliationCheckbox.checked ? 
+                ['Match - GSTN, Invoice No., Date', 'Match - GSTN, Invoice No.', 'Match - GSTN, Date', 'Match - GSTN', 'Unmatch - GSTN Not Exist', 'Unmatch - Amt Diff'] :
+                ['Match', 'Unmatch - GSTN Not Exist', 'Unmatch - Amt Diff'];
+            criteria.forEach(c => {
+                html += `<tr><td>${c}</td>` +
+                    `<td>${gstr2bSummary.summary[c].taxable.toFixed(2)}</td><td>${gstr2bSummary.summary[c].igst.toFixed(2)}</td>` +
+                    `<td>${gstr2bSummary.summary[c].cgst.toFixed(2)}</td><td>${gstr2bSummary.summary[c].sgst.toFixed(2)}</td>` +
+                    `<td>${gstr3bSummary.summary[c].taxable.toFixed(2)}</td><td>${gstr3bSummary.summary[c].igst.toFixed(2)}</td>` +
+                    `<td>${gstr3bSummary.summary[c].cgst.toFixed(2)}</td><td>${gstr3bSummary.summary[c].sgst.toFixed(2)}</td></tr>`;
+            });
+            html += `<tr><td><strong>Total</strong></td>` +
+                `<td><strong>${gstr2bSummary.total.taxable.toFixed(2)}</strong></td><td><strong>${gstr2bSummary.total.igst.toFixed(2)}</strong></td>` +
+                `<td><strong>${gstr2bSummary.total.cgst.toFixed(2)}</strong></td><td><strong>${gstr2bSummary.total.sgst.toFixed(2)}</strong></td>` +
+                `<td><strong>${gstr3bSummary.total.taxable.toFixed(2)}</strong></td><td><strong>${gstr3bSummary.total.igst.toFixed(2)}</strong></td>` +
+                `<td><strong>${gstr3bSummary.total.cgst.toFixed(2)}</strong></td><td><strong>${gstr3bSummary.total.sgst.toFixed(2)}</strong></td></tr>`;
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        async function generateOutput(reconciled2bData, reconciled3bData) {
+            const workbook = new ExcelJS.Workbook();
+            const ws1 = workbook.addWorksheet('GST Portal');
+            ws1.addRow(gstr2bHeaders()).eachCell(cell => cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0FFFF' } });
+            reconciled2bData.forEach(row => ws1.addRow(row).eachCell((cell, i) => applyExcelRowColor(cell, row[0], i)));
+            const ws2 = workbook.addWorksheet('Client Data');
+            ws2.addRow(gstr3bHeaders()).eachCell(cell => cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0FFFF' } });
+            reconciled3bData.forEach(row => ws2.addRow(row).eachCell((cell, i) => applyExcelRowColor(cell, row[0], i)));
+            const ws3 = workbook.addWorksheet('Summary');
+            ws3.addRow(['Particulars', 'GST Portal', '', '', '', 'Client Data', '', '', '']);
+            ws3.addRow(['', 'Taxable Value', 'IGST', 'CGST', 'SGST', 'Taxable Value', 'IGST', 'CGST', 'SGST']);
+            ws3.mergeCells('A1:A2'); ws3.mergeCells('B1:E1'); ws3.mergeCells('F1:I1');
+            const gstr2bSummary = calculateSummary(reconciled2bData, false);
+            const gstr3bSummary = calculateSummary(reconciled3bData, true);
+            const criteria = detailedReconciliationCheckbox.checked ? 
+                ['Match - GSTN, Invoice No., Date', 'Match - GSTN, Invoice No.', 'Match - GSTN, Date', 'Match - GSTN', 'Unmatch - GSTN Not Exist', 'Unmatch - Amt Diff'] :
+                ['Match', 'Unmatch - GSTN Not Exist', 'Unmatch - Amt Diff'];
+            criteria.forEach(c => ws3.addRow([c, 
+                gstr2bSummary.summary[c].taxable, gstr2bSummary.summary[c].igst, gstr2bSummary.summary[c].cgst, gstr2bSummary.summary[c].sgst,
+                gstr3bSummary.summary[c].taxable, gstr3bSummary.summary[c].igst, gstr3bSummary.summary[c].cgst, gstr3bSummary.summary[c].sgst]));
+            ws3.addRow(['Total', gstr2bSummary.total.taxable, gstr2bSummary.total.igst, gstr2bSummary.total.cgst, gstr2bSummary.total.sgst,
+                gstr3bSummary.total.taxable, gstr3bSummary.total.igst, gstr3bSummary.total.cgst, gstr3bSummary.total.sgst])
+                .eachCell(cell => cell.font = { bold: true });
+            const buffer = await workbook.xlsx.writeBuffer();
+            const blob = new Blob([buffer], { type: 'application/octet-stream' });
+            const url = URL.createObjectURL(blob);
+            document.getElementById('download-output').href = url;
+            document.getElementById('download-output').download = 'Reconciled_GST_Data.xlsx';
+            document.getElementById('output-link').style.display = 'block';
+        }
+
+        function applyExcelRowColor(cell, match, index) {
+            const colors = detailedReconciliationCheckbox.checked ? {
+                'Match - GSTN, Invoice No., Date': 'FF00CED1', 'Match - GSTN, Invoice No.': 'FF00CED1',
+                'Match - GSTN, Date': 'FF00CED1', 'Match - GSTN': 'FF00CED1',
+                'Unmatch - GSTN Not Exist': 'FFDC143C', 'Unmatch - Amt Diff': 'FFFF00FF'
+            } : {
+                'Match': 'FF00CED1', 'Unmatch - GSTN Not Exist': 'FFDC143C', 'Unmatch - Amt Diff': 'FFFF00FF'
+            };
+            if (index > 0) {
+                cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: colors[match] || 'FFFF00FF' } };
+                cell.font = { color: { argb: 'FFFFFFFF' } };
+            }
+        }
+    </script>
+</body>
+</html>
