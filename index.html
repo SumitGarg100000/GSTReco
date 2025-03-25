@@ -1,4 +1,14 @@
 
+Chalo, main tumhare code ko update karke pura code de deta hoon jisme `localStorage` ka use hoga taaki data user ke browser mein save rahe, page refresh par bhi data waisa hi rahe, aur logout par data clear ho jaye. Ek "Reset" button bhi add karunga jo UI mein acha lagega aur functionality ke hisaab se sahi jagah par hoga.
+
+### Changes Overview
+1. **localStorage Integration**: Data upload aur edit hone par `localStorage` mein save hoga.
+2. **Page Load par Data Restore**: Page refresh hone par `localStorage` se data load hoga.
+3. **Reset Button**: Tool section mein "Reconcile" button ke saath "Reset" button add hoga.
+4. **Logout par Clear**: Logout karte waqt `localStorage` aur data arrays clear honge.
+
+### Updated Full Code
+```html
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -242,8 +252,8 @@
         font-weight: bold;
       }
       button {
-        display: block;
-        margin: 30px auto;
+        display: inline-block;
+        margin: 10px;
         padding: 12px 30px;
         background: linear-gradient(45deg, #26a69a, #00796b);
         color: white;
@@ -256,6 +266,12 @@
       button:hover {
         transform: translateY(-2px);
         box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+      }
+      #reset-btn {
+        background: linear-gradient(45deg, #ff4444, #cc0000);
+      }
+      #reset-btn:hover {
+        background: linear-gradient(45deg, #cc0000, #ff4444);
       }
       a#download-sample, a#download-output {
         display: block;
@@ -321,6 +337,10 @@
         text-align: center;
         margin-top: 10px;
       }
+      .button-container {
+        text-align: center;
+        margin: 30px 0;
+      }
       @media (max-width: 768px) {
         .upload-section, .input-section { flex-direction: column; }
         .container { padding: 20px; }
@@ -384,7 +404,10 @@
           <h2>Summary</h2>
           <div id="summary-container" class="table-container"></div>
         </div>
-        <button id="reconcile-btn">Reconcile</button>
+        <div class="button-container">
+          <button id="reconcile-btn">Reconcile</button>
+          <button id="reset-btn">Reset Data</button>
+        </div>
         <div id="output-link" style="display: none;">
           <h3>Reconciled Output:</h3>
           <a id="download-output" href="#">Download Reconciled Data</a>
@@ -401,13 +424,8 @@
         "user2": { password: "pass456", expiry: "2025-05-15" }
       };
 
-    </script>
-     <script>
-
-     // if (window.location.href === "https://sumitgarg100000.github.io/GSTReconciliation/") {
-       
-      let gstr2bData = [];
-      let gstr3bData = [];
+      let gstr2bData = localStorage.getItem('gstr2bData') ? JSON.parse(localStorage.getItem('gstr2bData')) : [];
+      let gstr3bData = localStorage.getItem('gstr3bData') ? JSON.parse(localStorage.getItem('gstr3bData')) : [];
       const detailedReconciliationCheckbox = document.getElementById('detailed-reconciliation');
 
       // Page Load Check
@@ -448,6 +466,10 @@
       // Logout Function
       function logout() {
         localStorage.removeItem("loggedInUser");
+        localStorage.removeItem("gstr2bData");
+        localStorage.removeItem("gstr3bData");
+        gstr2bData = [];
+        gstr3bData = [];
         showLogin();
       }
 
@@ -467,6 +489,31 @@
         document.getElementById('reconcile-btn').addEventListener('click', reconcileData);
         document.getElementById('download-sample').addEventListener('click', generateSampleFile);
         document.getElementById('diff-allowed').addEventListener('input', reconcileData);
+        document.getElementById('reset-btn').addEventListener('click', resetData);
+
+        // Restore data from localStorage if exists
+        if (gstr2bData.length > 0) {
+          displayData(gstr2bData, 'gstr2b-container', gstr2bHeaders(), 'gstr2b');
+        }
+        if (gstr3bData.length > 0) {
+          displayData(gstr3bData, 'gstr3b-container', gstr3bHeaders(), 'gstr3b');
+        }
+        if (gstr2bData.length > 0 || gstr3bData.length > 0) {
+          reconcileData();
+        }
+      }
+
+      // Reset Data Function
+      function resetData() {
+        gstr2bData = [];
+        gstr3bData = [];
+        localStorage.removeItem('gstr2bData');
+        localStorage.removeItem('gstr3bData');
+        document.getElementById('gstr2b-container').innerHTML = '';
+        document.getElementById('gstr3b-container').innerHTML = '';
+        document.getElementById('summary-container').innerHTML = '';
+        document.getElementById('output-link').style.display = 'none';
+        document.getElementById('gst-file').value = ''; // Clear file input
       }
 
       function formatDate(excelDate) {
@@ -545,12 +592,14 @@
           if (gstr2bSheet) {
             const rawData = XLSX.utils.sheet_to_json(gstr2bSheet, { header: 1, raw: true, defval: '' });
             gstr2bData = rawData.slice(1).map(row => normalizeRow(row, gstr2bHeaders().length));
+            localStorage.setItem('gstr2bData', JSON.stringify(gstr2bData));
             displayData(gstr2bData, 'gstr2b-container', gstr2bHeaders(), 'gstr2b');
           }
           const gstr3bSheet = workbook.Sheets['Client Data'];
           if (gstr3bSheet) {
             const rawData = XLSX.utils.sheet_to_json(gstr3bSheet, { header: 1, raw: true, defval: '' });
             gstr3bData = rawData.slice(1).map(row => normalizeRow(row, gstr3bHeaders().length));
+            localStorage.setItem('gstr3bData', JSON.stringify(gstr3bData));
             displayData(gstr3bData, 'gstr3b-container', gstr3bHeaders(), 'gstr3b');
           }
           reconcileData();
@@ -588,8 +637,10 @@
           const newValue = target.textContent.trim();
           if (sheetType === 'gstr2b') {
             gstr2bData[rowIndex][colIndex] = newValue;
+            localStorage.setItem('gstr2bData', JSON.stringify(gstr2bData));
           } else if (sheetType === 'gstr3b') {
             gstr3bData[rowIndex][colIndex] = newValue;
+            localStorage.setItem('gstr3bData', JSON.stringify(gstr3bData));
           }
           reconcileData();
         }
@@ -606,13 +657,13 @@
           const match = findMatch(row, gstr2bData, gstr3bData, false, diffAllowed);
           const newRow = [match, ...row.slice(1)];
           reconciled2bData.push(newRow);
-          updateRow(gstr2bTable.rows[index], newRow);
+          if (gstr2bTable && gstr2bTable.rows[index]) updateRow(gstr2bTable.rows[index], newRow);
         });
         gstr3bData.forEach((row, index) => {
           const match = findMatch(row, gstr3bData, gstr2bData, true, diffAllowed);
           const newRow = [match, ...row.slice(1)];
           reconciled3bData.push(newRow);
-          updateRow(gstr3bTable.rows[index], newRow);
+          if (gstr3bTable && gstr3bTable.rows[index]) updateRow(gstr3bTable.rows[index], newRow);
         });
         displaySummary(reconciled2bData, reconciled3bData);
         generateOutput(reconciled2bData, reconciled3bData);
@@ -955,6 +1006,7 @@
             gstr3bSummary.summary[criterion].sgst
           ]);
         });
+       
         const totalRow = ws3.addRow([
           'Total',
           gstr2bSummary.total.taxable,
