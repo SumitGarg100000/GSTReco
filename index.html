@@ -407,13 +407,18 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+    
     <script>
       // User Database (tum isko server par replace kar sakte ho)
       const users = {
+        "Sumitgarg" : { password: "Garg@123", expiry: "2026-04-30"},
         "user1": { password: "pass123", expiry: "2025-04-30" },
         "user2": { password: "pass456", expiry: "2025-05-15" }
       };
-
+    </script>
+    
+    <script>
+          // if (window.location.href === "https://sumitgarg100000.github.io/GSTReconciliation/") {
       let gstr2bData = localStorage.getItem('gstr2bData') ? JSON.parse(localStorage.getItem('gstr2bData')) : [];
       let gstr3bData = localStorage.getItem('gstr3bData') ? JSON.parse(localStorage.getItem('gstr3bData')) : [];
       const detailedReconciliationCheckbox = document.getElementById('detailed-reconciliation');
