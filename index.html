@@ -1822,7 +1822,7 @@
   // Page load hone par local storage se data uthao
   document.addEventListener("DOMContentLoaded", function() {
     loadDataFromStorage();
-    CalculateAllIncome(); // Pehli baar calculation chala do
+    CalculateAllIncome();
   });
 
   // Data ko local storage se load karne ka function
@@ -1856,12 +1856,12 @@
     inputs.forEach(input => {
       data[input.id] = input.value;
     });
-    const jsonData = JSON.stringify(data, null, 2); // Pretty print with indentation
+    const jsonData = JSON.stringify(data, null, 2);
     const blob = new Blob([jsonData], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'taxCalculatorData.json'; // Default file name
+    a.download = 'taxCalculatorData.json';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -1871,9 +1871,13 @@
   // Import from JSON file
   function importFromJSON(event) {
     const file = event.target.files[0];
-    if (file && file.type === "application/json") {
+    console.log("Selected file:", file);
+    console.log("File type:", file.type);
+    console.log("File name:", file.name);
+    if (file && (file.type === "application/json" || file.name.endsWith('.json'))) {
       const reader = new FileReader();
       reader.onload = function(e) {
+        console.log("File content:", e.target.result);
         try {
           const data = JSON.parse(e.target.result);
           Object.keys(data).forEach(id => {
@@ -1882,17 +1886,17 @@
               element.value = data[id];
             }
           });
-          saveDataToStorage(); // Imported data ko local storage mein bhi save karo
-          CalculateAllIncome(); // Calculation update karo
+          saveDataToStorage();
+          CalculateAllIncome();
         } catch (error) {
           alert("Invalid JSON file! Please upload a valid file.");
+          console.error("Parse error:", error);
         }
       };
       reader.readAsText(file);
     } else {
-      alert("Please select a valid JSON file!");
+      alert("Please select a valid JSON file! File type: " + file?.type);
     }
-    // File input ko reset karo taki same file dobara upload ho sake
     document.getElementById('importFile').value = '';
   }
 
@@ -1908,7 +1912,6 @@
     });
   });
 </script>
-    
 
     
     <!-- WhatsApp button -->
