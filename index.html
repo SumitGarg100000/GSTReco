@@ -1867,37 +1867,58 @@
 
   function importFromJSON(event) {
     const file = event.target.files[0];
-    console.log("Selected file:", file);
-    console.log("File name:", file.name);
-    console.log("File type:", file.type);
-    if (file && file.name.endsWith('.json')) {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const content = e.target.result.trim(); // Extra spaces hatao
-        console.log("File content:", content);
-        try {
-          const data = JSON.parse(content);
-          console.log("Parsed data:", data);
-          Object.keys(data).forEach(id => {
-            const element = document.getElementById(id);
-            if (element) {
-              element.value = data[id];
-            }
-          });
-          saveDataToStorage();
-          CalculateAllIncome();
-        } catch (error) {
-          alert("Invalid JSON file! Check console for details.");
-          console.error("Parse error:", error);
-          console.log("Raw content that failed:", content);
-        }
-      };
-      reader.readAsText(file);
-    } else {
-      alert("Please select a file ending with .json! File: " + file?.name);
+    if (!file) {
+        alert("No file selected! Please select a JSON file.");
+        return;
     }
-    document.getElementById('importFile').value = '';
-  }
+    
+    // Check if file has .json extension
+    if (!file.name.endsWith('.json')) {
+        alert("Please select a valid JSON file (ending with .json)!");
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const content = e.target.result.trim(); // Extra spaces/newlines remove karo
+        if (!content) {
+            alert("The selected JSON file is empty!");
+            return;
+        }
+
+        try {
+            const data = JSON.parse(content);
+            if (typeof data !== 'object' || data === null) {
+                alert("Invalid JSON format! Data must be an object.");
+                return;
+            }
+
+            // Check if data has any valid keys
+            if (Object.keys(data).length === 0) {
+                alert("JSON file is valid but contains no data!");
+                return;
+            }
+
+            Object.keys(data).forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.value = data[id] === null || data[id] === undefined ? '' : data[id];
+                }
+            });
+            saveDataToStorage();
+            CalculateAllIncome();
+        } catch (error) {
+            alert("Error parsing JSON file: " + error.message);
+            console.error("Parse error:", error);
+            console.log("Raw content that failed:", content);
+        }
+    };
+    reader.onerror = function() {
+        alert("Error reading the file!");
+    };
+    reader.readAsText(file);
+    document.getElementById('importFile').value = ''; // Reset file input
+}
 
   document.querySelectorAll('input, select').forEach(element => {
     element.addEventListener('input', function() {
