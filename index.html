@@ -383,12 +383,21 @@
 
       function resetValues() {
   localStorage.removeItem('taxCalculatorData'); // Clear local storage
+  
+  // Saare inputs aur selects ko reset karna
   document.querySelectorAll('input, select').forEach(input => {
-    input.value = ''; // Clear all inputs
-    input.dispatchEvent(new Event('input')); // Ye event trigger karega
+    if (input.tagName === 'SELECT') {
+      // Dropdown ke liye default value set karna
+      input.value = input.options[0].value; // Pehla option by default set hoga
+    } else {
+      // Input fields ke liye blank karna
+      input.value = '';
+    }
+    input.dispatchEvent(new Event('input')); // Event trigger karna
   });
+
   CalculateAllIncome(); // Recalculate after reset
-      }
+}
     </script>
   </head>
   <body>
