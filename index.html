@@ -382,8 +382,11 @@
 
       function resetValues() {
   localStorage.removeItem('taxCalculatorData'); // Clear local storage
-  document.querySelectorAll('input, select').forEach(input => {
-    input.value = ''; // Clear all inputs
+//  document.querySelectorAll('input, select').forEach(input => {
+   
+      let tableInputs = document.querySelectorAll('#incomeTable input[type="number"]');
+      tableInputs.forEach(input => {
+      input.value = ''; // Clear all inputs
   });
   CalculateAllIncome(); // Recalculate after reset
       }
