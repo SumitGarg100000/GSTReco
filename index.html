@@ -366,30 +366,7 @@
       }
     </style>
     <!-- Rest of the HTML remains the same -->
-    <script>
-      function printPDF() {
-        window.print(); // Prompt user with print dialog
-      }
-
-    //  function resetValues() {
-        // Get all input elements within the table
-    //    let tableInputs = document.querySelectorAll('#incomeTable input[type="number"]');
-        // Loop through each input element and reset its value to empty string
-   //     tableInputs.forEach(input => {
-    //      input.value = "";
-          
-    //    });
-  //    }
-
-      function resetValues() {
-  localStorage.removeItem('taxCalculatorData'); // Clear local storage
-  document.querySelectorAll('input, select').forEach(input => {
-    input.value = ''; // Clear all inputs
-    input.dispatchEvent(new Event('input')); // Ye event trigger karega
-  });
-  CalculateAllIncome(); // Recalculate after reset
-      }
-    </script>
+    
   </head>
   <body>
     <!-- Heading -->
@@ -1113,73 +1090,106 @@
 
       // import json coding suru
       function saveToLocalStorage() {
-        const inputs = document.querySelectorAll('input, select');
-        const data = {};
-        inputs.forEach(input => {
-          data[input.id] = input.value;
-        });
-        localStorage.setItem('taxCalculatorData', JSON.stringify(data));
-      }
+      function printPDF() {
+  window.print();
+}
 
-      function loadFromLocalStorage() {
-        const savedData = localStorage.getItem('taxCalculatorData');
-        if (savedData) {
-          const data = JSON.parse(savedData);
-          for (const [id, value] of Object.entries(data)) {
-            const element = document.getElementById(id);
-            if (element) {
-              element.value = value;
-            }
-          }
-          CalculateAllIncome(); // Recalculate after loading
-        }
-      }
+function debounce(func, wait) {
+  let timeout;
+  return function (...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), wait);
+  };
+}
 
-      function exportToJSON() {
-        const inputs = document.querySelectorAll('input, select');
-        const data = {};
-        inputs.forEach(input => {
-          data[input.id] = input.value;
-        });
-        const json = JSON.stringify(data, null, 2);
-        const blob = new Blob([json], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'tax_calculator_data.json';
-        a.click();
-        URL.revokeObjectURL(url);
-      }
+function saveToLocalStorage() {
+  const inputs = document.querySelectorAll('input, select');
+  const data = {};
+  inputs.forEach(input => {
+    data[input.id] = input.value;
+  });
+  localStorage.setItem('taxCalculatorData', JSON.stringify(data));
+}
 
-      function importFromJSON(event) {
+function loadFromLocalStorage() {
+  const savedData = localStorage.getItem('taxCalculatorData');
+  if (savedData) {
+    const data = JSON.parse(savedData);
+    for (const [id, value] of Object.entries(data)) {
+      const element = document.getElementById(id);
+      if (element) {
+        element.value = value;
+      }
+    }
+  }
+}
+
+function exportToJSON() {
+  const inputs = document.querySelectorAll('input, select');
+  const data = {};
+  inputs.forEach(input => {
+    data[input.id] = input.value;
+  });
+  const json = JSON.stringify(data, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'tax_calculator_data.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importFromJSON(event) {
   const file = event.target.files[0];
   if (file) {
     const reader = new FileReader();
-    reader.onload = function(e) {
+    reader.onload = function (e) {
       const data = JSON.parse(e.target.result);
       for (const [id, value] of Object.entries(data)) {
         const element = document.getElementById(id);
         if (element) {
           element.value = value;
-          // Trigger input event to simulate user input
           element.dispatchEvent(new Event('input'));
         }
       }
-      // Optional: Explicitly call CalculateAllIncome after all updates
       setTimeout(() => {
         CalculateAllIncome();
-        saveToLocalStorage(); // Save to local storage after import
-      }, 0); // Zero delay to ensure DOM updates are complete
+        saveToLocalStorage();
+      }, 100);
     };
     reader.readAsText(file);
   }
 }
 
-// import json coding end
-      document.addEventListener("DOMContentLoaded", function() {
-        //Page Load hone par CalculateAllIncome function run kar rha h jis se value blank ki jgh zero show ho rhi h resulted fields m
-        loadFromLocalStorage();
-        CalculateAllIncome();
+function resetValues() {
+  localStorage.removeItem('taxCalculatorData');
+  document.querySelectorAll('input').forEach(input => {
+    input.value = '';
+    input.dispatchEvent(new Event('input'));
+  });
+  const select = document.querySelector('select[name="combo_list"]');
+  select.value = 'Govt_utility';
+  select.dispatchEvent(new Event('change'));
+  CalculateAllIncome();
+  saveToLocalStorage();
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  loadFromLocalStorage();
+  CalculateAllIncome();
+  saveToLocalStorage();
+
+  const debouncedCalculateAndSave = debounce(() => {
+    CalculateAllIncome();
+    saveToLocalStorage();
+  }, 300);
+
+  document.querySelectorAll("input, select").forEach(element => {
+    element.addEventListener("input", debouncedCalculateAndSave);
+    element.addEventListener("change", debouncedCalculateAndSave);
+  });
+
 
         // calculate all income function run
         function CalculateAllIncome() {
