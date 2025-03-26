@@ -399,9 +399,12 @@
       <h2>Disclaimer - This calculator is made after incorporating all the relevant provisions of Income Tax act applicable for FY 2024-25(AY 2025-26)</h2>
       <!-- Button container -->
       <div class="container">
-        <button class="button" onclick="resetValues()">Reset</button>
-        <button class="button" onclick="printPDF()">Print as PDF</button>
-      </div>
+  <button class="button" onclick="resetValues()">Reset</button>
+  <button class="button" onclick="printPDF()">Print as PDF</button>
+  <button class="button" onclick="exportToJSON()">Export to JSON</button>
+  <input type="file" id="importFile" style="display: none;" accept=".json" onchange="importFromJSON(event)">
+  <button class="button" onclick="document.getElementById('importFile').click()">Import from JSON</button>
+</div>
     </header>
     <table class="incomeTable" style="overflow:scroll;">
       <!-- Table headers -->
@@ -1827,7 +1830,6 @@
     const savedData = localStorage.getItem('taxCalculatorData');
     if (savedData) {
       const data = JSON.parse(savedData);
-      // Saare inputs mein saved values daal do
       Object.keys(data).forEach(id => {
         const element = document.getElementById(id);
         if (element) {
@@ -1847,6 +1849,53 @@
     localStorage.setItem('taxCalculatorData', JSON.stringify(data));
   }
 
+  // Export to JSON file
+  function exportToJSON() {
+    const inputs = document.querySelectorAll('input[type="number"], input[type="text"]');
+    const data = {};
+    inputs.forEach(input => {
+      data[input.id] = input.value;
+    });
+    const jsonData = JSON.stringify(data, null, 2); // Pretty print with indentation
+    const blob = new Blob([jsonData], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'taxCalculatorData.json'; // Default file name
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  // Import from JSON file
+  function importFromJSON(event) {
+    const file = event.target.files[0];
+    if (file && file.type === "application/json") {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          Object.keys(data).forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+              element.value = data[id];
+            }
+          });
+          saveDataToStorage(); // Imported data ko local storage mein bhi save karo
+          CalculateAllIncome(); // Calculation update karo
+        } catch (error) {
+          alert("Invalid JSON file! Please upload a valid file.");
+        }
+      };
+      reader.readAsText(file);
+    } else {
+      alert("Please select a valid JSON file!");
+    }
+    // File input ko reset karo taki same file dobara upload ho sake
+    document.getElementById('importFile').value = '';
+  }
+
   // Har input change par data save karo
   document.querySelectorAll('input, select').forEach(element => {
     element.addEventListener('input', function() {
@@ -1859,7 +1908,6 @@
     });
   });
 </script>
-
     
 
     
