@@ -1108,6 +1108,67 @@
       // Check if the heading text content is equal to "abc"
       //if(heading.textContent.trim() === "(Disclaimer- This Calculator is made after incorporating all the relevant provisions of income tax act applicable for FY 2024-25(AY 2025-26). If any query, Contact - Sumit Garg, Ph. No. - 9716804520, Email - SumitGarg100000@Gmail.com)")
       // {
+
+      // import json coding suru
+      function saveToLocalStorage() {
+        const inputs = document.querySelectorAll('input, select');
+        const data = {};
+        inputs.forEach(input => {
+          data[input.id] = input.value;
+        });
+        localStorage.setItem('taxCalculatorData', JSON.stringify(data));
+      }
+
+      function loadFromLocalStorage() {
+        const savedData = localStorage.getItem('taxCalculatorData');
+        if (savedData) {
+          const data = JSON.parse(savedData);
+          for (const [id, value] of Object.entries(data)) {
+            const element = document.getElementById(id);
+            if (element) {
+              element.value = value;
+            }
+          }
+          CalculateAllIncome(); // Recalculate after loading
+        }
+      }
+
+      function exportToJSON() {
+        const inputs = document.querySelectorAll('input, select');
+        const data = {};
+        inputs.forEach(input => {
+          data[input.id] = input.value;
+        });
+        const json = JSON.stringify(data, null, 2);
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'tax_calculator_data.json';
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+
+      function importFromJSON(event) {
+        const file = event.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            const data = JSON.parse(e.target.result);
+            for (const [id, value] of Object.entries(data)) {
+              const element = document.getElementById(id);
+              if (element) {
+                element.value = value;
+              }
+            }
+            CalculateAllIncome(); // Recalculate after importing
+            saveToLocalStorage(); // Save to local storage after import
+          };
+          reader.readAsText(file);
+        }
+      }
+
+// import json coding end
       document.addEventListener("DOMContentLoaded", function() {
         function CalculateAllIncome() {
           // Income from Salary   
@@ -1801,12 +1862,18 @@
           document.getElementById('newregimecess').textContent = newcess.toFixed(2);
           document.getElementById('newregimegrosstaxpayable').textContent = newgrosstaxpayable.toFixed(2);
         }
-        document.querySelectorAll("input, select, textarea, radio, checkbox").forEach(element => {
-          element.addEventListener("input", CalculateAllIncome);
-          element.addEventListener("change", CalculateAllIncome);
-        });
-        CalculateAllIncome();
-      });
+  document.querySelectorAll("input, select, textarea, radio, checkbox").forEach(element => {
+    element.addEventListener("input", function() {
+      CalculateAllIncome();
+      saveToLocalStorage(); // Save on every input
+    });
+    element.addEventListener("change", function() {
+      CalculateAllIncome();
+      saveToLocalStorage(); // Save on every change
+    });
+  });
+  loadFromLocalStorage(); // Load data when page loads
+});
       //}else{
       //  alert("Don't waste your time for copying. This file is fully secured by Sumit Garg. If any query, Contact - Sumit Garg, Ph. No. - 9716804520, Email - SumitGarg100000@Gmail.com ");
       //    } 
