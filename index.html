@@ -1113,13 +1113,32 @@
 
       // import json coding suru
       function saveToLocalStorage() {
-        const inputs = document.querySelectorAll('input, select');
-        const data = {};
-        inputs.forEach(input => {
-          data[input.id] = input.value;
-        });
-        localStorage.setItem('taxCalculatorData', JSON.stringify(data));
-      }
+  const inputs = document.querySelectorAll('input, select');
+  const data = {};
+
+  // Data ko object mein store karna
+  inputs.forEach(input => {
+    data[input.id] = input.value;
+  });
+  
+  // LocalStorage mein save karna
+  localStorage.setItem('taxCalculatorData', JSON.stringify(data));
+
+  // Event listeners add karna har input aur select ke liye
+  inputs.forEach(input => {
+    // Input field ke liye (jab user type kare)
+    input.addEventListener('input', function() {
+      data[input.id] = input.value; // Update data object
+      localStorage.setItem('taxCalculatorData', JSON.stringify(data)); // Save to localStorage
+    });
+
+    // Select (dropdown) ke liye (jab user option change kare)
+    input.addEventListener('change', function() {
+      data[input.id] = input.value; // Update data object
+      localStorage.setItem('taxCalculatorData', JSON.stringify(data)); // Save to localStorage
+    });
+  });
+}
 
       function loadFromLocalStorage() {
         const savedData = localStorage.getItem('taxCalculatorData');
