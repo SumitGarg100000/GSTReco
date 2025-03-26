@@ -377,17 +377,15 @@
         // Loop through each input element and reset its value to empty string
    //     tableInputs.forEach(input => {
     //      input.value = "";
+          
     //    });
   //    }
 
       function resetValues() {
   localStorage.removeItem('taxCalculatorData'); // Clear local storage
   document.querySelectorAll('input, select').forEach(input => {
-   
-    //  let tableInputs = document.querySelectorAll('#incomeTable input[type="number"]');
-   //   tableInputs.forEach(input => {
-      input.value = ''; // Clear all inputs
-        location.reload();
+    input.value = ''; // Clear all inputs
+    input.dispatchEvent(new Event('input')); // Ye event trigger karega
   });
   CalculateAllIncome(); // Recalculate after reset
       }
