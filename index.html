@@ -1881,6 +1881,10 @@
       saveToLocalStorage(); // Save on every change
     });
   });
+        document.querySelectorAll('input, select').forEach(input => {
+    // Clear all inputs
+    input.dispatchEvent(new Event('input')); // Ye event trigger karega
+  });
        //Page Load hone par CalculateAllIncome function run kar rha h jis se value blank ki jgh zero show ho rhi h resulted fields m
         CalculateAllIncome();
         
