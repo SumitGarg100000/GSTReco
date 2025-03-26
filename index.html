@@ -1121,47 +1121,60 @@
       // {
 
       // import json coding suru
-      function saveToLocalStorage() {
+      // Data ko localStorage mein save karna
+function saveToLocalStorage() {
   const inputs = document.querySelectorAll('input, select');
   const data = {};
 
-  // Data ko object mein store karna
   inputs.forEach(input => {
     data[input.id] = input.value;
   });
   
-  // LocalStorage mein save karna
   localStorage.setItem('taxCalculatorData', JSON.stringify(data));
 
-  // Event listeners add karna har input aur select ke liye
+  // Event listeners for real-time updates
   inputs.forEach(input => {
-    // Input field ke liye (jab user type kare)
     input.addEventListener('input', function() {
-      data[input.id] = input.value; // Update data object
-      localStorage.setItem('taxCalculatorData', JSON.stringify(data)); // Save to localStorage
+      data[input.id] = input.value;
+      localStorage.setItem('taxCalculatorData', JSON.stringify(data));
     });
 
-    // Select (dropdown) ke liye (jab user option change kare)
     input.addEventListener('change', function() {
-      data[input.id] = input.value; // Update data object
-      localStorage.setItem('taxCalculatorData', JSON.stringify(data)); // Save to localStorage
+      data[input.id] = input.value;
+      localStorage.setItem('taxCalculatorData', JSON.stringify(data));
     });
   });
 }
 
-      function loadFromLocalStorage() {
-        const savedData = localStorage.getItem('taxCalculatorData');
-        if (savedData) {
-          const data = JSON.parse(savedData);
-          for (const [id, value] of Object.entries(data)) {
-            const element = document.getElementById(id);
-            if (element) {
-              element.value = value;
-            }
-          }
-          CalculateAllIncome(); // Recalculate after loading
-        }
+// LocalStorage se data load karna aur inputs mein set karna
+function loadFromLocalStorage() {
+  const savedData = localStorage.getItem('taxCalculatorData');
+  if (savedData) {
+    const data = JSON.parse(savedData);
+    const inputs = document.querySelectorAll('input, select');
+    inputs.forEach(input => {
+      if (data[input.id]) {
+        input.value = data[input.id];
       }
+    });
+  }
+}
+
+// Page refresh ya close hone se pehle data save karna
+window.addEventListener('beforeunload', function() {
+  const inputs = document.querySelectorAll('input, select');
+  const data = {};
+  inputs.forEach(input => {
+    data[input.id] = input.value;
+  });
+  localStorage.setItem('taxCalculatorData', JSON.stringify(data));
+});
+
+// Page load hone pe saved data ko load karna
+document.addEventListener('DOMContentLoaded', function() {
+  loadFromLocalStorage(); // Pehle saved data load karo
+  saveToLocalStorage();   // Phir event listeners set karo
+});
 
       function exportToJSON() {
         const inputs = document.querySelectorAll('input, select');
