@@ -371,18 +371,21 @@
         window.print(); // Prompt user with print dialog
       }
 
-      function resetValues() {
+    //  function resetValues() {
         // Get all input elements within the table
-        let tableInputs = document.querySelectorAll('#incomeTable input[type="number"]');
+    //    let tableInputs = document.querySelectorAll('#incomeTable input[type="number"]');
         // Loop through each input element and reset its value to empty string
-        tableInputs.forEach(input => {
-          input.value = "";
-        });
-      }
+   //     tableInputs.forEach(input => {
+    //      input.value = "";
+    //    });
+  //    }
 
       function resetValues() {
-        // Reload the page
-        location.reload();
+  localStorage.removeItem('taxCalculatorData'); // Clear local storage
+  document.querySelectorAll('input, select').forEach(input => {
+    input.value = ''; // Clear all inputs
+  });
+  CalculateAllIncome(); // Recalculate after reset
       }
     </script>
   </head>
