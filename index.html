@@ -832,6 +832,104 @@
             document.getElementById('newregimeroundoff').textContent = newroundoff.toFixed(2);
 
 
+            // Tax Calculations
+            let oldspecialincome = Math.max(oldstcgsec111a, 0) + Math.max(oldltcgsec112, 0) + Math.max(oldltcgsec112a, 0) + 
+                                  Math.max(oldstcgsec111a_jul, 0) + Math.max(oldltcgsec112_jul, 0) + Math.max(oldltcgsec112a_jul, 0) + 
+                                  oldwinninglottery + oldvda;
+            let oldnormalincome = oldroundoff - oldspecialincome;
+            let oldtotalincome = oldnormalincome + oldspecialincome;
+
+            let newspecialincome = Math.max(newstcgsec111a, 0) + Math.max(newltcgsec112, 0) + Math.max(newltcgsec112a, 0) + 
+                                  Math.max(newstcgsec111a_jul, 0) + Math.max(newltcgsec112_jul, 0) + Math.max(newltcgsec112a_jul, 0) + 
+                                  newwinninglottery + newvda;
+            let newnormalincome = newroundoff - newspecialincome;
+            let newtotalincome = newnormalincome + newspecialincome;
+
+            // Old Regime Tax Calculation
+            let oldnormalincometax = 0;
+            let age = Number(document.getElementById('age').value) || 0;
+
+            if (age >= 80) { // Super Senior Citizen
+                if (oldnormalincome <= 500000) oldnormalincometax = 0;
+                else if (oldnormalincome <= 1000000) oldnormalincometax = (oldnormalincome - 500000) * 0.20;
+                else oldnormalincometax = 100000 + (oldnormalincome - 1000000) * 0.30;
+            } else if (age >= 60) { // Senior Citizen
+                if (oldnormalincome <= 300000) oldnormalincometax = 0;
+                else if (oldnormalincome <= 500000) oldnormalincometax = (oldnormalincome - 300000) * 0.05;
+                else if (oldnormalincome <= 1000000) oldnormalincometax = 10000 + (oldnormalincome - 500000) * 0.20;
+                else oldnormalincometax = 110000 + (oldnormalincome - 1000000) * 0.30;
+            } else { // Regular Individual
+                if (oldnormalincome <= 250000) oldnormalincometax = 0;
+                else if (oldnormalincome <= 500000) oldnormalincometax = (oldnormalincome - 250000) * 0.05;
+                else if (oldnormalincome <= 1000000) oldnormalincometax = 12500 + (oldnormalincome - 500000) * 0.20;
+                else oldnormalincometax = 112500 + (oldnormalincome - 1000000) * 0.30;
+            }
+
+            let oldspecialincometax = (Math.max(oldstcgsec111a, 0) * 0.15) + 
+                                    (Math.max(oldltcgsec112, 0) * 0.20) + 
+                                    (Math.max(oldltcgsec112a - 125000, 0) * 0.10) +
+                                    (Math.max(oldstcgsec111a_jul, 0) * 0.20) +
+                                    (Math.max(oldltcgsec112_jul, 0) * 0.125) +
+                                    (Math.max(oldltcgsec112a_jul - 125000, 0) * 0.125) +
+                                    (oldwinninglottery * 0.30) +
+                                    (oldvda * 0.30);
+
+            let oldtaxbeforerebate = oldnormalincometax + oldspecialincometax;
+            let oldrebate87a = (oldtotalincome <= 500000 && oldtaxbeforerebate <= 12500) ? oldtaxbeforerebate : 0;
+            let oldtaxbeforesurcharge = oldtaxbeforerebate - oldrebate87a;
+
+            // New Regime Tax Calculation
+            let newnormalincometax = 0;
+            if (newnormalincome <= 300000) newnormalincometax = 0;
+            else if (newnormalincome <= 600000) newnormalincometax = (newnormalincome - 300000) * 0.05;
+            else if (newnormalincome <= 900000) newnormalincometax = 15000 + (newnormalincome - 600000) * 0.10;
+            else if (newnormalincome <= 1200000) newnormalincometax = 45000 + (newnormalincome - 900000) * 0.15;
+            else if (newnormalincome <= 1500000) newnormalincometax = 90000 + (newnormalincome - 1200000) * 0.20;
+            else newnormalincometax = 150000 + (newnormalincome - 1500000) * 0.30;
+
+            let newspecialincometax = (Math.max(newstcgsec111a, 0) * 0.15) + 
+                                    (Math.max(newltcgsec112, 0) * 0.20) + 
+                                    (Math.max(newltcgsec112a - 125000, 0) * 0.10) +
+                                    (Math.max(newstcgsec111a_jul, 0) * 0.20) +
+                                    (Math.max(newltcgsec112_jul, 0) * 0.125) +
+                                    (Math.max(newltcgsec112a_jul - 125000, 0) * 0.125) +
+                                    (newwinninglottery * 0.30) +
+                                    (newvda * 0.30);
+
+            let newtaxbeforerebate = newnormalincometax + newspecialincometax;
+            let newrebate87a = (newtotalincome <= 700000 && newtaxbeforerebate <= 25000) ? newtaxbeforerebate : 0;
+            let newtaxbeforesurcharge = newtaxbeforerebate - newrebate87a;
+
+            // Surcharge Calculation
+            let oldsurcharge = 0;
+            if (oldtotalincome > 50000000) oldsurcharge = oldtaxbeforesurcharge * 0.25;
+            else if (oldtotalincome > 20000000) oldsurcharge = oldtaxbeforesurcharge * 0.15;
+            else if (oldtotalincome > 10000000) oldsurcharge = oldtaxbeforesurcharge * 0.10;
+            else if (oldtotalincome > 5000000) oldsurcharge = oldtaxbeforesurcharge * 0.05;
+
+            let newsurcharge = 0;
+            if (newtotalincome > 50000000) newsurcharge = newtaxbeforesurcharge * 0.25;
+            else if (newtotalincome > 20000000) newsurcharge = newtaxbeforesurcharge * 0.15;
+            else if (newtotalincome > 10000000) newsurcharge = newtaxbeforesurcharge * 0.10;
+            else if (newtotalincome > 5000000) newsurcharge = newtaxbeforesurcharge * 0.05;
+
+            // Marginal Relief Calculation
+            let oldmarginalrelief = 0;
+            let newmarginalrelief = 0;
+            let marginalReliefOption = document.getElementById('combo_list').value;
+
+            if (marginalReliefOption === 'Govt_utility') {
+                if (oldtotalincome > 5000000 && oldtotalincome <= 5100000) {
+                    let excess = oldtotalincome - 5000000;
+                    oldmarginalrelief = Math.max(oldsurcharge - excess, 0);
+                }
+                if (newtotalincome > 5000000 && newtotalincome <= 5100000) {
+                    let excess = newtotalincome - 5000000;
+                    newmarginalrelief = Math.max(newsurcharge - excess, 0);
+                }
+            }
+
+
 
             // Final Tax Calculation
             let oldtaxbeforecess = oldtaxbeforesurcharge + oldsurcharge - oldmarginalrelief;
