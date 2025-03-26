@@ -435,6 +435,9 @@ footer {
 <div class="container">
   <button class="button" onclick="resetValues()">Reset</button>
   <button class="button" onclick="printPDF()">Print as PDF</button>
+  <button class="button" onclick="exportToJSON()">Export to JSON</button>
+  <input type="file" id="importFile" style="display: none;" accept=".json" onchange="importFromJSON(event)">
+  <button class="button" onclick="document.getElementById('importFile').click()">Import from JSON</button>
 </div>
 
 
