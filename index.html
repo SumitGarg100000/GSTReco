@@ -1819,13 +1819,11 @@
 
 
     <script>
-  // Page load hone par local storage se data uthao
   document.addEventListener("DOMContentLoaded", function() {
     loadDataFromStorage();
     CalculateAllIncome();
   });
 
-  // Data ko local storage se load karne ka function
   function loadDataFromStorage() {
     const savedData = localStorage.getItem('taxCalculatorData');
     if (savedData) {
@@ -1839,7 +1837,6 @@
     }
   }
 
-  // Data ko local storage mein save karne ka function
   function saveDataToStorage() {
     const inputs = document.querySelectorAll('input[type="number"], input[type="text"]');
     const data = {};
@@ -1849,7 +1846,6 @@
     localStorage.setItem('taxCalculatorData', JSON.stringify(data));
   }
 
-  // Export to JSON file
   function exportToJSON() {
     const inputs = document.querySelectorAll('input[type="number"], input[type="text"]');
     const data = {};
@@ -1857,6 +1853,7 @@
       data[input.id] = input.value;
     });
     const jsonData = JSON.stringify(data, null, 2);
+    console.log("Exported JSON:", jsonData);
     const blob = new Blob([jsonData], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -1868,18 +1865,19 @@
     URL.revokeObjectURL(url);
   }
 
-  // Import from JSON file
   function importFromJSON(event) {
     const file = event.target.files[0];
     console.log("Selected file:", file);
-    console.log("File type:", file.type);
     console.log("File name:", file.name);
-    if (file && (file.type === "application/json" || file.name.endsWith('.json'))) {
+    console.log("File type:", file.type);
+    if (file && file.name.endsWith('.json')) {
       const reader = new FileReader();
       reader.onload = function(e) {
-        console.log("File content:", e.target.result);
+        const content = e.target.result.trim(); // Extra spaces hatao
+        console.log("File content:", content);
         try {
-          const data = JSON.parse(e.target.result);
+          const data = JSON.parse(content);
+          console.log("Parsed data:", data);
           Object.keys(data).forEach(id => {
             const element = document.getElementById(id);
             if (element) {
@@ -1889,18 +1887,18 @@
           saveDataToStorage();
           CalculateAllIncome();
         } catch (error) {
-          alert("Invalid JSON file! Please upload a valid file.");
+          alert("Invalid JSON file! Check console for details.");
           console.error("Parse error:", error);
+          console.log("Raw content that failed:", content);
         }
       };
       reader.readAsText(file);
     } else {
-      alert("Please select a valid JSON file! File type: " + file?.type);
+      alert("Please select a file ending with .json! File: " + file?.name);
     }
     document.getElementById('importFile').value = '';
   }
 
-  // Har input change par data save karo
   document.querySelectorAll('input, select').forEach(element => {
     element.addEventListener('input', function() {
       saveDataToStorage();
