@@ -388,83 +388,89 @@
         .footer-links { flex-direction: column; gap: 0.5rem; }
       }
     </style>
-    <style>
-    /* Filter Dropdown Styles */
+    
+<style>
 .filter-dropdown {
   position: relative;
   display: inline-block;
 }
 
 .filter-btn {
-  background: none;
-  border: none;
+  background: #f0f0f0;
+  border: 1px solid #ccc;
+  padding: 2px 6px;
   cursor: pointer;
-  font-size: 14px;
-  color: #004d40;
-  padding: 0;
-  margin-left: 5px;
 }
 
 .filter-dropdown-content {
   display: none;
   position: absolute;
-  background-color: #fff;
+  background: white;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  z-index: 1;
   min-width: 200px;
-  max-height: 300px;
-  overflow-y: auto;
-  border: 1px solid #b0bec5;
-  border-radius: 4px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  z-index: 20;
+  padding: 10px;
 }
 
 .filter-dropdown-content.show {
   display: block;
 }
 
+.filter-actions {
+  margin-bottom: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
 .filter-input {
   width: 100%;
   padding: 5px;
-  border: none;
-  border-bottom: 1px solid #b0bec5;
-  outline: none;
-  font-size: 14px;
+  margin-bottom: 5px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
 }
 
 .filter-options {
-  padding: 5px;
+  max-height: 200px;
+  overflow-y: auto;
+  border-top: 1px solid #eee;
+  padding-top: 5px;
 }
 
 .filter-option {
   display: flex;
   align-items: center;
-  padding: 3px 5px;
+  padding: 2px 0;
 }
 
 .filter-option input[type="checkbox"] {
   margin-right: 5px;
 }
 
-.filter-actions {
-  padding: 5px;
-  border-top: 1px solid #b0bec5;
+.filter-option label {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .filter-actions button {
-  background: #00796b;
+  padding: 3px 8px;
+  background: #007bff;
   color: white;
   border: none;
-  padding: 5px 10px;
-  margin: 0 5px;
-  border-radius: 4px;
+  border-radius: 3px;
   cursor: pointer;
 }
 
 .filter-actions button:hover {
-  background: #004d40;
+  background: #0056b3;
 }
-      
-    </style>
+
+  </style>    
+    
   </head>
   <body>
     <div class="container">
@@ -1255,10 +1261,10 @@ function findMatch(row, sourceData, compareData, is3b, diffAllowed) {
     </script>
 
 <script>
-
-  // Filter State
+// Filter State
 let filterEnabled = false;
 const filters = {};
+let sortOrder = {};
 
 // Initialize Filter Checkbox
 document.getElementById('enable-filter').addEventListener('change', function () {
@@ -1289,43 +1295,58 @@ function toggleFilters() {
 
 // Add Filter Dropdown to Header
 function addFilterDropdown(th, containerId, colIndex) {
-  if (th.querySelector('.filter-dropdown')) return; // Avoid duplicates
+  if (th.querySelector('.filter-dropdown')) return;
   const headerText = th.textContent.trim();
   const dropdown = document.createElement('div');
   dropdown.className = 'filter-dropdown';
 
   const filterBtn = document.createElement('button');
   filterBtn.className = 'filter-btn';
-  filterBtn.innerHTML ='▼';   // 'â–¼';
+  filterBtn.innerHTML = '▼';
   filterBtn.addEventListener('click', () => toggleDropdown(dropdown));
 
   const dropdownContent = document.createElement('div');
   dropdownContent.className = 'filter-dropdown-content';
 
+  // Filter Actions Container
+  const actionsDiv = document.createElement('div');
+  actionsDiv.className = 'filter-actions';
+
   const input = document.createElement('input');
   input.type = 'text';
   input.className = 'filter-input';
   input.placeholder = `Filter ${headerText}`;
-  input.addEventListener('input', () => filterOptions(input, dropdownContent, containerId, colIndex));
+  input.addEventListener('input', () => filterOptions(input, optionsDiv, containerId, colIndex));
 
+  const selectAllBtn = document.createElement('button');
+  selectAllBtn.textContent = 'Select All';
+  selectAllBtn.addEventListener('click', () => selectAllOptions(optionsDiv, containerId, colIndex, true));
+
+  const unselectAllBtn = document.createElement('button');
+  unselectAllBtn.textContent = 'Unselect All';
+  unselectAllBtn.addEventListener('click', () => selectAllOptions(optionsDiv, containerId, colIndex, false));
+
+  const sortAscBtn = document.createElement('button');
+  sortAscBtn.textContent = 'A-Z';
+  sortAscBtn.addEventListener('click', () => sortTable(containerId, colIndex, 'asc'));
+
+  const sortDescBtn = document.createElement('button');
+  sortDescBtn.textContent = 'Z-A';
+  sortDescBtn.addEventListener('click', () => sortTable(containerId, colIndex, 'desc'));
+
+  const resetBtn = document.createElement('button');
+  resetBtn.textContent = 'Reset';
+  resetBtn.addEventListener('click', () => resetFilters(containerId));
+
+  actionsDiv.append(input, selectAllBtn, unselectAllBtn, sortAscBtn, sortDescBtn, resetBtn);
+
+  // Options Container
   const optionsDiv = document.createElement('div');
   optionsDiv.className = 'filter-options';
   populateFilterOptions(optionsDiv, containerId, colIndex);
 
-  const actionsDiv = document.createElement('div');
-  actionsDiv.className = 'filter-actions';
-  const selectAllBtn = document.createElement('button');
-  selectAllBtn.textContent = 'Select All';
-  selectAllBtn.addEventListener('click', () => selectAllOptions(optionsDiv, containerId, colIndex));
-  const clearBtn = document.createElement('button');
-  clearBtn.textContent = 'Clear Filter';
-  clearBtn.addEventListener('click', () => clearFilter(containerId, colIndex));
-  actionsDiv.appendChild(selectAllBtn);
-  actionsDiv.appendChild(clearBtn);
-
-  dropdownContent.appendChild(input);
-  dropdownContent.appendChild(optionsDiv);
   dropdownContent.appendChild(actionsDiv);
+  dropdownContent.appendChild(optionsDiv);
   dropdown.appendChild(filterBtn);
   dropdown.appendChild(dropdownContent);
   th.appendChild(dropdown);
@@ -1355,7 +1376,7 @@ function populateFilterOptions(optionsDiv, containerId, colIndex) {
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
     checkbox.value = value;
-    checkbox.checked = true; // Default all selected
+    checkbox.checked = true;
     checkbox.addEventListener('change', () => applyFilters(containerId));
     const label = document.createElement('label');
     label.textContent = value || '(Blank)';
@@ -1365,10 +1386,9 @@ function populateFilterOptions(optionsDiv, containerId, colIndex) {
   });
 }
 
-// Filter Options Based on Input
-function filterOptions(input, dropdownContent, containerId, colIndex) {
+// Filter Options Based on Input (Substring Search)
+function filterOptions(input, optionsDiv, containerId, colIndex) {
   const filterText = input.value.toLowerCase();
-  const optionsDiv = dropdownContent.querySelector('.filter-options');
   const options = optionsDiv.querySelectorAll('.filter-option');
   options.forEach(option => {
     const label = option.querySelector('label').textContent.toLowerCase();
@@ -1402,32 +1422,56 @@ function applyFilters(containerId) {
   });
 }
 
-// Select All Options
-function selectAllOptions(optionsDiv, containerId, colIndex) {
-  const checkboxes = optionsDiv.querySelectorAll('input[type="checkbox"]');
-  checkboxes.forEach(cb => cb.checked = true);
+// Select/Unselect All Options (Only Visible)
+function selectAllOptions(optionsDiv, containerId, colIndex, select) {
+  const visibleCheckboxes = optionsDiv.querySelectorAll('.filter-option:not([style*="display: none"]) input[type="checkbox"]');
+  visibleCheckboxes.forEach(cb => cb.checked = select);
   applyFilters(containerId);
 }
 
-// Clear Filter
-function clearFilter(containerId, colIndex) {
+// Sort Table
+function sortTable(containerId, colIndex, direction) {
   const table = document.getElementById(containerId).querySelector('table');
-  const th = table.querySelectorAll('thead th')[colIndex];
-  const dropdown = th.querySelector('.filter-dropdown-content');
-  const input = dropdown.querySelector('.filter-input');
-  const checkboxes = dropdown.querySelectorAll('input[type="checkbox"]');
-  input.value = '';
-  checkboxes.forEach(cb => cb.checked = true);
-  applyFilters(containerId);
+  const rows = Array.from(table.querySelectorAll('tbody tr'));
+  sortOrder[containerId] = { colIndex, direction };
+
+  rows.sort((a, b) => {
+    const aValue = a.cells[colIndex].textContent.trim();
+    const bValue = b.cells[colIndex].textContent.trim();
+    const aNum = parseFloat(aValue);
+    const bNum = parseFloat(bValue);
+
+    if (!isNaN(aNum) && !isNaN(bNum)) {
+      return direction === 'asc' ? aNum - bNum : bNum - aNum;
+    }
+    return direction === 'asc' 
+      ? aValue.localeCompare(bValue) 
+      : bValue.localeCompare(aValue);
+  });
+
+  const tbody = table.querySelector('tbody');
+  rows.forEach(row => tbody.appendChild(row));
 }
 
-// Reset All Filters
+// Reset Filters
 function resetFilters(containerId) {
   const table = document.getElementById(containerId).querySelector('table');
   if (table) {
     const rows = table.querySelectorAll('tbody tr');
     rows.forEach(row => row.style.display = '');
+    const headers = table.querySelectorAll('thead th');
+    headers.forEach((th, colIndex) => {
+      const dropdown = th.querySelector('.filter-dropdown-content');
+      if (dropdown) {
+        const input = dropdown.querySelector('.filter-input');
+        const checkboxes = dropdown.querySelectorAll('input[type="checkbox"]');
+        input.value = '';
+        checkboxes.forEach(cb => cb.checked = true);
+      }
+    });
     delete filters[containerId];
+    delete sortOrder[containerId];
+    applyFilters(containerId);
   }
 }
 
@@ -1461,8 +1505,9 @@ function displayData(data, containerId, headers, sheetType) {
   container.innerHTML = html;
   const table = container.querySelector('table');
   table.addEventListener('input', handleCellEdit);
-  if (filterEnabled) toggleFilters(); // Reapply filters if enabled
+  if (filterEnabled) toggleFilters();
 }
+
 </script>
 
     
