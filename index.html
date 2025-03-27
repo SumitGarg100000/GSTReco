@@ -216,51 +216,30 @@
         margin: 30px 0;
       }
       .table-container {
-    overflow-x: auto;
-    overflow-y: auto; /* Enable vertical scrolling */
-    max-height: calc(40 * 38px + 50px); /* 40 rows * row height (approx 38px including padding/border) + header height */
-    height: auto; /* Default height adjusts to content up to max-height */
-    min-height: 100px; /* Minimum height to avoid collapsing too small */
-    margin: 10px 0;
-    border: 1px solid #b0bec5;
-    border-radius: 8px;
-    padding: 15px;
-    background: #fafafa;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-    resize: vertical; /* Allow user to resize vertically */
-    position: relative; /* For fixed headers */
-}
+        overflow-x: auto;
+        margin: 10px 0;
+        border: 1px solid #b0bec5;
+        border-radius: 8px;
+        padding: 15px;
+        background: #fafafa;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      }
       table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 14px;
-    display: block; /* Enable separate scrolling for tbody */
-}
-thead {
-    display: table;
-    width: 100%;
-    table-layout: fixed; /* Ensures columns align with tbody */
-    position: sticky;
-    top: 0;
-    z-index: 1; /* Keeps headers above scrolling content */
-    background: #e0ffff; /* Matches th background */
-}
-tbody {
-    display: block;
-    max-height: calc(40 * 38px); /* Matches container max-height minus header */
-    overflow-y: auto; /* Scroll only the body */
-}
-th, td {
-    border: 1px solid #cfd8dc;
-    padding: 12px;
-    text-align: left;
-    font-size: 14px;
-}
-th {
-    background: #e0ffff;
-    color: #004d40;
-    font-weight: bold;
-}
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+      th, td {
+        border: 1px solid #cfd8dc;
+        padding: 12px;
+        text-align: left;
+        font-size: 14px;
+      }
+      th {
+        background: #e0ffff;
+        color: #004d40;
+        font-weight: bold;
+      }
       button {
         display: inline-block;
         margin: 10px;
@@ -403,13 +382,9 @@ th {
           </div>
         </div>
         <div style="text-align: center; margin: 10px 0;">
-    <input type="checkbox" id="detailed-reconciliation" name="detailed-reconciliation">
-    <label for="detailed-reconciliation">Detailed Reconciliation</label>
-</div>
-<div style="text-align: center; margin: 10px 0;">
-    <input type="checkbox" id="enable-filters" name="enable-filters">
-    <label for="enable-filters">Enable Filters</label>
-</div>
+          <input type="checkbox" id="detailed-reconciliation" name="detailed-reconciliation">
+          <label for="detailed-reconciliation">Detailed Reconciliation</label>
+        </div>
         <div class="data-container">
           <h2>GSTR-2B Data</h2>
           <div id="gstr2b-container" class="table-container"></div>
@@ -500,98 +475,37 @@ th {
 
       // Show Tool Section
       function showTool() {
-    document.getElementById("login-section").classList.add("hidden");
-    document.getElementById("tool-section").classList.remove("hidden");
+        document.getElementById("login-section").classList.add("hidden");
+        document.getElementById("tool-section").classList.remove("hidden");
+       
+     //Store checkbox in local storage
+        detailedReconciliationCheckbox.checked = localStorage.getItem('detailedReconciliation') === 'true';
 
-    detailedReconciliationCheckbox.checked = localStorage.getItem('detailedReconciliation') === 'true';
 
-    detailedReconciliationCheckbox.addEventListener('change', function() {
-        reconcileData();
-        localStorage.setItem('detailedReconciliation', detailedReconciliationCheckbox.checked);
-    });
+  // Tool ke event listeners
+        detailedReconciliationCheckbox.addEventListener('change', function() {
+    reconcileData();
+    localStorage.setItem('detailedReconciliation', detailedReconciliationCheckbox.checked);
+  });
+  
+  
+        document.getElementById('gst-file').addEventListener('change', handleFileUpload);
+        document.getElementById('reconcile-btn').addEventListener('click', reconcileData);
+        document.getElementById('download-sample').addEventListener('click', generateSampleFile);
+        document.getElementById('diff-allowed').addEventListener('input', reconcileData);
+        document.getElementById('reset-btn').addEventListener('click', resetData);
 
-    document.getElementById('gst-file').addEventListener('change', handleFileUpload);
-    document.getElementById('reconcile-btn').addEventListener('click', reconcileData);
-    document.getElementById('download-sample').addEventListener('click', generateSampleFile);
-    document.getElementById('diff-allowed').addEventListener('input', reconcileData);
-    document.getElementById('reset-btn').addEventListener('click', resetData);
-
-    // Add filter checkbox logic
-    const filterCheckbox = document.getElementById('enable-filters');
-    filterCheckbox.checked = localStorage.getItem('filtersEnabled') === 'true';
-    filterCheckbox.addEventListener('change', function() {
-        toggleFilters();
-        localStorage.setItem('filtersEnabled', filterCheckbox.checked);
-    });
-
-    // Restore data from localStorage if exists
-    if (gstr2bData.length > 0) {
-        displayData(gstr2bData, 'gstr2b-container', gstr2bHeaders(), 'gstr2b');
-    }
-    if (gstr3bData.length > 0) {
-        displayData(gstr3bData, 'gstr3b-container', gstr3bHeaders(), 'gstr3b');
-    }
-    if (gstr2bData.length > 0 || gstr3bData.length > 0) {
-        reconcileData();
-    }
-    if (filterCheckbox.checked) {
-        toggleFilters(); // Apply filters if enabled on load
-    }
-}
-
-// Add filter toggle function
-function toggleFilters() {
-    const containers = ['gstr2b-container', 'gstr3b-container', 'summary-container'];
-    containers.forEach(containerId => {
-        const table = document.getElementById(containerId).querySelector('table');
-        if (!table) return;
-
-        const thead = table.querySelector('thead');
-        const headers = thead.querySelectorAll('th');
-        const filterRow = thead.querySelector('.filter-row');
-
-        if (document.getElementById('enable-filters').checked) {
-            if (!filterRow) {
-                const row = thead.insertRow();
-                row.className = 'filter-row';
-                headers.forEach((header, colIndex) => {
-                    const cell = row.insertCell();
-                    const input = document.createElement('input');
-                    input.type = 'text';
-                    input.placeholder = 'Filter...';
-                    input.style.width = '100%';
-                    input.dataset.col = colIndex;
-                    input.addEventListener('input', filterTable);
-                    cell.appendChild(input);
-                });
-            }
-        } else {
-            if (filterRow) {
-                filterRow.remove();
-            }
+        // Restore data from localStorage if exists
+        if (gstr2bData.length > 0) {
+          displayData(gstr2bData, 'gstr2b-container', gstr2bHeaders(), 'gstr2b');
         }
-    });
-}
-
-// Add filter logic
-function filterTable(event) {
-    const input = event.target;
-    const colIndex = parseInt(input.dataset.col);
-    const table = input.closest('table');
-    const tbody = table.querySelector('tbody');
-    const rows = tbody.querySelectorAll('tr');
-    const filterValue = input.value.toLowerCase();
-
-    rows.forEach(row => {
-        const cell = row.cells[colIndex];
-        const cellValue = cell.textContent.toLowerCase();
-        if (filterValue === '' || cellValue.includes(filterValue)) {
-            row.style.display = '';
-        } else {
-            row.style.display = 'none';
+        if (gstr3bData.length > 0) {
+          displayData(gstr3bData, 'gstr3b-container', gstr3bHeaders(), 'gstr3b');
         }
-    });
-}
+        if (gstr2bData.length > 0 || gstr3bData.length > 0) {
+          reconcileData();
+        }
+      }
 
       // Reset Data Function
       function resetData() {
@@ -1179,7 +1093,7 @@ function findMatch(row, sourceData, compareData, is3b, diffAllowed) {
     </a>
     <div id="instructions-modal" class="modal">
       <div class="modal-content">
-        <span class="close-btn" onclick="hideInstructions()">×</span>
+        <span class="close-btn" onclick="hideInstructions()">Ã—</span>
         <h2>GST Reconciliation Tool</h2>
         <h3>How to Use the Tool</h3>
         <ol>
@@ -1215,9 +1129,9 @@ function findMatch(row, sourceData, compareData, is3b, diffAllowed) {
   </body>
   <footer>
     <div class="footer-links">
-      <a href="#">📞 Ph : 9716804520</a>
-      <a href="#">✉️ Email: Sumitgarg100000@gmail.com</a>
-      <a href="#">📍 Address: Rohini, Delhi-110086</a>
+      <a href="#">ðŸ“ž Ph : 9716804520</a>
+      <a href="#">âœ‰ï¸ Email: Sumitgarg100000@gmail.com</a>
+      <a href="#">ðŸ“ Address: Rohini, Delhi-110086</a>
     </div>
     <div class="footer-links">
       <a href="#">Privacy Policy</a>
