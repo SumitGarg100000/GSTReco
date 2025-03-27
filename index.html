@@ -682,12 +682,11 @@
         colorRow(rowElement, match);
       }
 
-      // Add this new function just before the findMatch function
-       function normalizeInvoiceNumber(invNum) {
-       return invNum.replace(/[\s\/\\]/g, '');
-       }
-
-      function findMatch(row, sourceData, compareData, is3b, diffAllowed) {
+     function normalizeInvoiceNumber(invNum) {
+    return invNum.replace(/[\s\/\\.,"?\']/g, '');
+}
+      
+function findMatch(row, sourceData, compareData, is3b, diffAllowed) {
     const sourceHeaders = is3b ? gstr3bHeaders() : gstr2bHeaders();
     const compareHeaders = is3b ? gstr2bHeaders() : gstr3bHeaders();
     const invDateIdx = sourceHeaders.indexOf('Invoice Date');
@@ -696,79 +695,78 @@
     const compareGstnIdx = compareHeaders.indexOf('GSTN');
     const invDate = String(row[invDateIdx]).toLowerCase();
     const gstn = String(row[gstnIdx]).toLowerCase();
-    const invNum = normalizeInvoiceNumber(String(row[invNumIdx]).toLowerCase());
+    const invNum = normalizeInvoiceNumber(String(row[invNumIdx]).toLowerCase()); // Already updated
 
-        
-        if (detailedReconciliationCheckbox.checked) {
-          const sourceTotals = calculateTotals(sourceData, invDate, gstn, invNum, is3b);
-          const compareTotals = calculateTotals(compareData, invDate, gstn, invNum, !is3b);
-          if (sourceTotals.count > 0 && compareTotals.count > 0) {
+    if (detailedReconciliationCheckbox.checked) {
+        const sourceTotals = calculateTotals(sourceData, invDate, gstn, invNum, is3b);
+        const compareTotals = calculateTotals(compareData, invDate, gstn, invNum, !is3b);
+        if (sourceTotals.count > 0 && compareTotals.count > 0) {
             if (checkTotals(sourceTotals, compareTotals, diffAllowed)) {
-              return 'Match - GSTN, Invoice No., Date';
+                return 'Match - GSTN, Invoice No., Date';
             }
-          }
-          const invTotals = calculateTotalsByInv(sourceData, gstn, invNum, is3b);
-          const compareInvTotals = calculateTotalsByInv(compareData, gstn, invNum, !is3b);
-          if (invTotals.count > 0 && compareInvTotals.count > 0) {
-            if (checkTotals(invTotals, compareInvTotals, diffAllowed)) {
-              return 'Match - GSTN, Invoice No.';
-            }
-          }
-          const gstnDateTotals = calculateTotalsByGstnDate(sourceData, invDate, gstn, is3b);
-          const compareGstnDateTotals = calculateTotalsByGstnDate(compareData, invDate, gstn, !is3b);
-          if (gstnDateTotals.count > 0 && compareGstnDateTotals.count > 0) {
-            if (checkTotals(gstnDateTotals, compareGstnDateTotals, diffAllowed)) {
-              return 'Match - GSTN, Date';
-            }
-          }
-          const gstnTotals = calculateTotalsByGstn(sourceData, gstn, is3b);
-          const compareGstnTotals = calculateTotalsByGstn(compareData, gstn, !is3b);
-          if (gstnTotals.count > 0 && compareGstnTotals.count > 0) {
-            if (checkTotals(gstnTotals, compareGstnTotals, diffAllowed)) {
-              return 'Match - GSTN';
-            }
-          }
-          const gstnExistsInCompare = compareData.some(r => String(r[compareGstnIdx]).toLowerCase() === gstn);
-          if (!gstnExistsInCompare) {
-            return 'Unmatch - GSTN Not Exist';
-          }
-          return 'Unmatch';
-        } else {
-          const sourceTotals = calculateTotals(sourceData, invDate, gstn, invNum, is3b);
-          const compareTotals = calculateTotals(compareData, invDate, gstn, invNum, !is3b);
-          if (sourceTotals.count > 0 && compareTotals.count > 0) {
-            if (checkTotals(sourceTotals, compareTotals, diffAllowed)) {
-              return 'Match';
-            }
-          }
-          const invTotals = calculateTotalsByInv(sourceData, gstn, invNum, is3b);
-          const compareInvTotals = calculateTotalsByInv(compareData, gstn, invNum, !is3b);
-          if (invTotals.count > 0 && compareInvTotals.count > 0) {
-            if (checkTotals(invTotals, compareInvTotals, diffAllowed)) {
-              return 'Match';
-            }
-          }
-          const gstnDateTotals = calculateTotalsByGstnDate(sourceData, invDate, gstn, is3b);
-          const compareGstnDateTotals = calculateTotalsByGstnDate(compareData, invDate, gstn, !is3b);
-          if (gstnDateTotals.count > 0 && compareGstnDateTotals.count > 0) {
-            if (checkTotals(gstnDateTotals, compareGstnDateTotals, diffAllowed)) {
-              return 'Match';
-            }
-          }
-          const gstnTotals = calculateTotalsByGstn(sourceData, gstn, is3b);
-          const compareGstnTotals = calculateTotalsByGstn(compareData, gstn, !is3b);
-          if (gstnTotals.count > 0 && compareGstnTotals.count > 0) {
-            if (checkTotals(gstnTotals, compareGstnTotals, diffAllowed)) {
-              return 'Match';
-            }
-          }
-          const gstnExistsInCompare = compareData.some(r => String(r[compareGstnIdx]).toLowerCase() === gstn);
-          if (!gstnExistsInCompare) {
-            return 'Unmatch - GSTN Not Exist';
-          }
-          return 'Unmatch';
         }
-      }
+        const invTotals = calculateTotalsByInv(sourceData, gstn, invNum, is3b);
+        const compareInvTotals = calculateTotalsByInv(compareData, gstn, invNum, !is3b);
+        if (invTotals.count > 0 && compareInvTotals.count > 0) {
+            if (checkTotals(invTotals, compareInvTotals, diffAllowed)) {
+                return 'Match - GSTN, Invoice No.';
+            }
+        }
+        const gstnDateTotals = calculateTotalsByGstnDate(sourceData, invDate, gstn, is3b);
+        const compareGstnDateTotals = calculateTotalsByGstnDate(compareData, invDate, gstn, !is3b);
+        if (gstnDateTotals.count > 0 && compareGstnDateTotals.count > 0) {
+            if (checkTotals(gstnDateTotals, compareGstnDateTotals, diffAllowed)) {
+                return 'Match - GSTN, Date';
+            }
+        }
+        const gstnTotals = calculateTotalsByGstn(sourceData, gstn, is3b);
+        const compareGstnTotals = calculateTotalsByGstn(compareData, gstn, !is3b);
+        if (gstnTotals.count > 0 && compareGstnTotals.count > 0) {
+            if (checkTotals(gstnTotals, compareGstnTotals, diffAllowed)) {
+                return 'Match - GSTN';
+            }
+        }
+        const gstnExistsInCompare = compareData.some(r => String(r[compareGstnIdx]).toLowerCase() === gstn);
+        if (!gstnExistsInCompare) {
+            return 'Unmatch - GSTN Not Exist';
+        }
+        return 'Unmatch';
+    } else {
+        const sourceTotals = calculateTotals(sourceData, invDate, gstn, invNum, is3b);
+        const compareTotals = calculateTotals(compareData, invDate, gstn, invNum, !is3b);
+        if (sourceTotals.count > 0 && compareTotals.count > 0) {
+            if (checkTotals(sourceTotals, compareTotals, diffAllowed)) {
+                return 'Match';
+            }
+        }
+        const invTotals = calculateTotalsByInv(sourceData, gstn, invNum, is3b);
+        const compareInvTotals = calculateTotalsByInv(compareData, gstn, invNum, !is3b);
+        if (invTotals.count > 0 && compareInvTotals.count > 0) {
+            if (checkTotals(invTotals, compareInvTotals, diffAllowed)) {
+                return 'Match';
+            }
+        }
+        const gstnDateTotals = calculateTotalsByGstnDate(sourceData, invDate, gstn, is3b);
+        const compareGstnDateTotals = calculateTotalsByGstnDate(compareData, invDate, gstn, !is3b);
+        if (gstnDateTotals.count > 0 && compareGstnDateTotals.count > 0) {
+            if (checkTotals(gstnDateTotals, compareGstnDateTotals, diffAllowed)) {
+                return 'Match';
+            }
+        }
+        const gstnTotals = calculateTotalsByGstn(sourceData, gstn, is3b);
+        const compareGstnTotals = calculateTotalsByGstn(compareData, gstn, !is3b);
+        if (gstnTotals.count > 0 && compareGstnTotals.count > 0) {
+            if (checkTotals(gstnTotals, compareGstnTotals, diffAllowed)) {
+                return 'Match';
+            }
+        }
+        const gstnExistsInCompare = compareData.some(r => String(r[compareGstnIdx]).toLowerCase() === gstn);
+        if (!gstnExistsInCompare) {
+            return 'Unmatch - GSTN Not Exist';
+        }
+        return 'Unmatch';
+    }
+}
 
       function calculateTotals(data, invDate, gstn, invNum, is3b) {
     const headers = is3b ? gstr3bHeaders() : gstr2bHeaders();
@@ -783,7 +781,7 @@
     data.forEach(row => {
         if (String(row[invDateIdx]).toLowerCase() === invDate && 
             String(row[gstnIdx]).toLowerCase() === gstn && 
-            normalizeInvoiceNumber(String(row[invNumIdx]).toLowerCase()) === invNum) {
+            normalizeInvoiceNumber(String(row[invNumIdx]).toLowerCase()) === invNum) { // Updated line
             count++;
             taxable += Number(row[taxableIdx]) || 0;
             igst += Number(row[igstIdx]) || 0;
