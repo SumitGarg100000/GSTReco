@@ -357,6 +357,83 @@
         .footer-links { flex-direction: column; gap: 0.5rem; }
       }
     </style>
+    <style>
+    /* Filter Dropdown Styles */
+.filter-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.filter-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: #004d40;
+  padding: 0;
+  margin-left: 5px;
+}
+
+.filter-dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #fff;
+  min-width: 200px;
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #b0bec5;
+  border-radius: 4px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 20;
+}
+
+.filter-dropdown-content.show {
+  display: block;
+}
+
+.filter-input {
+  width: 100%;
+  padding: 5px;
+  border: none;
+  border-bottom: 1px solid #b0bec5;
+  outline: none;
+  font-size: 14px;
+}
+
+.filter-options {
+  padding: 5px;
+}
+
+.filter-option {
+  display: flex;
+  align-items: center;
+  padding: 3px 5px;
+}
+
+.filter-option input[type="checkbox"] {
+  margin-right: 5px;
+}
+
+.filter-actions {
+  padding: 5px;
+  border-top: 1px solid #b0bec5;
+}
+
+.filter-actions button {
+  background: #00796b;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  margin: 0 5px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.filter-actions button:hover {
+  background: #004d40;
+}
+      
+    </style>
   </head>
   <body>
     <div class="container">
@@ -397,6 +474,11 @@
         <div style="text-align: center; margin: 10px 0;">
           <input type="checkbox" id="detailed-reconciliation" name="detailed-reconciliation">
           <label for="detailed-reconciliation">Detailed Reconciliation</label>
+        </div>
+
+        <div style="text-align: center; margin: 10px 0;">
+  <input type="checkbox" id="enable-filter" name="enable-filter">
+  <label for="enable-filter">Enable Filters</label>
         </div>
         <div class="data-container">
           <h2>GSTR-2B Data</h2>
@@ -1083,6 +1165,219 @@ function findMatch(row, sourceData, compareData, is3b, diffAllowed) {
 //      }   else      {       alert("Don't waste your time for copying. This file is fully secured by Sumit Garg. If any query, Contact - Sumit Garg, Ph. No. - 9716804520, Email - SumitGarg100000@Gmail.com ");     }
       
     </script>
+
+<script>
+
+  // Filter State
+let filterEnabled = false;
+const filters = {};
+
+// Initialize Filter Checkbox
+document.getElementById('enable-filter').addEventListener('change', function () {
+  filterEnabled = this.checked;
+  toggleFilters();
+});
+
+// Toggle Filters On/Off
+function toggleFilters() {
+  const containers = ['gstr2b-container', 'gstr3b-container', 'summary-container'];
+  containers.forEach(containerId => {
+    const table = document.getElementById(containerId).querySelector('table');
+    if (table) {
+      const headers = table.querySelectorAll('thead th');
+      headers.forEach((th, colIndex) => {
+        if (filterEnabled) {
+          addFilterDropdown(th, containerId, colIndex);
+        } else {
+          removeFilterDropdown(th);
+        }
+      });
+      if (!filterEnabled) {
+        resetFilters(containerId);
+      }
+    }
+  });
+}
+
+// Add Filter Dropdown to Header
+function addFilterDropdown(th, containerId, colIndex) {
+  if (th.querySelector('.filter-dropdown')) return; // Avoid duplicates
+  const headerText = th.textContent.trim();
+  const dropdown = document.createElement('div');
+  dropdown.className = 'filter-dropdown';
+
+  const filterBtn = document.createElement('button');
+  filterBtn.className = 'filter-btn';
+  filterBtn.innerHTML = '▼';
+  filterBtn.addEventListener('click', () => toggleDropdown(dropdown));
+
+  const dropdownContent = document.createElement('div');
+  dropdownContent.className = 'filter-dropdown-content';
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'filter-input';
+  input.placeholder = `Filter ${headerText}`;
+  input.addEventListener('input', () => filterOptions(input, dropdownContent, containerId, colIndex));
+
+  const optionsDiv = document.createElement('div');
+  optionsDiv.className = 'filter-options';
+  populateFilterOptions(optionsDiv, containerId, colIndex);
+
+  const actionsDiv = document.createElement('div');
+  actionsDiv.className = 'filter-actions';
+  const selectAllBtn = document.createElement('button');
+  selectAllBtn.textContent = 'Select All';
+  selectAllBtn.addEventListener('click', () => selectAllOptions(optionsDiv, containerId, colIndex));
+  const clearBtn = document.createElement('button');
+  clearBtn.textContent = 'Clear Filter';
+  clearBtn.addEventListener('click', () => clearFilter(containerId, colIndex));
+  actionsDiv.appendChild(selectAllBtn);
+  actionsDiv.appendChild(clearBtn);
+
+  dropdownContent.appendChild(input);
+  dropdownContent.appendChild(optionsDiv);
+  dropdownContent.appendChild(actionsDiv);
+  dropdown.appendChild(filterBtn);
+  dropdown.appendChild(dropdownContent);
+  th.appendChild(dropdown);
+}
+
+// Remove Filter Dropdown
+function removeFilterDropdown(th) {
+  const dropdown = th.querySelector('.filter-dropdown');
+  if (dropdown) dropdown.remove();
+}
+
+// Toggle Dropdown Visibility
+function toggleDropdown(dropdown) {
+  const content = dropdown.querySelector('.filter-dropdown-content');
+  content.classList.toggle('show');
+}
+
+// Populate Filter Options
+function populateFilterOptions(optionsDiv, containerId, colIndex) {
+  const table = document.getElementById(containerId).querySelector('table');
+  const rows = Array.from(table.querySelectorAll('tbody tr'));
+  const uniqueValues = new Set(rows.map(row => row.cells[colIndex].textContent.trim()));
+  optionsDiv.innerHTML = '';
+  uniqueValues.forEach(value => {
+    const option = document.createElement('div');
+    option.className = 'filter-option';
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.value = value;
+    checkbox.checked = true; // Default all selected
+    checkbox.addEventListener('change', () => applyFilters(containerId));
+    const label = document.createElement('label');
+    label.textContent = value || '(Blank)';
+    option.appendChild(checkbox);
+    option.appendChild(label);
+    optionsDiv.appendChild(option);
+  });
+}
+
+// Filter Options Based on Input
+function filterOptions(input, dropdownContent, containerId, colIndex) {
+  const filterText = input.value.toLowerCase();
+  const optionsDiv = dropdownContent.querySelector('.filter-options');
+  const options = optionsDiv.querySelectorAll('.filter-option');
+  options.forEach(option => {
+    const label = option.querySelector('label').textContent.toLowerCase();
+    option.style.display = label.includes(filterText) ? 'flex' : 'none';
+  });
+  applyFilters(containerId);
+}
+
+// Apply Filters to Table
+function applyFilters(containerId) {
+  const table = document.getElementById(containerId).querySelector('table');
+  const rows = Array.from(table.querySelectorAll('tbody tr'));
+  const headers = table.querySelectorAll('thead th');
+
+  if (!filters[containerId]) filters[containerId] = {};
+
+  rows.forEach(row => {
+    let showRow = true;
+    headers.forEach((th, colIndex) => {
+      const dropdown = th.querySelector('.filter-dropdown-content');
+      if (dropdown) {
+        const selectedValues = Array.from(dropdown.querySelectorAll('input[type="checkbox"]:checked'))
+          .map(cb => cb.value);
+        const cellValue = row.cells[colIndex].textContent.trim();
+        if (selectedValues.length > 0 && !selectedValues.includes(cellValue)) {
+          showRow = false;
+        }
+      }
+    });
+    row.style.display = showRow ? '' : 'none';
+  });
+}
+
+// Select All Options
+function selectAllOptions(optionsDiv, containerId, colIndex) {
+  const checkboxes = optionsDiv.querySelectorAll('input[type="checkbox"]');
+  checkboxes.forEach(cb => cb.checked = true);
+  applyFilters(containerId);
+}
+
+// Clear Filter
+function clearFilter(containerId, colIndex) {
+  const table = document.getElementById(containerId).querySelector('table');
+  const th = table.querySelectorAll('thead th')[colIndex];
+  const dropdown = th.querySelector('.filter-dropdown-content');
+  const input = dropdown.querySelector('.filter-input');
+  const checkboxes = dropdown.querySelectorAll('input[type="checkbox"]');
+  input.value = '';
+  checkboxes.forEach(cb => cb.checked = true);
+  applyFilters(containerId);
+}
+
+// Reset All Filters
+function resetFilters(containerId) {
+  const table = document.getElementById(containerId).querySelector('table');
+  if (table) {
+    const rows = table.querySelectorAll('tbody tr');
+    rows.forEach(row => row.style.display = '');
+    delete filters[containerId];
+  }
+}
+
+// Close Dropdowns on Click Outside
+document.addEventListener('click', function (event) {
+  const dropdowns = document.querySelectorAll('.filter-dropdown-content');
+  dropdowns.forEach(dropdown => {
+    if (!dropdown.parentElement.contains(event.target)) {
+      dropdown.classList.remove('show');
+    }
+  });
+});
+
+// Update displayData to Reapply Filters
+function displayData(data, containerId, headers, sheetType) {
+  const container = document.getElementById(containerId);
+  let html = '<table><thead><tr>';
+  headers.forEach(header => html += `<th>${header}</th>`);
+  html += '</tr></thead><tbody>';
+  data.forEach((row, rowIndex) => {
+    html += `<tr data-row="${rowIndex}" data-sheet="${sheetType}">`;
+    headers.forEach((_, colIndex) => {
+      const cell = row[colIndex];
+      const value = typeof cell === 'number' && (cell > 40000 && cell < 50000) ? formatDate(cell) : (cell === undefined || cell === null ? '' : cell);
+      const isEditable = colIndex > 0;
+      html += `<td contenteditable="${isEditable}" data-col="${colIndex}">${value}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  container.innerHTML = html;
+  const table = container.querySelector('table');
+  table.addEventListener('input', handleCellEdit);
+  if (filterEnabled) toggleFilters(); // Reapply filters if enabled
+}
+</script>
+
+    
     <script>
       function showInstructions() {
         document.getElementById("instructions-modal").style.display = "block";
