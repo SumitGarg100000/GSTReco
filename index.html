@@ -1283,7 +1283,7 @@ function addFilterDropdown(th, containerId, colIndex) {
 
   const filterBtn = document.createElement('button');
   filterBtn.className = 'filter-btn';
-  filterBtn.innerHTML = 'â–¼';
+  filterBtn.innerHTML ='▼';   // 'â–¼';
   filterBtn.addEventListener('click', () => toggleDropdown(dropdown));
 
   const dropdownContent = document.createElement('div');
