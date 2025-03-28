@@ -510,13 +510,14 @@
     <li><strong>Match - GSTN, Date</strong>: Match on GSTN and date, with possible invoice number differences.</li>
     <li><strong>Match - GSTN</strong>: Match only on GSTN, with differences in invoice number and date.</li>
     <li><strong>Unmatch - GSTN Not Exist</strong>: GSTN from one sheet is not found in the other.</li>
-    <li><strong>Unmatch</strong>: Data does not meet any match criteria or has significant amount differences.</li>
+    <li><strong>Unmatch - Amt Diff</strong>: Showing unmatch invoices due to amt difference</li>
+    <li><strong>Unmatch</strong>: Data does not meet any match criteria, generally due to extra invoices in either GSTR-2B or GSTR-3B/Books</li>
   </ul>
   <p>When <strong>Detailed Reconciliation</strong> is disabled, the criteria are simplified:</p>
   <ul>
     <li><strong>Match</strong>: Data matches based on any of the detailed criteria above.</li>
     <li><strong>Unmatch - GSTN Not Exist</strong>: GSTN is not found in the other sheet.</li>
-    <li><strong>Unmatch</strong>: Data does not match or has significant amount differences.</li>
+    <li><strong>Unmatch</strong>: Data does not meet any match criteria, generally due to extra invoices in either GSTR-2B or GSTR-3B/Books</li>
   </ul>
 </div>
 
@@ -1112,51 +1113,47 @@ function findMatch(row, sourceData, compareData, is3b, diffAllowed) {
 }
 
       function displaySummary(reconciled2bData, reconciled3bData) {
-        const gstr2bSummary = calculateSummary(reconciled2bData, false);
-        const gstr3bSummary = calculateSummary(reconciled3bData, true);
-        const container = document.getElementById('summary-container');
-        let html = '<table><thead><tr>';
-        html += '<th rowspan="2">Particulars</th>';
-        html += '<th colspan="4">GST Portal</th>';
-        html += '<th colspan="4">Client Data</th>';
-        html += '</tr><tr>';
-        ['Taxable Value', 'IGST', 'CGST', 'SGST'].forEach(header => {
-          html += `<th>${header}</th>`;
-        });
-        ['Taxable Value', 'IGST', 'CGST', 'SGST'].forEach(header => {
-          html += `<th>${header}</th>`;
-        });
-        html += '</tr></thead><tbody>';
-        const criteria = detailedReconciliationCheckbox.checked ?
-          ['Match - GSTN, Invoice No., Date', 'Match - GSTN, Invoice No.', 'Match - GSTN, Date', 'Match - GSTN', 'Unmatch - GSTN Not Exist', 'Unmatch'] :
-          ['Match', 'Unmatch - GSTN Not Exist', 'Unmatch'];
-        criteria.forEach(criterion => {
-          html += '<tr>';
-          html += `<td>${criterion}</td>`;
-          html += `<td>${gstr2bSummary.summary[criterion].taxable.toFixed(2)}</td>`;
-          html += `<td>${gstr2bSummary.summary[criterion].igst.toFixed(2)}</td>`;
-          html += `<td>${gstr2bSummary.summary[criterion].cgst.toFixed(2)}</td>`;
-          html += `<td>${gstr2bSummary.summary[criterion].sgst.toFixed(2)}</td>`;
-          html += `<td>${gstr3bSummary.summary[criterion].taxable.toFixed(2)}</td>`;
-          html += `<td>${gstr3bSummary.summary[criterion].igst.toFixed(2)}</td>`;
-          html += `<td>${gstr3bSummary.summary[criterion].cgst.toFixed(2)}</td>`;
-          html += `<td>${gstr3bSummary.summary[criterion].sgst.toFixed(2)}</td>`;
-          html += '</tr>';
-        });
-        html += '<tr>';
-        html += '<td><strong>Total</strong></td>';
-        html += `<td><strong>${gstr2bSummary.total.taxable.toFixed(2)}</strong></td>`;
-        html += `<td><strong>${gstr2bSummary.total.igst.toFixed(2)}</strong></td>`;
-        html += `<td><strong>${gstr2bSummary.total.cgst.toFixed(2)}</strong></td>`;
-        html += `<td><strong>${gstr2bSummary.total.sgst.toFixed(2)}</strong></td>`;
-        html += `<td><strong>${gstr3bSummary.total.taxable.toFixed(2)}</strong></td>`;
-        html += `<td><strong>${gstr3bSummary.total.igst.toFixed(2)}</strong></td>`;
-        html += `<td><strong>${gstr3bSummary.total.cgst.toFixed(2)}</strong></td>`;
-        html += `<td><strong>${gstr3bSummary.total.sgst.toFixed(2)}</strong></td>`;
-        html += '</tr>';
-        html += '</tbody></table>';
-        container.innerHTML = html;
-      }
+  const gstr2bSummary = calculateSummary(reconciled2bData, false);
+  const gstr3bSummary = calculateSummary(reconciled3bData, true);
+  const container = document.getElementById('summary-container');
+  let html = '<table><thead><tr>';
+  html += '<th rowspan="2">Particulars</th>';
+  html += '<th colspan="4">GST Portal</th>';
+  html += '<th colspan="4">Client Data</th>';
+  html += '</tr><tr>';
+  ['Taxable Value', 'IGST', 'CGST', 'SGST'].forEach(header => html += `<th>${header}</th>`);
+  ['Taxable Value', 'IGST', 'CGST', 'SGST'].forEach(header => html += `<th>${header}</th>`);
+  html += '</tr></thead><tbody>';
+  const criteria = detailedReconciliationCheckbox.checked ?
+    ['Match - GSTN, Invoice No., Date', 'Match - GSTN, Invoice No.', 'Match - GSTN, Date', 'Match - GSTN', 'Unmatch - GSTN Not Exist', 'Unmatch - Amt Diff', 'Unmatch'] :
+    ['Match', 'Unmatch - GSTN Not Exist', 'Unmatch - Amt Diff', 'Unmatch'];
+  criteria.forEach(criterion => {
+    html += '<tr>';
+    html += `<td>${criterion}</td>`;
+    html += `<td>${(gstr2bSummary.summary[criterion]?.taxable || 0).toFixed(2)}</td>`;
+    html += `<td>${(gstr2bSummary.summary[criterion]?.igst || 0).toFixed(2)}</td>`;
+    html += `<td>${(gstr2bSummary.summary[criterion]?.cgst || 0).toFixed(2)}</td>`;
+    html += `<td>${(gstr2bSummary.summary[criterion]?.sgst || 0).toFixed(2)}</td>`;
+    html += `<td>${(gstr3bSummary.summary[criterion]?.taxable || 0).toFixed(2)}</td>`;
+    html += `<td>${(gstr3bSummary.summary[criterion]?.igst || 0).toFixed(2)}</td>`;
+    html += `<td>${(gstr3bSummary.summary[criterion]?.cgst || 0).toFixed(2)}</td>`;
+    html += `<td>${(gstr3bSummary.summary[criterion]?.sgst || 0).toFixed(2)}</td>`;
+    html += '</tr>';
+  });
+  html += '<tr>';
+  html += '<td><strong>Total</strong></td>';
+  html += `<td><strong>${gstr2bSummary.total.taxable.toFixed(2)}</strong></td>`;
+  html += `<td><strong>${gstr2bSummary.total.igst.toFixed(2)}</strong></td>`;
+  html += `<td><strong>${gstr2bSummary.total.cgst.toFixed(2)}</strong></td>`;
+  html += `<td><strong>${gstr2bSummary.total.sgst.toFixed(2)}</strong></td>`;
+  html += `<td><strong>${gstr3bSummary.total.taxable.toFixed(2)}</strong></td>`;
+  html += `<td><strong>${gstr3bSummary.total.igst.toFixed(2)}</strong></td>`;
+  html += `<td><strong>${gstr3bSummary.total.cgst.toFixed(2)}</strong></td>`;
+  html += `<td><strong>${gstr3bSummary.total.sgst.toFixed(2)}</strong></td>`;
+  html += '</tr>';
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
 
       async function generateOutput(reconciled2bData, reconciled3bData) {
         const workbook = new ExcelJS.Workbook();
@@ -1583,22 +1580,24 @@ function displayData(data, containerId, headers, sheetType) {
           <li><strong>Match - GSTN, Date</strong> - Matches based on GSTN and Date.</li>
           <li><strong>Match - GSTN</strong> - Matches based on GSTN only.</li>
           <li><strong>Unmatch - GSTN Not Exist</strong> - GSTN not found in other sheet.</li>
-          <li><strong>Unmatch</strong> - Amount difference found.</li>
+          <li><strong>Unmatch - Amt Diff</strong> -Showing unmatch due to amt diff</li>
+          <li><strong>Unmatch</strong> - Other reasons, generally due to extra invoices in either GST-2B or GSTR-3B/Books</li>
         </ol>
         <p><strong>When Detailed Reconciliation is unchecked:</strong></p>
         <ol>
           <li><strong>Match</strong> - Any of the above match conditions met.</li>
           <li><strong>Unmatch - GSTN Not Exist</strong> - GSTN not found in other sheet.</li>
-          <li><strong>Unmatch</strong> - Amount difference found.</li>
+             <li><strong>Unmatch - Amt Diff</strong> -Showing unmatch due to amt diff</li>
+          <li><strong>Unmatch</strong> - Other reasons, generally due to extra invoices in either GST-2B or GSTR-3B/Books</li>
         </ol>
       </div>
     </div>
   </body>
   <footer>
     <div class="footer-links">
-      <a href="#">Ã°Å¸â€œÅ¾ Ph : 9716804520</a>
-      <a href="#">Ã¢Å“â€°Ã¯Â¸Â Email: Sumitgarg100000@gmail.com</a>
-      <a href="#">Ã°Å¸â€œÂ Address: Rohini, Delhi-110086</a>
+      <a href="#">📞 Ph : 9716804520</a>
+      <a href="#">✉️ Email: Sumitgarg100000@gmail.com</a>
+      <a href="#">📍 Address: Rohini, Delhi-110086</a>
     </div>
     <div class="footer-links">
       <a href="#">Privacy Policy</a>
