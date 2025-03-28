@@ -874,7 +874,6 @@ function refreshFilters(containerId) {
 }
       
 function findMatch(row, sourceData, compareData, is3b, diffAllowed) {
-function findMatch(row, sourceData, compareData, is3b, diffAllowed) {
   const sourceHeaders = is3b ? gstr3bHeaders() : gstr2bHeaders();
   const compareHeaders = is3b ? gstr2bHeaders() : gstr3bHeaders();
   const invDateIdx = sourceHeaders.indexOf('Invoice Date');
@@ -885,13 +884,11 @@ function findMatch(row, sourceData, compareData, is3b, diffAllowed) {
   const gstn = String(row[gstnIdx]).toLowerCase();
   const invNum = normalizeInvoiceNumber(String(row[invNumIdx]).toLowerCase());
 
-  // GSTN aur Invoice Number match check karna
   const invTotals = calculateTotalsByInv(sourceData, gstn, invNum, is3b);
   const compareInvTotals = calculateTotalsByInv(compareData, gstn, invNum, !is3b);
 
   if (invTotals.count > 0 && compareInvTotals.count > 0) {
     if (checkTotals(invTotals, compareInvTotals, diffAllowed)) {
-      // Agar amounts match karte hain
       if (detailedReconciliationCheckbox.checked) {
         const sourceTotals = calculateTotals(sourceData, invDate, gstn, invNum, is3b);
         const compareTotals = calculateTotals(compareData, invDate, gstn, invNum, !is3b);
@@ -903,7 +900,6 @@ function findMatch(row, sourceData, compareData, is3b, diffAllowed) {
         return 'Match';
       }
     } else {
-      // Agar amounts match nahi karte (difference exceed hota hai)
       return 'Unmatch - Amt Diff';
     }
   }
