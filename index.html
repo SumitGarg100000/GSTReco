@@ -641,10 +641,34 @@
       }
 
       // Show Tool Section
-      function showTool() {
-        document.getElementById("login-section").classList.add("hidden");
-        document.getElementById("tool-section").classList.remove("hidden");
-       
+      let filterEnabled = false; // Yeh global scope mein pehle hi define hai, ensure karo ki yeh sab jagah accessible hai
+
+function showTool() {
+  document.getElementById("login-section").classList.add("hidden");
+  document.getElementById("tool-section").classList.remove("hidden");
+
+  detailedReconciliationCheckbox.checked = localStorage.getItem('detailedReconciliation') === 'true';
+  filterEnabled = document.getElementById('enable-filter').checked; // Filter state ko initialize karo
+
+  // Event listeners
+  detailedReconciliationCheckbox.addEventListener('change', function() {
+    reconcileData();
+    localStorage.setItem('detailedReconciliation', detailedReconciliationCheckbox.checked);
+  });
+  document.getElementById('enable-filter').addEventListener('change', function() {
+    filterEnabled = this.checked;
+    toggleFilters();
+  });
+  document.getElementById('gst-file').addEventListener('change', handleFileUpload);
+  document.getElementById('reconcile-btn').addEventListener('click', reconcileData);
+  document.getElementById('download-sample').addEventListener('click', generateSampleFile);
+  document.getElementById('diff-allowed').addEventListener('input', reconcileData);
+  document.getElementById('reset-btn').addEventListener('click', resetData);
+
+  if (gstr2bData.length > 0) displayData(gstr2bData, 'gstr2b-container', gstr2bHeaders(), 'gstr2b');
+  if (gstr3bData.length > 0) displayData(gstr3bData, 'gstr3b-container', gstr3bHeaders(), 'gstr3b');
+  if (gstr2bData.length > 0 || gstr3bData.length > 0) reconcileData();
+}
      //Store checkbox in local storage
         detailedReconciliationCheckbox.checked = localStorage.getItem('detailedReconciliation') === 'true';
 
