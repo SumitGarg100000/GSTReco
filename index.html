@@ -388,8 +388,9 @@
         .footer-links { flex-direction: column; gap: 0.5rem; }
       }
     </style>
-    <style>
-    /* Filter Dropdown Styles */
+   
+   <style>
+/* Existing Filter Dropdown Styles */
 .filter-dropdown {
   position: relative;
   display: inline-block;
@@ -422,49 +423,31 @@
   display: block;
 }
 
-.filter-input {
-  width: 100%;
-  padding: 5px;
-  border: none;
-  border-bottom: 1px solid #b0bec5;
-  outline: none;
-  font-size: 14px;
-}
-
-.filter-options {
-  padding: 5px;
-}
-
-.filter-option {
-  display: flex;
-  align-items: center;
-  padding: 3px 5px;
-}
-
-.filter-option input[type="checkbox"] {
-  margin-right: 5px;
-}
-
-.filter-actions {
+/* Sort Actions Styling */
+.sort-actions {
   padding: 5px;
   border-top: 1px solid #b0bec5;
+  display: flex;
+  justify-content: space-between;
 }
 
-.filter-actions button {
+.sort-actions button {
   background: #00796b;
   color: white;
   border: none;
   padding: 5px 10px;
-  margin: 0 5px;
+  margin: 0 2px;
   border-radius: 4px;
   cursor: pointer;
+  font-size: 12px;
 }
 
-.filter-actions button:hover {
+.sort-actions button:hover {
   background: #004d40;
 }
-      
-    </style>
+</style>
+
+   
   </head>
   <body>
     <div class="container">
@@ -1268,7 +1251,7 @@ document.getElementById('enable-filter').addEventListener('change', function () 
 
 // Toggle Filters On/Off
 function toggleFilters() {
-  const containers = ['gstr2b-container', 'gstr3b-container', 'summary-container'];
+  const containers = ['gstr2b-container', 'gstr3b-container'];
   containers.forEach(containerId => {
     const table = document.getElementById(containerId).querySelector('table');
     if (table) {
@@ -1296,7 +1279,7 @@ function addFilterDropdown(th, containerId, colIndex) {
 
   const filterBtn = document.createElement('button');
   filterBtn.className = 'filter-btn';
-  filterBtn.innerHTML ='▼';  // 'Ã¢â€“Â¼';
+  filterBtn.innerHTML = 'â–¼'; // Down arrow for dropdown
   filterBtn.addEventListener('click', () => toggleDropdown(dropdown));
 
   const dropdownContent = document.createElement('div');
@@ -1317,18 +1300,40 @@ function addFilterDropdown(th, containerId, colIndex) {
   const selectAllBtn = document.createElement('button');
   selectAllBtn.textContent = 'Select All';
   selectAllBtn.addEventListener('click', () => selectAllOptions(optionsDiv, containerId, colIndex));
-  const clearBtn = document.createElement('button');
-  clearBtn.textContent = 'Clear Filter';
-  clearBtn.addEventListener('click', () => clearFilter(containerId, colIndex));
+  const uncheckAllBtn = document.createElement('button');
+  uncheckAllBtn.textContent = 'Uncheck All';
+  uncheckAllBtn.addEventListener('click', () => uncheckAllOptions(optionsDiv, containerId, colIndex));
   actionsDiv.appendChild(selectAllBtn);
-  actionsDiv.appendChild(clearBtn);
+  actionsDiv.appendChild(uncheckAllBtn);
 
+  // Sort Buttons
+  const sortDiv = document.createElement('div');
+  sortDiv.className = 'sort-actions';
+  const sortAscBtn = document.createElement('button');
+  sortAscBtn.textContent = 'Sort A-Z';
+  sortAscBtn.addEventListener('click', () => sortTable(containerId, colIndex, 'asc'));
+  const sortDescBtn = document.createElement('button');
+  sortDescBtn.textContent = 'Sort Z-A';
+  sortDescBtn.addEventListener('click', () => sortTable(containerId, colIndex, 'desc'));
+  sortDiv.appendChild(sortAscBtn);
+  sortDiv.appendChild(sortDescBtn);
+
+  // Assemble Dropdown Content
   dropdownContent.appendChild(input);
   dropdownContent.appendChild(optionsDiv);
   dropdownContent.appendChild(actionsDiv);
+  dropdownContent.appendChild(sortDiv); // Sort buttons ko last mein add kiya
   dropdown.appendChild(filterBtn);
   dropdown.appendChild(dropdownContent);
   th.appendChild(dropdown);
+}
+
+
+//Uncheck Filter
+function uncheckAllOptions(optionsDiv, containerId, colIndex) {
+  const checkboxes = optionsDiv.querySelectorAll('input[type="checkbox"]');
+  checkboxes.forEach(cb => cb.checked = false);
+  applyFilters(containerId);
 }
 
 // Remove Filter Dropdown
@@ -1363,6 +1368,41 @@ function populateFilterOptions(optionsDiv, containerId, colIndex) {
     option.appendChild(label);
     optionsDiv.appendChild(option);
   });
+}
+
+//Filter Sort Function
+function sortTable(containerId, colIndex, direction) {
+  const table = document.getElementById(containerId).querySelector('table');
+  const rows = Array.from(table.querySelectorAll('tbody tr'));
+
+  rows.sort((a, b) => {
+    const aValue = a.cells[colIndex].textContent.trim();
+    const bValue = b.cells[colIndex].textContent.trim();
+
+    // Number check karna
+    const aNum = parseFloat(aValue);
+    const bNum = parseFloat(bValue);
+    if (!isNaN(aNum) && !isNaN(bNum)) {
+      return direction === 'asc' ? aNum - bNum : bNum - aNum;
+    }
+
+    // Date check karna
+    const aDate = Date.parse(aValue);
+    const bDate = Date.parse(bValue);
+    if (!isNaN(aDate) && !isNaN(bDate)) {
+      return direction === 'asc' ? aDate - bDate : bDate - aDate;
+    }
+
+    // String comparison (alphabet)
+    return direction === 'asc' 
+      ? aValue.localeCompare(bValue, undefined, { numeric: true, sensitivity: 'base' })
+      : bValue.localeCompare(aValue, undefined, { numeric: true, sensitivity: 'base' });
+  });
+
+  const tbody = table.querySelector('tbody');
+  tbody.innerHTML = '';
+  rows.forEach(row => tbody.appendChild(row));
+  applyFilters(containerId); // Filters reapply karna
 }
 
 // Filter Options Based on Input
@@ -1490,7 +1530,7 @@ function displayData(data, containerId, headers, sheetType) {
     </a>
     <div id="instructions-modal" class="modal">
       <div class="modal-content">
-        <span class="close-btn" onclick="hideInstructions()">Ã—</span>
+        <span class="close-btn" onclick="hideInstructions()"></span>
         <h2>GST Reconciliation Tool</h2>
         <h3>How to Use the Tool</h3>
         <ol>
@@ -1526,9 +1566,9 @@ function displayData(data, containerId, headers, sheetType) {
   </body>
   <footer>
     <div class="footer-links">
-      <a href="#">ðŸ“ž Ph : 9716804520</a>
-      <a href="#">âœ‰ï¸ Email: Sumitgarg100000@gmail.com</a>
-      <a href="#">ðŸ“ Address: Rohini, Delhi-110086</a>
+      <a href="#">Ã°Å¸â€œÅ¾ Ph : 9716804520</a>
+      <a href="#">Ã¢Å“â€°Ã¯Â¸Â Email: Sumitgarg100000@gmail.com</a>
+      <a href="#">Ã°Å¸â€œÂ Address: Rohini, Delhi-110086</a>
     </div>
     <div class="footer-links">
       <a href="#">Privacy Policy</a>
