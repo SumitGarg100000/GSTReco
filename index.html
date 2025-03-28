@@ -586,94 +586,109 @@
 
 <script>
         //   if (window.location.href === "https://sumitgarg100000.github.io/GSTReconciliation/") {
-      let gstr2bData = localStorage.getItem('gstr2bData') ? JSON.parse(localStorage.getItem('gstr2bData')) : [];
-      let gstr3bData = localStorage.getItem('gstr3bData') ? JSON.parse(localStorage.getItem('gstr3bData')) : [];
-      const detailedReconciliationCheckbox = document.getElementById('detailed-reconciliation');
+       let gstr2bData = localStorage.getItem('gstr2bData') ? JSON.parse(localStorage.getItem('gstr2bData')) : [];
+  let gstr3bData = localStorage.getItem('gstr3bData') ? JSON.parse(localStorage.getItem('gstr3bData')) : [];
+  const detailedReconciliationCheckbox = document.getElementById('detailed-reconciliation');
 
-      // Page Load Check
-      document.addEventListener("DOMContentLoaded", function() {
-        const loggedInUser = localStorage.getItem("loggedInUser");
-        if (!loggedInUser || !checkSubscription(loggedInUser)) {
-          showLogin();
-        } else {
-          showTool();
-        }
-      });
-
-      // Login Function
-      function login() {
-        const username = document.getElementById("username").value;
-        const password = document.getElementById("password").value;
-        const error = document.getElementById("error");
-
-        if (users[username] && users[username].password === password) {
-          if (checkSubscription(username)) {
-            localStorage.setItem("loggedInUser", username);
-            showTool();
-          } else {
-            error.textContent = "Your subscription has expired!";
-          }
-        } else {
-          error.textContent = "Invalid username or password!";
-        }
-      }
-
-      // Check Subscription Expiry
-      function checkSubscription(username) {
-        const expiryDate = new Date(users[username].expiry);
-        const today = new Date(); // Dynamic date
-        return today <= expiryDate;
-      }
-
-      // Logout Function
-      function logout() {
-        localStorage.removeItem("loggedInUser");
-        localStorage.removeItem("gstr2bData");
-        localStorage.removeItem("gstr3bData");
-        gstr2bData = [];
-        gstr3bData = [];
-        showLogin();
-      }
-
-      // Show Login Section
-      function showLogin() {
-        document.getElementById("login-section").classList.remove("hidden");
-        document.getElementById("tool-section").classList.add("hidden");
-      }
-
-      // Show Tool Section
-      function showTool() {
-        document.getElementById("login-section").classList.add("hidden");
-        document.getElementById("tool-section").classList.remove("hidden");
-       
-     //Store checkbox in local storage
-        detailedReconciliationCheckbox.checked = localStorage.getItem('detailedReconciliation') === 'true';
-
-
-  // Tool ke event listeners
-        detailedReconciliationCheckbox.addEventListener('change', function() {
-    reconcileData();
-    localStorage.setItem('detailedReconciliation', detailedReconciliationCheckbox.checked);
+  // ***Change 1: Page Load Check ko Improve Karna***
+  document.addEventListener("DOMContentLoaded", function() {
+    const loggedInUser = localStorage.getItem("loggedInUser");
+    if (loggedInUser && checkSubscription(loggedInUser)) { // <--- Highlight: Condition Simplified
+      showTool(); // Agar user logged in hai aur subscription valid hai, to tool dikhao
+    } else {
+      showLogin(); // Warna login page dikhao
+    }
   });
-  
-  
-        document.getElementById('gst-file').addEventListener('change', handleFileUpload);
-        document.getElementById('reconcile-btn').addEventListener('click', reconcileData);
-        document.getElementById('download-sample').addEventListener('click', generateSampleFile);
-        document.getElementById('diff-allowed').addEventListener('input', reconcileData);
-        document.getElementById('reset-btn').addEventListener('click', resetData);
 
-        // Restore data from localStorage if exists
-        if (gstr2bData.length > 0) {
-          displayData(gstr2bData, 'gstr2b-container', gstr2bHeaders(), 'gstr2b');
-        }
-        if (gstr3bData.length > 0) {
-          displayData(gstr3bData, 'gstr3b-container', gstr3bHeaders(), 'gstr3b');
-        }
-        if (gstr2bData.length > 0 || gstr3bData.length > 0) {
-          reconcileData();
-        }
+  // Login Function (No Change Needed)
+  function login() {
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+    const error = document.getElementById("error");
+
+    if (users[username] && users[username].password === password) {
+      if (checkSubscription(username)) {
+        localStorage.setItem("loggedInUser", username);
+        showTool();
+      } else {
+        error.textContent = "Your subscription has expired!";
       }
+    } else {
+      error.textContent = "Invalid username or password!";
+    }
+  }
+
+  // Check Subscription Expiry (No Change Needed)
+  function checkSubscription(username) {
+    const expiryDate = new Date(users[username].expiry);
+    const today = new Date();
+    return today <= expiryDate;
+  }
+
+  // Logout Function (No Change Needed)
+  function logout() {
+    localStorage.removeItem("loggedInUser");
+    localStorage.removeItem("gstr2bData");
+    localStorage.removeItem("gstr3bData");
+    gstr2bData = [];
+    gstr3bData = [];
+    showLogin();
+  }
+
+  // Show Login Section (No Change Needed)
+  function showLogin() {
+    document.getElementById("login-section").classList.remove("hidden");
+    document.getElementById("tool-section").classList.add("hidden");
+  }
+
+  // ***Change 2: Show Tool Function ko Enhance Karna***
+  function showTool() {
+    document.getElementById("login-section").classList.add("hidden");
+    document.getElementById("tool-section").classList.remove("hidden");
+
+    // Restore checkbox state
+    detailedReconciliationCheckbox.checked = localStorage.getItem('detailedReconciliation') === 'true';
+
+    // Add event listeners only once (avoid duplicates)
+    const reconcileBtn = document.getElementById('reconcile-btn');
+    const downloadSample = document.getElementById('download-sample');
+    const diffAllowed = document.getElementById('diff-allowed');
+    const resetBtn = document.getElementById('reset-btn');
+    const gstFile = document.getElementById('gst-file');
+
+    // Remove existing listeners to prevent duplication (optional but safer)
+    reconcileBtn.removeEventListener('click', reconcileData);
+    downloadSample.removeEventListener('click', generateSampleFile);
+    diffAllowed.removeEventListener('input', reconcileData);
+    resetBtn.removeEventListener('click', resetData);
+    gstFile.removeEventListener('change', handleFileUpload);
+
+    // Add listeners
+    gstFile.addEventListener('change', handleFileUpload);
+    reconcileBtn.addEventListener('click', reconcileData);
+    downloadSample.addEventListener('click', generateSampleFile);
+    diffAllowed.addEventListener('input', reconcileData);
+    resetBtn.addEventListener('click', resetData);
+
+    // Restore checkbox event listener
+    detailedReconciliationCheckbox.removeEventListener('change', handleCheckboxChange); // <--- Highlight: Remove old listener
+    detailedReconciliationCheckbox.addEventListener('change', handleCheckboxChange); // <--- Highlight: Add new listener
+    function handleCheckboxChange() {
+      reconcileData();
+      localStorage.setItem('detailedReconciliation', detailedReconciliationCheckbox.checked);
+    }
+
+    // ***Change 3: Restore Previous Data on Refresh***
+    if (gstr2bData.length > 0) {
+      displayData(gstr2bData, 'gstr2b-container', gstr2bHeaders(), 'gstr2b');
+    }
+    if (gstr3bData.length > 0) {
+      displayData(gstr3bData, 'gstr3b-container', gstr3bHeaders(), 'gstr3b');
+    }
+    if (gstr2bData.length > 0 || gstr3bData.length > 0) {
+      reconcileData(); // <--- Highlight: Reconcile data after restoring
+    }
+  }
 
       // Reset Data Function
       function resetData() {
