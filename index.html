@@ -1403,24 +1403,49 @@ function sortTable(containerId, colIndex, direction) {
   const rows = Array.from(table.querySelectorAll('tbody tr'));
 
   rows.sort((a, b) => {
-    const aValue = a.cells[colIndex].textContent.trim();
-    const bValue = b.cells[colIndex].textContent.trim();
+    // ***Change 1: Values ko lowercase mein normalize karna***
+    const aValue = a.cells[colIndex].textContent.trim().toLowerCase(); // <--- Highlight: toLowerCase() added
+    const bValue = b.cells[colIndex].textContent.trim().toLowerCase(); // <--- Highlight: toLowerCase() added
 
-    // Number check karna
+    // Check if this is the GSTN column (assuming GSTN is at index 1 in GSTR-2B and 2 in GSTR-3B)
+    const isGSTNColumn = (containerId === 'gstr2b-container' && colIndex === 1) || 
+                         (containerId === 'gstr3b-container' && colIndex === 2);
+
+    if (isGSTNColumn) {
+      // Custom GSTN sorting
+      // ***Change 2: State code aur rest ko bhi lowercase mein handle karna already hai, koi extra change nahi***
+      const aStateCode = parseInt(aValue.slice(0, 2), 10); // First 2 digits as number
+      const bStateCode = parseInt(bValue.slice(0, 2), 10);
+      const aRest = aValue.slice(2); // Rest of the GSTN
+      const bRest = bValue.slice(2);
+
+      // Compare state codes first (numeric)
+      if (aStateCode !== bStateCode) {
+        return direction === 'asc' ? aStateCode - bStateCode : bStateCode - aStateCode;
+      }
+
+      // If state codes are equal, compare the rest (alphanumeric)
+      return direction === 'asc' 
+        ? aRest.localeCompare(bRest, undefined, { numeric: true, sensitivity: 'base' })
+        : bRest.localeCompare(aRest, undefined, { numeric: true, sensitivity: 'base' });
+    }
+
+    // Existing logic for other columns
+    // ***Change 3: Numbers ke liye bhi case-insensitive nahi chahiye, koi change nahi yahan***
     const aNum = parseFloat(aValue);
     const bNum = parseFloat(bValue);
     if (!isNaN(aNum) && !isNaN(bNum)) {
       return direction === 'asc' ? aNum - bNum : bNum - aNum;
     }
 
-    // Date check karna
+    // ***Change 4: Dates ke liye bhi case-insensitive nahi chahiye, lekin format consistency ke liye toLowerCase() pehle hi hai***
     const aDate = Date.parse(aValue);
     const bDate = Date.parse(bValue);
     if (!isNaN(aDate) && !isNaN(bDate)) {
       return direction === 'asc' ? aDate - bDate : bDate - aDate;
     }
 
-    // String comparison (alphabet)
+    // ***Change 5: Strings ke liye case-insensitive already sensitivity: 'base' se handle ho raha hai, bas toLowerCase() upar add kiya***
     return direction === 'asc' 
       ? aValue.localeCompare(bValue, undefined, { numeric: true, sensitivity: 'base' })
       : bValue.localeCompare(aValue, undefined, { numeric: true, sensitivity: 'base' });
