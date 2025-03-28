@@ -406,29 +406,18 @@
   padding: 0;
   margin-left: 5px;
 }
-
 .filter-dropdown-content {
-  display: none;
-  position: absolute;
-  background-color: #fff;
-  min-width: 200px;
-  max-height: 300px;
-  overflow-y: auto;
-  border: 1px solid #b0bec5;
-  border-radius: 4px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  z-index: 20;
+  display: none; /* Default hidden */
 }
 
 .filter-dropdown-content.show {
-  display: block;
+  display: block; /* Visible when 'show' class added */
 }
 
-/* Sort Actions Styling */
 .sort-actions {
   padding: 5px;
   border-top: 1px solid #b0bec5;
-  display: flex;
+  display: flex; /* Ensure buttons are visible */
   justify-content: space-between;
 }
 
@@ -586,9 +575,11 @@
 <script>
         //   if (window.location.href === "https://sumitgarg100000.github.io/GSTReconciliation/") {
       let gstr2bData = localStorage.getItem('gstr2bData') ? JSON.parse(localStorage.getItem('gstr2bData')) : [];
-      let gstr3bData = localStorage.getItem('gstr3bData') ? JSON.parse(localStorage.getItem('gstr3bData')) : [];
-      const detailedReconciliationCheckbox = document.getElementById('detailed-reconciliation');
-
+let gstr3bData = localStorage.getItem('gstr3bData') ? JSON.parse(localStorage.getItem('gstr3bData')) : [];
+const detailedReconciliationCheckbox = document.getElementById('detailed-reconciliation');
+let filterEnabled = false;
+const filters = {};
+  
       // Page Load Check
       document.addEventListener("DOMContentLoaded", function() {
         const loggedInUser = localStorage.getItem("loggedInUser");
@@ -641,16 +632,22 @@
       }
 
       // Show Tool Section
-      let filterEnabled = false; // Yeh global scope mein pehle hi define hai, ensure karo ki yeh sab jagah accessible hai
-
+      
 function showTool() {
-  document.getElementById("login-section").classList.add("hidden");
-  document.getElementById("tool-section").classList.remove("hidden");
+  const loginSection = document.getElementById("login-section");
+  const toolSection = document.getElementById("tool-section");
+  if (!loginSection || !toolSection) {
+    console.error("Login or Tool section not found in DOM");
+    return;
+  }
+
+  loginSection.classList.add("hidden");
+  toolSection.classList.remove("hidden");
 
   detailedReconciliationCheckbox.checked = localStorage.getItem('detailedReconciliation') === 'true';
-  filterEnabled = document.getElementById('enable-filter').checked; // Filter state ko initialize karo
+  filterEnabled = document.getElementById('enable-filter').checked;
 
-  // Event listeners
+  // Event listeners (remove duplicates from global scope)
   detailedReconciliationCheckbox.addEventListener('change', function() {
     reconcileData();
     localStorage.setItem('detailedReconciliation', detailedReconciliationCheckbox.checked);
@@ -863,27 +860,28 @@ function refreshFilters(containerId) {
 }
 
       function reconcileData() {
-        const diffInput = document.getElementById('diff-allowed').value;
-        const diffAllowed = diffInput === '' ? 0 : Number(diffInput) || 1;
-        const gstr2bTable = document.querySelector('#gstr2b-container table tbody');
-        const gstr3bTable = document.querySelector('#gstr3b-container table tbody');
-        const reconciled2bData = [];
-        const reconciled3bData = [];
-        gstr2bData.forEach((row, index) => {
-          const match = findMatch(row, gstr2bData, gstr3bData, false, diffAllowed);
-          const newRow = [match, ...row.slice(1)];
-          reconciled2bData.push(newRow);
-          if (gstr2bTable && gstr2bTable.rows[index]) updateRow(gstr2bTable.rows[index], newRow);
-        });
-        gstr3bData.forEach((row, index) => {
-          const match = findMatch(row, gstr3bData, gstr2bData, true, diffAllowed);
-          const newRow = [match, ...row.slice(1)];
-          reconciled3bData.push(newRow);
-          if (gstr3bTable && gstr3bTable.rows[index]) updateRow(gstr3bTable.rows[index], newRow);
-        });
-        displaySummary(reconciled2bData, reconciled3bData);
-        generateOutput(reconciled2bData, reconciled3bData);
-      }
+  const diffInput = document.getElementById('diff-allowed').value;
+  const diffAllowed = diffInput === '' ? 0 : Number(diffInput) || 1;
+  const reconciled2bData = [];
+  const reconciled3bData = [];
+
+  gstr2bData.forEach(row => {
+    const match = findMatch(row, gstr2bData, gstr3bData, false, diffAllowed);
+    const newRow = [match, ...row.slice(1)];
+    reconciled2bData.push(newRow);
+  });
+  gstr3bData.forEach(row => {
+    const match = findMatch(row, gstr3bData, gstr2bData, true, diffAllowed);
+    const newRow = [match, ...row.slice(1)];
+    reconciled3bData.push(newRow);
+  });
+
+  // Update tables
+  displayData(reconciled2bData, 'gstr2b-container', gstr2bHeaders(), 'gstr2b');
+  displayData(reconciled3bData, 'gstr3b-container', gstr3bHeaders(), 'gstr3b');
+  displaySummary(reconciled2bData, reconciled3bData);
+  generateOutput(reconciled2bData, reconciled3bData);
+}
 
       function updateRow(rowElement, newRow) {
         const match = newRow[0];
@@ -1316,6 +1314,8 @@ function toggleFilters() {
       if (!filterEnabled) {
         resetFilters(containerId);
       }
+    } else {
+      console.warn(`Table not found in ${containerId}`);
     }
   });
 }
