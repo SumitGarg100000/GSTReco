@@ -320,6 +320,7 @@
       }
       .match-gstn-inv-date, .match { background-color: #00ced1; color: white; }
       .match-inv { background-color: #4b0082; color: white; }
+      .amt-diff { background-color: #ff4500; color: white; } /* OrangeRed for Unmatch - Amt Diff */
       .match-gstn-date { background-color: #32cd32; color: white; }
       .match-gstn { background-color: #ffbf00; }
       .gstn-not-match { background-color: #dc143c; color: white; }
@@ -800,22 +801,42 @@
       }
 
       function handleCellEdit(event) {
-        const target = event.target;
-        if (target.tagName === 'TD' && target.hasAttribute('contenteditable')) {
-          const rowIndex = parseInt(target.parentElement.getAttribute('data-row'), 10);
-          const colIndex = parseInt(target.getAttribute('data-col'), 10);
-          const sheetType = target.parentElement.getAttribute('data-sheet');
-          const newValue = target.textContent.trim();
-          if (sheetType === 'gstr2b') {
-            gstr2bData[rowIndex][colIndex] = newValue;
-            localStorage.setItem('gstr2bData', JSON.stringify(gstr2bData));
-          } else if (sheetType === 'gstr3b') {
-            gstr3bData[rowIndex][colIndex] = newValue;
-            localStorage.setItem('gstr3bData', JSON.stringify(gstr3bData));
-          }
-          reconcileData();
-        }
+  const target = event.target;
+  if (target.tagName === 'TD' && target.hasAttribute('contenteditable')) {
+    const rowIndex = parseInt(target.parentElement.getAttribute('data-row'), 10);
+    const colIndex = parseInt(target.getAttribute('data-col'), 10);
+    const sheetType = target.parentElement.getAttribute('data-sheet');
+    const newValue = target.textContent.trim();
+    if (sheetType === 'gstr2b') {
+      gstr2bData[rowIndex][colIndex] = newValue;
+      localStorage.setItem('gstr2bData', JSON.stringify(gstr2bData));
+    } else if (sheetType === 'gstr3b') {
+      gstr3bData[rowIndex][colIndex] = newValue;
+      localStorage.setItem('gstr3bData', JSON.stringify(gstr3bData));
+    }
+    reconcileData();
+    // Filter refresh karna jab filter enabled ho
+    if (filterEnabled) {
+      refreshFilters(sheetType === 'gstr2b' ? 'gstr2b-container' : 'gstr3b-container');
+    }
+  }
+}
+
+// Naya function filter refresh ke liye
+function refreshFilters(containerId) {
+  const table = document.getElementById(containerId).querySelector('table');
+  if (table) {
+    const headers = table.querySelectorAll('thead th');
+    headers.forEach((th, colIndex) => {
+      const dropdown = th.querySelector('.filter-dropdown');
+      if (dropdown) {
+        const optionsDiv = dropdown.querySelector('.filter-options');
+        populateFilterOptions(optionsDiv, containerId, colIndex); // Options refresh karna
+        applyFilters(containerId); // Filters reapply karna
       }
+    });
+  }
+}
 
       function reconcileData() {
         const diffInput = document.getElementById('diff-allowed').value;
@@ -853,87 +874,92 @@
 }
       
 function findMatch(row, sourceData, compareData, is3b, diffAllowed) {
-    const sourceHeaders = is3b ? gstr3bHeaders() : gstr2bHeaders();
-    const compareHeaders = is3b ? gstr2bHeaders() : gstr3bHeaders();
-    const invDateIdx = sourceHeaders.indexOf('Invoice Date');
-    const gstnIdx = sourceHeaders.indexOf('GSTN');
-    const invNumIdx = sourceHeaders.indexOf('Invoice Number');
-    const compareGstnIdx = compareHeaders.indexOf('GSTN');
-    const invDate = String(row[invDateIdx]).toLowerCase();
-    const gstn = String(row[gstnIdx]).toLowerCase();
-    const invNum = normalizeInvoiceNumber(String(row[invNumIdx]).toLowerCase()); // Already updated
+  const sourceHeaders = is3b ? gstr3bHeaders() : gstr2bHeaders();
+  const compareHeaders = is3b ? gstr2bHeaders() : gstr3bHeaders();
+  const invDateIdx = sourceHeaders.indexOf('Invoice Date');
+  const gstnIdx = sourceHeaders.indexOf('GSTN');
+  const invNumIdx = sourceHeaders.indexOf('Invoice Number');
+  const compareGstnIdx = compareHeaders.indexOf('GSTN');
+  const invDate = String(row[invDateIdx]).toLowerCase();
+  const gstn = String(row[gstnIdx]).toLowerCase();
+  const invNum = normalizeInvoiceNumber(String(row[invNumIdx]).toLowerCase());
 
-    if (detailedReconciliationCheckbox.checked) {
+  const invTotals = calculateTotalsByInv(sourceData, gstn, invNum, is3b);
+  const compareInvTotals = calculateTotalsByInv(compareData, gstn, invNum, !is3b);
+
+  if (invTotals.count > 0 && compareInvTotals.count > 0) {
+    if (checkTotals(invTotals, compareInvTotals, diffAllowed)) {
+      if (detailedReconciliationCheckbox.checked) {
         const sourceTotals = calculateTotals(sourceData, invDate, gstn, invNum, is3b);
         const compareTotals = calculateTotals(compareData, invDate, gstn, invNum, !is3b);
-        if (sourceTotals.count > 0 && compareTotals.count > 0) {
-            if (checkTotals(sourceTotals, compareTotals, diffAllowed)) {
-                return 'Match - GSTN, Invoice No., Date';
-            }
+        if (sourceTotals.count > 0 && compareTotals.count > 0 && checkTotals(sourceTotals, compareTotals, diffAllowed)) {
+          return 'Match - GSTN, Invoice No., Date';
         }
-        const invTotals = calculateTotalsByInv(sourceData, gstn, invNum, is3b);
-        const compareInvTotals = calculateTotalsByInv(compareData, gstn, invNum, !is3b);
-        if (invTotals.count > 0 && compareInvTotals.count > 0) {
-            if (checkTotals(invTotals, compareInvTotals, diffAllowed)) {
-                return 'Match - GSTN, Invoice No.';
-            }
-        }
-        const gstnDateTotals = calculateTotalsByGstnDate(sourceData, invDate, gstn, is3b);
-        const compareGstnDateTotals = calculateTotalsByGstnDate(compareData, invDate, gstn, !is3b);
-        if (gstnDateTotals.count > 0 && compareGstnDateTotals.count > 0) {
-            if (checkTotals(gstnDateTotals, compareGstnDateTotals, diffAllowed)) {
-                return 'Match - GSTN, Date';
-            }
-        }
-        const gstnTotals = calculateTotalsByGstn(sourceData, gstn, is3b);
-        const compareGstnTotals = calculateTotalsByGstn(compareData, gstn, !is3b);
-        if (gstnTotals.count > 0 && compareGstnTotals.count > 0) {
-            if (checkTotals(gstnTotals, compareGstnTotals, diffAllowed)) {
-                return 'Match - GSTN';
-            }
-        }
-        const gstnExistsInCompare = compareData.some(r => String(r[compareGstnIdx]).toLowerCase() === gstn);
-        if (!gstnExistsInCompare) {
-            return 'Unmatch - GSTN Not Exist';
-        }
-        return 'Unmatch';
+        return 'Match - GSTN, Invoice No.';
+      } else {
+        return 'Match';
+      }
     } else {
-        const sourceTotals = calculateTotals(sourceData, invDate, gstn, invNum, is3b);
-        const compareTotals = calculateTotals(compareData, invDate, gstn, invNum, !is3b);
-        if (sourceTotals.count > 0 && compareTotals.count > 0) {
-            if (checkTotals(sourceTotals, compareTotals, diffAllowed)) {
-                return 'Match';
-            }
-        }
-        const invTotals = calculateTotalsByInv(sourceData, gstn, invNum, is3b);
-        const compareInvTotals = calculateTotalsByInv(compareData, gstn, invNum, !is3b);
-        if (invTotals.count > 0 && compareInvTotals.count > 0) {
-            if (checkTotals(invTotals, compareInvTotals, diffAllowed)) {
-                return 'Match';
-            }
-        }
-        const gstnDateTotals = calculateTotalsByGstnDate(sourceData, invDate, gstn, is3b);
-        const compareGstnDateTotals = calculateTotalsByGstnDate(compareData, invDate, gstn, !is3b);
-        if (gstnDateTotals.count > 0 && compareGstnDateTotals.count > 0) {
-            if (checkTotals(gstnDateTotals, compareGstnDateTotals, diffAllowed)) {
-                return 'Match';
-            }
-        }
-        const gstnTotals = calculateTotalsByGstn(sourceData, gstn, is3b);
-        const compareGstnTotals = calculateTotalsByGstn(compareData, gstn, !is3b);
-        if (gstnTotals.count > 0 && compareGstnTotals.count > 0) {
-            if (checkTotals(gstnTotals, compareGstnTotals, diffAllowed)) {
-                return 'Match';
-            }
-        }
-        const gstnExistsInCompare = compareData.some(r => String(r[compareGstnIdx]).toLowerCase() === gstn);
-        if (!gstnExistsInCompare) {
-            return 'Unmatch - GSTN Not Exist';
-        }
-        return 'Unmatch';
+      return 'Unmatch - Amt Diff';
     }
-}
+  }
 
+  if (detailedReconciliationCheckbox.checked) {
+    const sourceTotals = calculateTotals(sourceData, invDate, gstn, invNum, is3b);
+    const compareTotals = calculateTotals(compareData, invDate, gstn, invNum, !is3b);
+    if (sourceTotals.count > 0 && compareTotals.count > 0) {
+      if (checkTotals(sourceTotals, compareTotals, diffAllowed)) {
+        return 'Match - GSTN, Invoice No., Date';
+      }
+    }
+    const gstnDateTotals = calculateTotalsByGstnDate(sourceData, invDate, gstn, is3b);
+    const compareGstnDateTotals = calculateTotalsByGstnDate(compareData, invDate, gstn, !is3b);
+    if (gstnDateTotals.count > 0 && compareGstnDateTotals.count > 0) {
+      if (checkTotals(gstnDateTotals, compareGstnDateTotals, diffAllowed)) {
+        return 'Match - GSTN, Date';
+      }
+    }
+    const gstnTotals = calculateTotalsByGstn(sourceData, gstn, is3b);
+    const compareGstnTotals = calculateTotalsByGstn(compareData, gstn, !is3b);
+    if (gstnTotals.count > 0 && compareGstnTotals.count > 0) {
+      if (checkTotals(gstnTotals, compareGstnTotals, diffAllowed)) {
+        return 'Match - GSTN';
+      }
+    }
+    const gstnExistsInCompare = compareData.some(r => String(r[compareGstnIdx]).toLowerCase() === gstn);
+    if (!gstnExistsInCompare) {
+      return 'Unmatch - GSTN Not Exist';
+    }
+    return 'Unmatch';
+  } else {
+    const sourceTotals = calculateTotals(sourceData, invDate, gstn, invNum, is3b);
+    const compareTotals = calculateTotals(compareData, invDate, gstn, invNum, !is3b);
+    if (sourceTotals.count > 0 && compareTotals.count > 0) {
+      if (checkTotals(sourceTotals, compareTotals, diffAllowed)) {
+        return 'Match';
+      }
+    }
+    const gstnDateTotals = calculateTotalsByGstnDate(sourceData, invDate, gstn, is3b);
+    const compareGstnDateTotals = calculateTotalsByGstnDate(compareData, invDate, gstn, !is3b);
+    if (gstnDateTotals.count > 0 && compareGstnDateTotals.count > 0) {
+      if (checkTotals(gstnDateTotals, compareGstnDateTotals, diffAllowed)) {
+        return 'Match';
+      }
+    }
+    const gstnTotals = calculateTotalsByGstn(sourceData, gstn, is3b);
+    const compareGstnTotals = calculateTotalsByGstn(compareData, gstn, !is3b);
+    if (gstnTotals.count > 0 && compareGstnTotals.count > 0) {
+      if (checkTotals(gstnTotals, compareGstnTotals, diffAllowed)) {
+        return 'Match';
+      }
+    }
+    const gstnExistsInCompare = compareData.some(r => String(r[compareGstnIdx]).toLowerCase() === gstn);
+    if (!gstnExistsInCompare) {
+      return 'Unmatch - GSTN Not Exist';
+    }
+    return 'Unmatch';
+  }
+}
       function calculateTotals(data, invDate, gstn, invNum, is3b) {
     const headers = is3b ? gstr3bHeaders() : gstr2bHeaders();
     const invDateIdx = headers.indexOf('Invoice Date');
@@ -1030,58 +1056,60 @@ function findMatch(row, sourceData, compareData, is3b, diffAllowed) {
       }
 
       function colorRow(rowElement, match) {
-        rowElement.className = '';
-        if (detailedReconciliationCheckbox.checked) {
-          switch (match) {
-            case 'Match - GSTN, Invoice No., Date': rowElement.classList.add('match-gstn-inv-date'); break;
-            case 'Match - GSTN, Invoice No.': rowElement.classList.add('match-inv'); break;
-            case 'Match - GSTN, Date': rowElement.classList.add('match-gstn-date'); break;
-            case 'Match - GSTN': rowElement.classList.add('match-gstn'); break;
-            case 'Unmatch - GSTN Not Exist': rowElement.classList.add('gstn-not-match'); break;
-            default: rowElement.classList.add('no-match'); break;
-          }
-        } else {
-          switch (match) {
-            case 'Match': rowElement.classList.add('match'); break;
-            case 'Unmatch - GSTN Not Exist': rowElement.classList.add('gstn-not-match'); break;
-            default: rowElement.classList.add('no-match'); break;
-          }
-        }
-      }
+  rowElement.className = '';
+  if (detailedReconciliationCheckbox.checked) {
+    switch (match) {
+      case 'Match - GSTN, Invoice No., Date': rowElement.classList.add('match-gstn-inv-date'); break;
+      case 'Match - GSTN, Invoice No.': rowElement.classList.add('match-inv'); break;
+      case 'Match - GSTN, Date': rowElement.classList.add('match-gstn-date'); break;
+      case 'Match - GSTN': rowElement.classList.add('match-gstn'); break;
+      case 'Unmatch - GSTN Not Exist': rowElement.classList.add('gstn-not-match'); break;
+      case 'Unmatch - Amt Diff': rowElement.classList.add('amt-diff'); break; // Naya criteria
+      default: rowElement.classList.add('no-match'); break;
+    }
+  } else {
+    switch (match) {
+      case 'Match': rowElement.classList.add('match'); break;
+      case 'Unmatch - GSTN Not Exist': rowElement.classList.add('gstn-not-match'); break;
+      case 'Unmatch - Amt Diff': rowElement.classList.add('amt-diff'); break; // Naya criteria
+      default: rowElement.classList.add('no-match'); break;
+    }
+  }
+}
 
       function calculateSummary(data, is3b) {
-        const headers = is3b ? gstr3bHeaders() : gstr2bHeaders();
-        const taxableIdx = headers.indexOf('Taxable Value');
-        const igstIdx = headers.indexOf('IGST');
-        const cgstIdx = headers.indexOf('CGST');
-        const sgstIdx = headers.indexOf('SGST');
-        const criteria = detailedReconciliationCheckbox.checked ?
-          ['Match - GSTN, Invoice No., Date', 'Match - GSTN, Invoice No.', 'Match - GSTN, Date', 'Match - GSTN', 'Unmatch - GSTN Not Exist', 'Unmatch'] :
-          ['Match', 'Unmatch - GSTN Not Exist', 'Unmatch'];
-        const summary = {};
-        criteria.forEach(criterion => {
-          summary[criterion] = { taxable: 0, igst: 0, cgst: 0, sgst: 0 };
-        });
-        data.forEach(row => {
-          let match = row[0];
-          if (!detailedReconciliationCheckbox.checked && 
-              ['Match - GSTN, Invoice No., Date', 'Match - GSTN, Invoice No.', 'Match - GSTN, Date', 'Match - GSTN'].includes(match)) {
-            match = 'Match';
-          }
-          summary[match].taxable += Number(row[taxableIdx]) || 0;
-          summary[match].igst += Number(row[igstIdx]) || 0;
-          summary[match].cgst += Number(row[cgstIdx]) || 0;
-          summary[match].sgst += Number(row[sgstIdx]) || 0;
-        });
-        const total = { taxable: 0, igst: 0, cgst: 0, sgst: 0 };
-        criteria.forEach(criterion => {
-          total.taxable += summary[criterion].taxable;
-          total.igst += summary[criterion].igst;
-          total.cgst += summary[criterion].cgst;
-          total.sgst += summary[criterion].sgst;
-        });
-        return { summary, total };
-      }
+  const headers = is3b ? gstr3bHeaders() : gstr2bHeaders();
+  const taxableIdx = headers.indexOf('Taxable Value');
+  const igstIdx = headers.indexOf('IGST');
+  const cgstIdx = headers.indexOf('CGST');
+  const sgstIdx = headers.indexOf('SGST');
+  const criteria = detailedReconciliationCheckbox.checked ?
+    ['Match - GSTN, Invoice No., Date', 'Match - GSTN, Invoice No.', 'Match - GSTN, Date', 'Match - GSTN', 'Unmatch - GSTN Not Exist', 'Unmatch - Amt Diff', 'Unmatch'] :
+    ['Match', 'Unmatch - GSTN Not Exist', 'Unmatch - Amt Diff', 'Unmatch'];
+  const summary = {};
+  criteria.forEach(criterion => {
+    summary[criterion] = { taxable: 0, igst: 0, cgst: 0, sgst: 0 };
+  });
+  data.forEach(row => {
+    let match = row[0];
+    if (!detailedReconciliationCheckbox.checked && 
+        ['Match - GSTN, Invoice No., Date', 'Match - GSTN, Invoice No.', 'Match - GSTN, Date', 'Match - GSTN'].includes(match)) {
+      match = 'Match';
+    }
+    summary[match].taxable += Number(row[taxableIdx]) || 0;
+    summary[match].igst += Number(row[igstIdx]) || 0;
+    summary[match].cgst += Number(row[cgstIdx]) || 0;
+    summary[match].sgst += Number(row[sgstIdx]) || 0;
+  });
+  const total = { taxable: 0, igst: 0, cgst: 0, sgst: 0 };
+  criteria.forEach(criterion => {
+    total.taxable += summary[criterion].taxable;
+    total.igst += summary[criterion].igst;
+    total.cgst += summary[criterion].cgst;
+    total.sgst += summary[criterion].sgst;
+  });
+  return { summary, total };
+}
 
       function displaySummary(reconciled2bData, reconciled3bData) {
         const gstr2bSummary = calculateSummary(reconciled2bData, false);
@@ -1204,34 +1232,36 @@ function findMatch(row, sourceData, compareData, is3b, diffAllowed) {
       }
 
       function applyExcelRowColor(row, match, columnCount) {
-        const colors = detailedReconciliationCheckbox.checked ? {
-          'Match - GSTN, Invoice No., Date': 'FF00CED1',
-          'Match - GSTN, Invoice No.': 'FF4B0082',
-          'Match - GSTN, Date': 'FF32CD32',
-          'Match - GSTN': 'FFFFBF00',
-          'Unmatch - GSTN Not Exist': 'FFDC143C',
-          'Unmatch': 'FFFF00FF'
-        } : {
-          'Match': 'FF00CED1',
-          'Unmatch - GSTN Not Exist': 'FFDC143C',
-          'Unmatch': 'FFFF00FF'
-        };
-        const color = colors[match] || 'FFFF00FF';
-        for (let i = 1; i <= columnCount; i++) {
-          const cell = row.getCell(i);
-          cell.fill = {
-            type: 'pattern',
-            pattern: 'solid',
-            fgColor: { argb: color }
-          };
-          if ((detailedReconciliationCheckbox.checked && 
-              ['Match - GSTN, Invoice No., Date', 'Match - GSTN, Invoice No.', 'Match - GSTN, Date', 'Match - GSTN', 'Unmatch - GSTN Not Exist', 'Unmatch'].includes(match)) ||
-              (!detailedReconciliationCheckbox.checked && 
-              ['Match', 'Unmatch - GSTN Not Exist', 'Unmatch'].includes(match))) {
-            cell.font = { color: { argb: 'FFFFFFFF' } };
-          }
-        }
-      }
+  const colors = detailedReconciliationCheckbox.checked ? {
+    'Match - GSTN, Invoice No., Date': 'FF00CED1',
+    'Match - GSTN, Invoice No.': 'FF4B0082',
+    'Match - GSTN, Date': 'FF32CD32',
+    'Match - GSTN': 'FFFFBF00',
+    'Unmatch - GSTN Not Exist': 'FFDC143C',
+    'Unmatch - Amt Diff': 'FFFF4500', // OrangeRed
+    'Unmatch': 'FFFF00FF'
+  } : {
+    'Match': 'FF00CED1',
+    'Unmatch - GSTN Not Exist': 'FFDC143C',
+    'Unmatch - Amt Diff': 'FFFF4500', // OrangeRed
+    'Unmatch': 'FFFF00FF'
+  };
+  const color = colors[match] || 'FFFF00FF';
+  for (let i = 1; i <= columnCount; i++) {
+    const cell = row.getCell(i);
+    cell.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: color }
+    };
+    if ((detailedReconciliationCheckbox.checked && 
+        ['Match - GSTN, Invoice No., Date', 'Match - GSTN, Invoice No.', 'Match - GSTN, Date', 'Match - GSTN', 'Unmatch - GSTN Not Exist', 'Unmatch - Amt Diff', 'Unmatch'].includes(match)) ||
+        (!detailedReconciliationCheckbox.checked && 
+        ['Match', 'Unmatch - GSTN Not Exist', 'Unmatch - Amt Diff', 'Unmatch'].includes(match))) {
+      cell.font = { color: { argb: 'FFFFFFFF' } };
+    }
+  }
+}
 
 //      }   else      {       alert("Don't waste your time for copying. This file is fully secured by Sumit Garg. If any query, Contact - Sumit Garg, Ph. No. - 9716804520, Email - SumitGarg100000@Gmail.com ");     }
       
@@ -1279,7 +1309,7 @@ function addFilterDropdown(th, containerId, colIndex) {
 
   const filterBtn = document.createElement('button');
   filterBtn.className = 'filter-btn';
-  filterBtn.innerHTML = 'â–¼'; // Down arrow for dropdown
+  filterBtn.innerHTML = '▼'; // Down arrow for dropdown
   filterBtn.addEventListener('click', () => toggleDropdown(dropdown));
 
   const dropdownContent = document.createElement('div');
