@@ -1136,51 +1136,47 @@ function findMatch(row, sourceData, compareData, is3b, diffAllowed) {
 }
 
       function displaySummary(reconciled2bData, reconciled3bData) {
-        const gstr2bSummary = calculateSummary(reconciled2bData, false);
-        const gstr3bSummary = calculateSummary(reconciled3bData, true);
-        const container = document.getElementById('summary-container');
-        let html = '<table><thead><tr>';
-        html += '<th rowspan="2">Particulars</th>';
-        html += '<th colspan="4">GST Portal</th>';
-        html += '<th colspan="4">Client Data</th>';
-        html += '</tr><tr>';
-        ['Taxable Value', 'IGST', 'CGST', 'SGST'].forEach(header => {
-          html += `<th>${header}</th>`;
-        });
-        ['Taxable Value', 'IGST', 'CGST', 'SGST'].forEach(header => {
-          html += `<th>${header}</th>`;
-        });
-        html += '</tr></thead><tbody>';
-        const criteria = detailedReconciliationCheckbox.checked ?
-          ['Match - GSTN, Invoice No., Date', 'Match - GSTN, Invoice No.', 'Match - GSTN, Date', 'Match - GSTN', 'Unmatch - GSTN Not Exist', 'Unmatch'] :
-          ['Match', 'Unmatch - GSTN Not Exist', 'Unmatch'];
-        criteria.forEach(criterion => {
-          html += '<tr>';
-          html += `<td>${criterion}</td>`;
-          html += `<td>${gstr2bSummary.summary[criterion].taxable.toFixed(2)}</td>`;
-          html += `<td>${gstr2bSummary.summary[criterion].igst.toFixed(2)}</td>`;
-          html += `<td>${gstr2bSummary.summary[criterion].cgst.toFixed(2)}</td>`;
-          html += `<td>${gstr2bSummary.summary[criterion].sgst.toFixed(2)}</td>`;
-          html += `<td>${gstr3bSummary.summary[criterion].taxable.toFixed(2)}</td>`;
-          html += `<td>${gstr3bSummary.summary[criterion].igst.toFixed(2)}</td>`;
-          html += `<td>${gstr3bSummary.summary[criterion].cgst.toFixed(2)}</td>`;
-          html += `<td>${gstr3bSummary.summary[criterion].sgst.toFixed(2)}</td>`;
-          html += '</tr>';
-        });
-        html += '<tr>';
-        html += '<td><strong>Total</strong></td>';
-        html += `<td><strong>${gstr2bSummary.total.taxable.toFixed(2)}</strong></td>`;
-        html += `<td><strong>${gstr2bSummary.total.igst.toFixed(2)}</strong></td>`;
-        html += `<td><strong>${gstr2bSummary.total.cgst.toFixed(2)}</strong></td>`;
-        html += `<td><strong>${gstr2bSummary.total.sgst.toFixed(2)}</strong></td>`;
-        html += `<td><strong>${gstr3bSummary.total.taxable.toFixed(2)}</strong></td>`;
-        html += `<td><strong>${gstr3bSummary.total.igst.toFixed(2)}</strong></td>`;
-        html += `<td><strong>${gstr3bSummary.total.cgst.toFixed(2)}</strong></td>`;
-        html += `<td><strong>${gstr3bSummary.total.sgst.toFixed(2)}</strong></td>`;
-        html += '</tr>';
-        html += '</tbody></table>';
-        container.innerHTML = html;
-      }
+  const gstr2bSummary = calculateSummary(reconciled2bData, false);
+  const gstr3bSummary = calculateSummary(reconciled3bData, true);
+  const container = document.getElementById('summary-container');
+  let html = '<table><thead><tr>';
+  html += '<th rowspan="2">Particulars</th>';
+  html += '<th colspan="4">GST Portal</th>';
+  html += '<th colspan="4">Client Data</th>';
+  html += '</tr><tr>';
+  ['Taxable Value', 'IGST', 'CGST', 'SGST'].forEach(header => html += `<th>${header}</th>`);
+  ['Taxable Value', 'IGST', 'CGST', 'SGST'].forEach(header => html += `<th>${header}</th>`);
+  html += '</tr></thead><tbody>';
+  const criteria = detailedReconciliationCheckbox.checked ?
+    ['Match - GSTN, Invoice No., Date', 'Match - GSTN, Invoice No.', 'Match - GSTN, Date', 'Match - GSTN', 'Unmatch - GSTN Not Exist', 'Unmatch - Amt Diff', 'Unmatch'] :
+    ['Match', 'Unmatch - GSTN Not Exist', 'Unmatch - Amt Diff', 'Unmatch'];
+  criteria.forEach(criterion => {
+    html += '<tr>';
+    html += `<td>${criterion}</td>`;
+    html += `<td>${(gstr2bSummary.summary[criterion]?.taxable || 0).toFixed(2)}</td>`;
+    html += `<td>${(gstr2bSummary.summary[criterion]?.igst || 0).toFixed(2)}</td>`;
+    html += `<td>${(gstr2bSummary.summary[criterion]?.cgst || 0).toFixed(2)}</td>`;
+    html += `<td>${(gstr2bSummary.summary[criterion]?.sgst || 0).toFixed(2)}</td>`;
+    html += `<td>${(gstr3bSummary.summary[criterion]?.taxable || 0).toFixed(2)}</td>`;
+    html += `<td>${(gstr3bSummary.summary[criterion]?.igst || 0).toFixed(2)}</td>`;
+    html += `<td>${(gstr3bSummary.summary[criterion]?.cgst || 0).toFixed(2)}</td>`;
+    html += `<td>${(gstr3bSummary.summary[criterion]?.sgst || 0).toFixed(2)}</td>`;
+    html += '</tr>';
+  });
+  html += '<tr>';
+  html += '<td><strong>Total</strong></td>';
+  html += `<td><strong>${gstr2bSummary.total.taxable.toFixed(2)}</strong></td>`;
+  html += `<td><strong>${gstr2bSummary.total.igst.toFixed(2)}</strong></td>`;
+  html += `<td><strong>${gstr2bSummary.total.cgst.toFixed(2)}</strong></td>`;
+  html += `<td><strong>${gstr2bSummary.total.sgst.toFixed(2)}</strong></td>`;
+  html += `<td><strong>${gstr3bSummary.total.taxable.toFixed(2)}</strong></td>`;
+  html += `<td><strong>${gstr3bSummary.total.igst.toFixed(2)}</strong></td>`;
+  html += `<td><strong>${gstr3bSummary.total.cgst.toFixed(2)}</strong></td>`;
+  html += `<td><strong>${gstr3bSummary.total.sgst.toFixed(2)}</strong></td>`;
+  html += '</tr>';
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
 
       async function generateOutput(reconciled2bData, reconciled3bData) {
         const workbook = new ExcelJS.Workbook();
@@ -1326,14 +1322,14 @@ function toggleFilters() {
 
 // Add Filter Dropdown to Header
 function addFilterDropdown(th, containerId, colIndex) {
-  if (th.querySelector('.filter-dropdown')) return; // Avoid duplicates
+  if (th.querySelector('.filter-dropdown')) return;
   const headerText = th.textContent.trim();
   const dropdown = document.createElement('div');
   dropdown.className = 'filter-dropdown';
 
   const filterBtn = document.createElement('button');
   filterBtn.className = 'filter-btn';
-  filterBtn.innerHTML = '▼'; // Down arrow for dropdown
+  filterBtn.innerHTML = '▼';
   filterBtn.addEventListener('click', () => toggleDropdown(dropdown));
 
   const dropdownContent = document.createElement('div');
@@ -1360,7 +1356,6 @@ function addFilterDropdown(th, containerId, colIndex) {
   actionsDiv.appendChild(selectAllBtn);
   actionsDiv.appendChild(uncheckAllBtn);
 
-  // Sort Buttons
   const sortDiv = document.createElement('div');
   sortDiv.className = 'sort-actions';
   const sortAscBtn = document.createElement('button');
@@ -1372,11 +1367,10 @@ function addFilterDropdown(th, containerId, colIndex) {
   sortDiv.appendChild(sortAscBtn);
   sortDiv.appendChild(sortDescBtn);
 
-  // Assemble Dropdown Content
   dropdownContent.appendChild(input);
   dropdownContent.appendChild(optionsDiv);
   dropdownContent.appendChild(actionsDiv);
-  dropdownContent.appendChild(sortDiv); // Sort buttons ko last mein add kiya
+  dropdownContent.appendChild(sortDiv);
   dropdown.appendChild(filterBtn);
   dropdown.appendChild(dropdownContent);
   th.appendChild(dropdown);
