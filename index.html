@@ -654,55 +654,62 @@
 
   // ***Change 2: Show Tool Function ko Enhance Karna***
   function showTool() {
-    document.getElementById("login-section").classList.add("hidden");
-    document.getElementById("tool-section").classList.remove("hidden");
+  document.getElementById("login-section").classList.add("hidden");
+  document.getElementById("tool-section").classList.remove("hidden");
 
-    // Restore checkbox state
-    detailedReconciliationCheckbox.checked = localStorage.getItem('detailedReconciliation') === 'true';
+  const isFreeService = localStorage.getItem("isFreeService") === "true";
 
-    // Add event listeners only once (avoid duplicates)
-    const reconcileBtn = document.getElementById('reconcile-btn');
-    const downloadSample = document.getElementById('download-sample');
-    const diffAllowed = document.getElementById('diff-allowed');
-    const resetBtn = document.getElementById('reset-btn');
-    const gstFile = document.getElementById('gst-file');
+  // Restore checkbox state only for normal users
+  const detailedReconciliationCheckbox = document.getElementById("detailed-reconciliation");
+  detailedReconciliationCheckbox.checked = localStorage.getItem('detailedReconciliation') === 'true' && !isFreeService;
+  
+  // Add event listeners only once (avoid duplicates)
+  const reconcileBtn = document.getElementById('reconcile-btn');
+  const downloadSample = document.getElementById('download-sample');
+  const diffAllowed = document.getElementById('diff-allowed');
+  const resetBtn = document.getElementById('reset-btn');
+  const gstFile = document.getElementById('gst-file');
 
-    // Remove existing listeners to prevent duplication (optional but safer)
-    reconcileBtn.removeEventListener('click', reconcileData);
-    downloadSample.removeEventListener('click', generateSampleFile);
-    diffAllowed.removeEventListener('input', reconcileData);
-    resetBtn.removeEventListener('click', resetData);
-    gstFile.removeEventListener('change', handleFileUpload);
+  reconcileBtn.removeEventListener('click', reconcileData);
+  downloadSample.removeEventListener('click', generateSampleFile);
+  diffAllowed.removeEventListener('input', reconcileData);
+  resetBtn.removeEventListener('click', resetData);
+  gstFile.removeEventListener('change', handleFileUpload);
 
-    // Add listeners
-    gstFile.addEventListener('change', handleFileUpload);
-    reconcileBtn.addEventListener('click', reconcileData);
-    downloadSample.addEventListener('click', generateSampleFile);
-    diffAllowed.addEventListener('input', reconcileData);
-    resetBtn.addEventListener('click', resetData);
+  gstFile.addEventListener('change', handleFileUpload);
+  reconcileBtn.addEventListener('click', reconcileData);
+  downloadSample.addEventListener('click', generateSampleFile);
+  diffAllowed.addEventListener('input', reconcileData);
+  resetBtn.addEventListener('click', resetData);
 
-    // Restore checkbox event listener
-    detailedReconciliationCheckbox.removeEventListener('change', handleCheckboxChange); // <--- Highlight: Remove old listener
-    detailedReconciliationCheckbox.addEventListener('change', handleCheckboxChange); // <--- Highlight: Add new listener
-    function handleCheckboxChange() {
-      reconcileData();
-      localStorage.setItem('detailedReconciliation', detailedReconciliationCheckbox.checked);
-    }
-
-    // ***Change 3: Restore Previous Data on Refresh***
-    if (gstr2bData.length > 0) {
-      displayData(gstr2bData, 'gstr2b-container', gstr2bHeaders(), 'gstr2b');
-    }
-    if (gstr3bData.length > 0) {
-      displayData(gstr3bData, 'gstr3b-container', gstr3bHeaders(), 'gstr3b');
-    }
-    if (gstr2bData.length > 0 || gstr3bData.length > 0) {
-      reconcileData(); // <--- Highlight: Reconcile data after restoring
-    }
-    // Apply free service restrictions if applicable
-  restrictFreeServiceFeatures();
+  detailedReconciliationCheckbox.removeEventListener('change', handleCheckboxChange);
+  detailedReconciliationCheckbox.addEventListener('change', handleCheckboxChange);
+  function handleCheckboxChange() {
+    reconcileData();
+    localStorage.setItem('detailedReconciliation', detailedReconciliationCheckbox.checked);
   }
 
+  // Restore previous data
+  if (gstr2bData.length > 0) {
+    displayData(gstr2bData, 'gstr2b-container', gstr2bHeaders(), 'gstr2b');
+  }
+  if (gstr3bData.length > 0) {
+    displayData(gstr3bData, 'gstr3b-container', gstr3bHeaders(), 'gstr3b');
+  }
+  if (gstr2bData.length > 0 || gstr3bData.length > 0) {
+    reconcileData();
+  }
+
+  // Reset restrictions for normal users and apply for free service users
+  const filterCheckbox = document.getElementById("enable-filter");
+  if (!isFreeService) {
+    detailedReconciliationCheckbox.disabled = false;
+    filterCheckbox.disabled = false;
+    diffAllowed.disabled = false;
+    document.getElementById("free-service-notice")?.remove(); // Remove notice if exists
+  }
+  restrictFreeServiceFeatures(); // Apply restrictions if free service mode
+}
 
   function restrictFreeServiceFeatures() {
   const isFreeService = localStorage.getItem("isFreeService") === "true";
@@ -725,16 +732,17 @@
     diffAllowedInput.value = "0"; // Default to 0
     diffAllowedInput.disabled = true;
 
-    // Disable Editable Fields in Tables
+    // Disable Editable Fields in Existing Tables
     const tables = document.querySelectorAll("#gstr2b-container table, #gstr3b-container table");
     tables.forEach(table => {
       const cells = table.querySelectorAll("td[contenteditable='true']");
       cells.forEach(cell => {
-        cell.removeAttribute("contenteditable");
+        cell.setAttribute("contenteditable", "false"); // Explicitly disable
         cell.style.backgroundColor = "#f0f0f0"; // Visual indication
       });
     });
-// Optional: Add a notice
+
+    // Add notice
     const toolSection = document.getElementById("tool-section");
     const notice = document.createElement("p");
     notice.id = "free-service-notice";
@@ -745,7 +753,7 @@
       toolSection.insertBefore(notice, toolSection.querySelector("h1").nextSibling);
     }
   }
-  }
+}
 
     
       // Reset Data Function
@@ -892,30 +900,47 @@
       }
 
       function displayData(data, containerId, headers, sheetType) {
-        const container = document.getElementById(containerId);
-        let html = '<table><thead><tr>';
-        headers.forEach(header => html += `<th>${header}</th>`);
-        html += '</tr></thead><tbody>';
-        data.forEach((row, rowIndex) => {
-          html += `<tr data-row="${rowIndex}" data-sheet="${sheetType}">`;
-          headers.forEach((_, colIndex) => {
-            const cell = row[colIndex];
-            const value = typeof cell === 'number' && (cell > 40000 && cell < 50000) ? formatDate(cell) : (cell === undefined || cell === null ? '' : cell);
-            const isEditable = colIndex > 0 && !isFreeService; // Disable editable in free service mode
-            html += `<td contenteditable="${isEditable}" data-col="${colIndex}">${value}</td>`;
-          });
-          html += '</tr>';
-        });
-        html += '</tbody></table>';
-        container.innerHTML = html;
-        const table = container.querySelector('table');
-        table.addEventListener('input', handleCellEdit);
-        if (filterEnabled) toggleFilters(); // Reapply filters if enabled
-      }
+  const container = document.getElementById(containerId);
+  const isFreeService = localStorage.getItem("isFreeService") === "true";
+  let html = '<table><thead><tr>';
+  headers.forEach(header => html += `<th>${header}</th>`);
+  html += '</tr></thead><tbody>';
+  data.forEach((row, rowIndex) => {
+    html += `<tr data-row="${rowIndex}" data-sheet="${sheetType}">`;
+    headers.forEach((_, colIndex) => {
+      const cell = row[colIndex];
+      const value = typeof cell === 'number' && (cell > 40000 && cell < 50000) ? formatDate(cell) : (cell === undefined || cell === null ? '' : cell);
+      const isEditable = colIndex > 0 && !isFreeService; // Only editable for normal users
+      html += `<td contenteditable="${isEditable}" data-col="${colIndex}">${value}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  container.innerHTML = html;
+  const table = container.querySelector('table');
+  table.addEventListener('input', handleCellEdit);
+  if (filterEnabled) toggleFilters(); // Reapply filters if enabled
+  
+  // Ensure free service mode respects non-editable state
+  if (isFreeService) {
+    const cells = table.querySelectorAll("td[contenteditable='true']");
+    cells.forEach(cell => {
+      cell.setAttribute("contenteditable", "false");
+      cell.style.backgroundColor = "#f0f0f0";
+    });
+  }
+}
 
       function handleCellEdit(event) {
   const target = event.target;
-  if (target.tagName === 'TD' && target.hasAttribute('contenteditable')) {
+  const isFreeService = localStorage.getItem("isFreeService") === "true";
+  
+  if (isFreeService) {
+    event.preventDefault(); // Prevent editing in free service mode
+    return;
+  }
+
+  if (target.tagName === 'TD' && target.hasAttribute('contenteditable') && target.getAttribute('contenteditable') === 'true') {
     const rowIndex = parseInt(target.parentElement.getAttribute('data-row'), 10);
     const colIndex = parseInt(target.getAttribute('data-col'), 10);
     const sheetType = target.parentElement.getAttribute('data-sheet');
