@@ -728,17 +728,17 @@
     filterEnabled = false;
     toggleFilters(); // Filters ko hide karo
 
-    // Disable Difference Allowed
+    // Disable Difference Allowed with default value 1
     const diffAllowedInput = document.getElementById("diff-allowed");
-    diffAllowedInput.value = "1"; // Default to 1
+    diffAllowedInput.value = "1"; // Default to 1 for free users
     diffAllowedInput.disabled = true;
 
     // Disable Editable Fields in Existing Tables
     const tables = document.querySelectorAll("#gstr2b-container table, #gstr3b-container table");
     tables.forEach(table => {
-      const cells = table.querySelectorAll("td[contenteditable='true']");
+      const cells = table.querySelectorAll("td");
       cells.forEach(cell => {
-        cell.setAttribute("contenteditable", "false"); // Explicitly disable
+        cell.setAttribute("contenteditable", "false"); // Force disable
         cell.style.backgroundColor = "#f0f0f0"; // Visual indication
       });
     });
@@ -913,7 +913,7 @@
       const cell = row[colIndex];
       const value = typeof cell === 'number' && (cell > 40000 && cell < 50000) ? formatDate(cell) : (cell === undefined || cell === null ? '' : cell);
       const isEditable = colIndex > 0 && !isFreeService; // Only editable for normal users
-      html += `<td contenteditable="${isEditable}" data-col="${colIndex}">${value}</td>`;
+      html += `<td contenteditable="${isEditable}" data-col="${colIndex}" ${isFreeService ? 'style="background-color: #f0f0f0;"' : ''}>${value}</td>`;
     });
     html += '</tr>';
   });
@@ -923,12 +923,14 @@
   table.addEventListener('input', handleCellEdit);
   if (filterEnabled) toggleFilters(); // Reapply filters if enabled
   
-  // Ensure free service mode respects non-editable state
+  // Double-check free service mode restrictions
   if (isFreeService) {
-    const cells = table.querySelectorAll("td[contenteditable='true']");
+    const cells = table.querySelectorAll("td");
     cells.forEach(cell => {
-      cell.setAttribute("contenteditable", "false");
-      cell.style.backgroundColor = "#f0f0f0";
+      if (cell.getAttribute("contenteditable") === "true") {
+        cell.setAttribute("contenteditable", "false");
+      }
+      cell.style.backgroundColor = "#f0f0f0"; // Visual indication
     });
   }
 }
@@ -939,6 +941,7 @@
   
   if (isFreeService) {
     event.preventDefault(); // Prevent editing in free service mode
+    target.blur(); // Remove focus from cell
     return;
   }
 
@@ -979,27 +982,33 @@ function refreshFilters(containerId) {
 }
 
       function reconcileData() {
-        const diffInput = document.getElementById('diff-allowed').value;
-        const diffAllowed = diffInput === '' ? 0 : Number(diffInput) || 1;
-        const gstr2bTable = document.querySelector('#gstr2b-container table tbody');
-        const gstr3bTable = document.querySelector('#gstr3b-container table tbody');
-        const reconciled2bData = [];
-        const reconciled3bData = [];
-        gstr2bData.forEach((row, index) => {
-          const match = findMatch(row, gstr2bData, gstr3bData, false, diffAllowed);
-          const newRow = [match, ...row.slice(1)];
-          reconciled2bData.push(newRow);
-          if (gstr2bTable && gstr2bTable.rows[index]) updateRow(gstr2bTable.rows[index], newRow);
-        });
-        gstr3bData.forEach((row, index) => {
-          const match = findMatch(row, gstr3bData, gstr2bData, true, diffAllowed);
-          const newRow = [match, ...row.slice(1)];
-          reconciled3bData.push(newRow);
-          if (gstr3bTable && gstr3bTable.rows[index]) updateRow(gstr3bTable.rows[index], newRow);
-        });
-        displaySummary(reconciled2bData, reconciled3bData);
-        generateOutput(reconciled2bData, reconciled3bData);
-      }
+  const diffInput = document.getElementById('diff-allowed').value;
+  const diffAllowed = diffInput === '' ? 0 : Number(diffInput) || 1;
+  const gstr2bTable = document.querySelector('#gstr2b-container table tbody');
+  const gstr3bTable = document.querySelector('#gstr3b-container table tbody');
+  const reconciled2bData = [];
+  const reconciled3bData = [];
+  
+  gstr2bData.forEach((row, index) => {
+    const match = findMatch(row, gstr2bData, gstr3bData, false, diffAllowed);
+    const newRow = [match, ...row.slice(1)];
+    reconciled2bData.push(newRow);
+    if (gstr2bTable && gstr2bTable.rows[index]) updateRow(gstr2bTable.rows[index], newRow);
+  });
+  
+  gstr3bData.forEach((row, index) => {
+    const match = findMatch(row, gstr3bData, gstr2bData, true, diffAllowed);
+    const newRow = [match, ...row.slice(1)];
+    reconciled3bData.push(newRow);
+    if (gstr3bTable && gstr3bTable.rows[index]) updateRow(gstr3bTable.rows[index], newRow);
+  });
+  
+  displaySummary(reconciled2bData, reconciled3bData);
+  generateOutput(reconciled2bData, reconciled3bData);
+  
+  // Re-apply free service restrictions after reconcile
+  restrictFreeServiceFeatures();
+}
 
       function updateRow(rowElement, newRow) {
         const match = newRow[0];
