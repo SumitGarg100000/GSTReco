@@ -609,6 +609,14 @@
   }
 });
 
+
+  // Add event listeners only once (avoid duplicates)
+    const reconcileBtn = document.getElementById('reconcile-btn');
+    const downloadSample = document.getElementById('download-sample');
+    const diffAllowed = document.getElementById('diff-allowed');
+    const resetBtn = document.getElementById('reset-btn');
+    const gstFile = document.getElementById('gst-file');
+
   // Login Function (No Change Needed)
   function login() {
     const username = document.getElementById("username").value;
@@ -631,7 +639,9 @@
 function freeLogin() {
   localStorage.setItem("loggedInUser", "freeUser"); // Free user flag
   localStorage.setItem("isFreeUser", "true"); // Free mode indicate karne ke liye
-  alert("Ye free services wala version hai. Isme detailed reconciliation, filter option aur sorting option kaam nahi karenge. In features ke liye paid version lein.");
+  alert(""Dear User,
+This feature is not available in the free version of the GST Reconciliation Tool, including detailed reconciliation, filter options, sorting capabilities, editable fields, and the ability to adjust the 'Difference Allowed' setting. To access these advanced functionalities and enhance your experience, please upgrade to the Premium version. For more details or assistance, feel free to contact us.
+Thank you for using our tool!"");
   showTool();
 }
 
@@ -682,12 +692,7 @@ function logout() {
     enableFilterCheckbox.disabled = true; // Free user ke liye disable
   }
 
-    // Add event listeners only once (avoid duplicates)
-    const reconcileBtn = document.getElementById('reconcile-btn');
-    const downloadSample = document.getElementById('download-sample');
-    const diffAllowed = document.getElementById('diff-allowed');
-    const resetBtn = document.getElementById('reset-btn');
-    const gstFile = document.getElementById('gst-file');
+    
 
     // Remove existing listeners to prevent duplication (optional but safer)
     reconcileBtn.removeEventListener('click', reconcileData);
@@ -876,19 +881,20 @@ function logout() {
         reader.onload = function(e) {
           const data = new Uint8Array(e.target.result);
           const workbook = XLSX.read(data, { type: 'array', dateNF: 'dd-mmm-yyyy' });
+          const isFreeUser = localStorage.getItem("isFreeUser") === "true";
           const gstr2bSheet = workbook.Sheets['GST Portal'];
           if (gstr2bSheet) {
             const rawData = XLSX.utils.sheet_to_json(gstr2bSheet, { header: 1, raw: true, defval: '' });
             gstr2bData = rawData.slice(1).map(row => normalizeRow(row, gstr2bHeaders().length));
             localStorage.setItem('gstr2bData', JSON.stringify(gstr2bData));
-            displayData(gstr2bData, 'gstr2b-container', gstr2bHeaders(), 'gstr2b');
+            displayData(gstr2bData, 'gstr2b-container', gstr2bHeaders(), 'gstr2b', isFreeUser);
           }
           const gstr3bSheet = workbook.Sheets['Client Data'];
           if (gstr3bSheet) {
             const rawData = XLSX.utils.sheet_to_json(gstr3bSheet, { header: 1, raw: true, defval: '' });
             gstr3bData = rawData.slice(1).map(row => normalizeRow(row, gstr3bHeaders().length));
             localStorage.setItem('gstr3bData', JSON.stringify(gstr3bData));
-            displayData(gstr3bData, 'gstr3b-container', gstr3bHeaders(), 'gstr3b');
+            displayData(gstr3bData, 'gstr3b-container', gstr3bHeaders(), 'gstr3b', isFreeUser);
           }
           reconcileData();
         };
