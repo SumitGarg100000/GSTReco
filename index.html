@@ -597,11 +597,14 @@
     const loggedInUser = localStorage.getItem("loggedInUser");
     if (loggedInUser) {
     if (loggedInUser === "freeUser" || checkSubscription(loggedInUser)) { // Highlight: Free user check added
+      resetData();
       showTool();
     } else {
+      resetData();
       showLogin();
     }
   } else {
+      resetData();
     showLogin();
   }
 });
@@ -645,10 +648,14 @@ function logout() {
   localStorage.removeItem("isFreeUser"); // Highlight: Free user flag bhi remove
   localStorage.removeItem("gstr2bData");
   localStorage.removeItem("gstr3bData");
-  localStorage.setItem('detailedReconciliation', false); // Highlight: Reset on logout
-  localStorage.setItem('enableFilter', false); // Highlight: Reset on logout
+  localStorage.removeItem("detailedReconciliation");
+  localStorage.removeItem("enableFilter");
   gstr2bData = [];
   gstr3bData = [];
+  // Highlight: Call resetData() to clear UI and other states
+  resetData();
+
+  // Show login screen
   showLogin();
 }
 
@@ -721,12 +728,24 @@ function logout() {
     }
   });
 
+    // Highlight: Modified event listener for diffAllowed to restrict free users
+  diffAllowed.removeEventListener('input', reconcileData);
+  diffAllowed.addEventListener('input', function() {
+    if (isFreeUser) {
+      alert("Ye service paid version mein available hai.");
+      this.value = 1; // Revert to default
+    } else {
+      reconcileData();
+    }
+  });
+    
+
     // ***Change 3: Restore Previous Data on Refresh***
     if (gstr2bData.length > 0) {
-      displayData(gstr2bData, 'gstr2b-container', gstr2bHeaders(), 'gstr2b');
+      displayData(gstr2bData, 'gstr2b-container', gstr2bHeaders(), 'gstr2b', isFreeUser);
     }
     if (gstr3bData.length > 0) {
-      displayData(gstr3bData, 'gstr3b-container', gstr3bHeaders(), 'gstr3b');
+      displayData(gstr3bData, 'gstr3b-container', gstr3bHeaders(), 'gstr3b', isFreeUser);
     }
     if (gstr2bData.length > 0 || gstr3bData.length > 0) {
       reconcileData(); // <--- Highlight: Reconcile data after restoring
@@ -876,26 +895,27 @@ function logout() {
         reader.readAsArrayBuffer(file);
       }
 
-      function displayData(data, containerId, headers, sheetType) {
-        const container = document.getElementById(containerId);
-        let html = '<table><thead><tr>';
-        headers.forEach(header => html += `<th>${header}</th>`);
-        html += '</tr></thead><tbody>';
-        data.forEach((row, rowIndex) => {
-          html += `<tr data-row="${rowIndex}" data-sheet="${sheetType}">`;
-          headers.forEach((_, colIndex) => {
-            const cell = row[colIndex];
-            const value = typeof cell === 'number' && (cell > 40000 && cell < 50000) ? formatDate(cell) : (cell === undefined || cell === null ? '' : cell);
-            const isEditable = colIndex > 0;
-            html += `<td contenteditable="${isEditable}" data-col="${colIndex}">${value}</td>`;
-          });
-          html += '</tr>';
-        });
-        html += '</tbody></table>';
-        container.innerHTML = html;
-        const table = container.querySelector('table');
-        table.addEventListener('input', handleCellEdit);
-      }
+      function displayData(data, containerId, headers, sheetType, isFreeUser = false) {
+  const container = document.getElementById(containerId);
+  let html = '<table><thead><tr>';
+  headers.forEach(header => html += `<th>${header}</th>`);
+  html += '</tr></thead><tbody>';
+  data.forEach((row, rowIndex) => {
+    html += `<tr data-row="${rowIndex}" data-sheet="${sheetType}">`;
+    headers.forEach((_, colIndex) => {
+      const cell = row[colIndex];
+      const value = typeof cell === 'number' && (cell > 40000 && cell < 50000) ? formatDate(cell) : (cell === undefined || cell === null ? '' : cell);
+      const isEditable = colIndex > 0 && !isFreeUser; // Highlight: Editable only if not free user
+      html += `<td contenteditable="${isEditable}" data-col="${colIndex}">${value}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  container.innerHTML = html;
+  const table = container.querySelector('table');
+  table.addEventListener('input', handleCellEdit);
+  if (filterEnabled) toggleFilters();
+}
 
       function handleCellEdit(event) {
   const target = event.target;
