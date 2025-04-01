@@ -667,6 +667,7 @@
   const reconcileBtn = document.getElementById('reconcile-btn');
   const downloadSample = document.getElementById('download-sample');
   const diffAllowed = document.getElementById('diff-allowed');
+    diffAllowed.value = "1"; // Default to 1 for all users
   const resetBtn = document.getElementById('reset-btn');
   const gstFile = document.getElementById('gst-file');
 
@@ -729,7 +730,7 @@
 
     // Disable Difference Allowed
     const diffAllowedInput = document.getElementById("diff-allowed");
-    diffAllowedInput.value = "0"; // Default to 0
+    diffAllowedInput.value = "1"; // Default to 1
     diffAllowedInput.disabled = true;
 
     // Disable Editable Fields in Existing Tables
@@ -768,6 +769,7 @@
         document.getElementById('summary-container').innerHTML = '';
         document.getElementById('output-link').style.display = 'none';
         document.getElementById('gst-file').value = ''; // Clear file input
+        document.getElementById('diff-allowed').value = '1';
       }
 
       function formatDate(excelDate) {
