@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -467,8 +466,8 @@
           </div>
         </div>
         <button onclick="login()">Login</button>
-        <button onclick="freeLogin()" style="background: linear-gradient(45deg, #ff9800, #f44336); margin-left: 10px;">Login for Free Services</button>
-        <p id="error"></p>
+  <button onclick="freeServiceLogin()" style="background: linear-gradient(45deg, #ff9800, #f44336); margin-left: 10px;">Free Service Login</button>
+  <p id="error"></p>
 
 
 <div class="explanation" id="explanation-container">
@@ -595,45 +594,38 @@
   // ***Change 1: Page Load Check ko Improve Karna***
   document.addEventListener("DOMContentLoaded", function() {
     const loggedInUser = localStorage.getItem("loggedInUser");
-    if (loggedInUser) {
-    if (loggedInUser === "freeUser" || checkSubscription(loggedInUser)) { // Highlight: Free user check added
-      resetData();
-      showTool();
+    if (loggedInUser && checkSubscription(loggedInUser)) { // <--- Highlight: Condition Simplified
+      showTool(); // Agar user logged in hai aur subscription valid hai, to tool dikhao
     } else {
-      resetData();
-      showLogin();
+      showLogin(); // Warna login page dikhao
     }
-  } else {
-      resetData();
-    showLogin();
-  }
-});
+  });
 
   // Login Function (No Change Needed)
   function login() {
-    const username = document.getElementById("username").value;
-    const password = document.getElementById("password").value;
-    const error = document.getElementById("error");
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
+  const error = document.getElementById("error");
 
-    if (users[username] && users[username].password === password) {
-      if (checkSubscription(username)) {
-        localStorage.setItem("loggedInUser", username);
-        showTool();
-      } else {
-        error.textContent = "Your subscription has expired!";
-      }
+  if (users[username] && users[username].password === password) {
+    if (checkSubscription(username)) {
+      localStorage.setItem("loggedInUser", username);
+      localStorage.setItem("isFreeService", "false"); // Normal login
+      showTool();
     } else {
-      error.textContent = "Invalid username or password!";
+      error.textContent = "Your subscription has expired!";
     }
+  } else {
+    error.textContent = "Invalid username or password!";
   }
-
-  // Free Login Function
-function freeLogin() {
-  localStorage.setItem("loggedInUser", "freeUser"); // Free user flag
-  localStorage.setItem("isFreeUser", "true"); // Free mode indicate karne ke liye
-  alert("Ye free services wala version hai. Isme detailed reconciliation, filter option aur sorting option kaam nahi karenge. In features ke liye paid version lein.");
-  showTool();
 }
+
+  function freeServiceLogin() {
+  localStorage.setItem("loggedInUser", "freeServiceUser");
+  localStorage.setItem("isFreeService", "true"); // Free service flag
+  showTool();
+  restrictFreeServiceFeatures(); // Restrictions apply karo
+  }
 
   // Check Subscription Expiry (No Change Needed)
   function checkSubscription(username) {
@@ -642,22 +634,16 @@ function freeLogin() {
     return today <= expiryDate;
   }
 
-// Highlight: Modified Logout Function
-function logout() {
-  localStorage.removeItem("loggedInUser");
-  localStorage.removeItem("isFreeUser"); // Highlight: Free user flag bhi remove
-  localStorage.removeItem("gstr2bData");
-  localStorage.removeItem("gstr3bData");
-  localStorage.removeItem("detailedReconciliation");
-  localStorage.removeItem("enableFilter");
-  gstr2bData = [];
-  gstr3bData = [];
-  // Highlight: Call resetData() to clear UI and other states
-  resetData();
-
-  // Show login screen
-  showLogin();
-}
+  // Logout Function (No Change Needed)
+  function logout() {
+    localStorage.removeItem("loggedInUser");
+    localStorage.removeItem("gstr2bData");
+    localStorage.removeItem("gstr3bData");
+    gstr2bData = [];
+    gstr3bData = [];
+    resetData();
+    showLogin();
+  }
 
   // Show Login Section (No Change Needed)
   function showLogin() {
@@ -672,15 +658,6 @@ function logout() {
 
     // Restore checkbox state
     detailedReconciliationCheckbox.checked = localStorage.getItem('detailedReconciliation') === 'true';
-    const enableFilterCheckbox = document.getElementById('enable-filter'); // Highlight: Added for filter checkbox
-  enableFilterCheckbox.checked = localStorage.getItem('enableFilter') === 'true';
-
-    // Highlight: Free User Check aur Restrictions
-  const isFreeUser = localStorage.getItem("isFreeUser") === "true";
-  if (isFreeUser) {
-    detailedReconciliationCheckbox.disabled = true; // Free user ke liye disable
-    enableFilterCheckbox.disabled = true; // Free user ke liye disable
-  }
 
     // Add event listeners only once (avoid duplicates)
     const reconcileBtn = document.getElementById('reconcile-btn');
@@ -703,55 +680,73 @@ function logout() {
     diffAllowed.addEventListener('input', reconcileData);
     resetBtn.addEventListener('click', resetData);
 
-    // Highlight: Modified Event Listener for Detailed Reconciliation Checkbox
-  detailedReconciliationCheckbox.removeEventListener('change', handleCheckboxChange);
-  detailedReconciliationCheckbox.addEventListener('change', function() {
-    if (isFreeUser && this.checked) { // Highlight: Free user restriction
-      alert("Ye service paid version mein available hai.");
-      this.checked = false;
-    } else {
+    // Restore checkbox event listener
+    detailedReconciliationCheckbox.removeEventListener('change', handleCheckboxChange); // <--- Highlight: Remove old listener
+    detailedReconciliationCheckbox.addEventListener('change', handleCheckboxChange); // <--- Highlight: Add new listener
+    function handleCheckboxChange() {
       reconcileData();
-      localStorage.setItem('detailedReconciliation', this.checked);
+      localStorage.setItem('detailedReconciliation', detailedReconciliationCheckbox.checked);
     }
-  });
-
-    // Highlight: New Event Listener for Enable Filter Checkbox
-  enableFilterCheckbox.removeEventListener('change', handleFilterCheckboxChange);
-  enableFilterCheckbox.addEventListener('change', function() {
-    if (isFreeUser && this.checked) { // Highlight: Free user restriction
-      alert("Ye service paid version mein available hai.");
-      this.checked = false;
-    } else {
-      filterEnabled = this.checked;
-      toggleFilters();
-      localStorage.setItem('enableFilter', this.checked);
-    }
-  });
-
-    // Highlight: Modified event listener for diffAllowed to restrict free users
-  diffAllowed.removeEventListener('input', reconcileData);
-  diffAllowed.addEventListener('input', function() {
-    if (isFreeUser) {
-      alert("Ye service paid version mein available hai.");
-      this.value = 1; // Revert to default
-    } else {
-      reconcileData();
-    }
-  });
-    
 
     // ***Change 3: Restore Previous Data on Refresh***
     if (gstr2bData.length > 0) {
-      displayData(gstr2bData, 'gstr2b-container', gstr2bHeaders(), 'gstr2b', isFreeUser);
+      displayData(gstr2bData, 'gstr2b-container', gstr2bHeaders(), 'gstr2b');
     }
     if (gstr3bData.length > 0) {
-      displayData(gstr3bData, 'gstr3b-container', gstr3bHeaders(), 'gstr3b', isFreeUser);
+      displayData(gstr3bData, 'gstr3b-container', gstr3bHeaders(), 'gstr3b');
     }
     if (gstr2bData.length > 0 || gstr3bData.length > 0) {
       reconcileData(); // <--- Highlight: Reconcile data after restoring
     }
+    // Apply free service restrictions if applicable
+  restrictFreeServiceFeatures();
   }
 
+
+  function restrictFreeServiceFeatures() {
+  const isFreeService = localStorage.getItem("isFreeService") === "true";
+  
+  if (isFreeService) {
+    // Disable Detailed Reconciliation
+    const detailedCheckbox = document.getElementById("detailed-reconciliation");
+    detailedCheckbox.checked = false;
+    detailedCheckbox.disabled = true;
+
+    // Disable Filter Option
+    const filterCheckbox = document.getElementById("enable-filter");
+    filterCheckbox.checked = false;
+    filterCheckbox.disabled = true;
+    filterEnabled = false;
+    toggleFilters(); // Filters ko hide karo
+
+    // Disable Difference Allowed
+    const diffAllowedInput = document.getElementById("diff-allowed");
+    diffAllowedInput.value = "0"; // Default to 0
+    diffAllowedInput.disabled = true;
+
+    // Disable Editable Fields in Tables
+    const tables = document.querySelectorAll("#gstr2b-container table, #gstr3b-container table");
+    tables.forEach(table => {
+      const cells = table.querySelectorAll("td[contenteditable='true']");
+      cells.forEach(cell => {
+        cell.removeAttribute("contenteditable");
+        cell.style.backgroundColor = "#f0f0f0"; // Visual indication
+      });
+    });
+// Optional: Add a notice
+    const toolSection = document.getElementById("tool-section");
+    const notice = document.createElement("p");
+    notice.id = "free-service-notice";
+    notice.style.color = "#f44336";
+    notice.style.textAlign = "center";
+    notice.textContent = "Free Service Mode: Detailed Reconciliation, Filters, Difference Allowed, and Editable Fields are disabled.";
+    if (!document.getElementById("free-service-notice")) {
+      toolSection.insertBefore(notice, toolSection.querySelector("h1").nextSibling);
+    }
+  }
+  }
+
+    
       // Reset Data Function
       function resetData() {
         gstr2bData = [];
@@ -895,27 +890,27 @@ function logout() {
         reader.readAsArrayBuffer(file);
       }
 
-      function displayData(data, containerId, headers, sheetType, isFreeUser = false) {
-  const container = document.getElementById(containerId);
-  let html = '<table><thead><tr>';
-  headers.forEach(header => html += `<th>${header}</th>`);
-  html += '</tr></thead><tbody>';
-  data.forEach((row, rowIndex) => {
-    html += `<tr data-row="${rowIndex}" data-sheet="${sheetType}">`;
-    headers.forEach((_, colIndex) => {
-      const cell = row[colIndex];
-      const value = typeof cell === 'number' && (cell > 40000 && cell < 50000) ? formatDate(cell) : (cell === undefined || cell === null ? '' : cell);
-      const isEditable = colIndex > 0 && !isFreeUser; // Highlight: Editable only if not free user
-      html += `<td contenteditable="${isEditable}" data-col="${colIndex}">${value}</td>`;
-    });
-    html += '</tr>';
-  });
-  html += '</tbody></table>';
-  container.innerHTML = html;
-  const table = container.querySelector('table');
-  table.addEventListener('input', handleCellEdit);
-  if (filterEnabled) toggleFilters();
-}
+      function displayData(data, containerId, headers, sheetType) {
+        const container = document.getElementById(containerId);
+        let html = '<table><thead><tr>';
+        headers.forEach(header => html += `<th>${header}</th>`);
+        html += '</tr></thead><tbody>';
+        data.forEach((row, rowIndex) => {
+          html += `<tr data-row="${rowIndex}" data-sheet="${sheetType}">`;
+          headers.forEach((_, colIndex) => {
+            const cell = row[colIndex];
+            const value = typeof cell === 'number' && (cell > 40000 && cell < 50000) ? formatDate(cell) : (cell === undefined || cell === null ? '' : cell);
+            const isEditable = colIndex > 0 && !isFreeService; // Disable editable in free service mode
+            html += `<td contenteditable="${isEditable}" data-col="${colIndex}">${value}</td>`;
+          });
+          html += '</tr>';
+        });
+        html += '</tbody></table>';
+        container.innerHTML = html;
+        const table = container.querySelector('table');
+        table.addEventListener('input', handleCellEdit);
+        if (filterEnabled) toggleFilters(); // Reapply filters if enabled
+      }
 
       function handleCellEdit(event) {
   const target = event.target;
