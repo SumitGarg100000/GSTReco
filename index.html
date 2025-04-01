@@ -318,13 +318,14 @@
       a#download-sample:hover, a#download-output:hover {
         color: #004d40;
       }
-      .match-gstn-inv-date, .match { background-color: #00ced1; color: white; }
-      .match-inv { background-color: #4b0082; color: white; }
-      .amt-diff { background-color: #ff4500; color: white; } /* OrangeRed for Unmatch - Amt Diff */
-      .match-gstn-date { background-color: #32cd32; color: white; }
-      .match-gstn { background-color: #ffbf00; }
-      .gstn-not-match { background-color: #dc143c; color: white; }
-      .no-match { background-color: #ff00ff; color: white; }
+      .match-gstn-inv-date { background-color: #00ced1 !important; color: white !important; }
+.match-inv { background-color: #4b0082 !important; color: white !important; }
+.match-gstn-date { background-color: #32cd32 !important; color: white !important; }
+.match-gstn { background-color: #ffbf00 !important; }
+.gstn-not-match { background-color: #dc143c !important; color: white !important; }
+.amt-diff { background-color: #ff4500 !important; color: white !important; }
+.no-match { background-color: #ff00ff !important; color: white !important; }
+.match { background-color: #00ced1 !important; color: white !important; }
       [contenteditable="true"], [contenteditable="true"] * {
         font-size: 9px !important;
       }
@@ -712,7 +713,7 @@
   restrictFreeServiceFeatures(); // Apply restrictions if free service mode
 }
 
-  function restrictFreeServiceFeatures() {
+function restrictFreeServiceFeatures() {
   const isFreeService = localStorage.getItem("isFreeService") === "true";
   
   if (isFreeService) {
@@ -736,12 +737,17 @@
     // Disable Editable Fields in Existing Tables
     const tables = document.querySelectorAll("#gstr2b-container table, #gstr3b-container table");
     tables.forEach(table => {
-      const cells = table.querySelectorAll("td");
-      cells.forEach(cell => {
-        cell.setAttribute("contenteditable", "false"); // Force disable
-        cell.style.backgroundColor = "#f0f0f0"; // Visual indication
+      const rows = table.querySelectorAll("tbody tr");
+      rows.forEach(row => {
+        const cells = row.querySelectorAll("td");
+        cells.forEach(cell => {
+          cell.setAttribute("contenteditable", "false"); // Force disable
+        });
       });
     });
+
+    // Apply colors for free service mode
+    applyFreeServiceColors();
 
     // Add notice
     const toolSection = document.getElementById("tool-section");
@@ -749,14 +755,12 @@
     notice.id = "free-service-notice";
     notice.style.color = "#f44336";
     notice.style.textAlign = "center";
-    notice.textContent = "Free Service Mode: Detailed Reconciliation, Filters, Difference Allowed, and Editable Fields are disabled.";
+    notice.textContent = "In Free Service: Detailed Reconciliation feature, Enable Filter & sorting option, alteration of Difference Allowed limit and facility of editable fields are disabled.";
     if (!document.getElementById("free-service-notice")) {
       toolSection.insertBefore(notice, toolSection.querySelector("h1").nextSibling);
     }
   }
 }
-
-    
       // Reset Data Function
       function resetData() {
         gstr2bData = [];
@@ -913,7 +917,7 @@
       const cell = row[colIndex];
       const value = typeof cell === 'number' && (cell > 40000 && cell < 50000) ? formatDate(cell) : (cell === undefined || cell === null ? '' : cell);
       const isEditable = colIndex > 0 && !isFreeService; // Only editable for normal users
-      html += `<td contenteditable="${isEditable}" data-col="${colIndex}" ${isFreeService ? 'style="background-color: #f0f0f0;"' : ''}>${value}</td>`;
+      html += `<td contenteditable="${isEditable}" data-col="${colIndex}">${value}</td>`;
     });
     html += '</tr>';
   });
@@ -923,15 +927,13 @@
   table.addEventListener('input', handleCellEdit);
   if (filterEnabled) toggleFilters(); // Reapply filters if enabled
   
-  // Double-check free service mode restrictions
+  // Apply free service restrictions and colors
   if (isFreeService) {
     const cells = table.querySelectorAll("td");
     cells.forEach(cell => {
-      if (cell.getAttribute("contenteditable") === "true") {
-        cell.setAttribute("contenteditable", "false");
-      }
-      cell.style.backgroundColor = "#f0f0f0"; // Visual indication
+      cell.setAttribute("contenteditable", "false");
     });
+    applyFreeServiceColors(); // Colors apply karo
   }
 }
 
@@ -1006,17 +1008,16 @@ function refreshFilters(containerId) {
   displaySummary(reconciled2bData, reconciled3bData);
   generateOutput(reconciled2bData, reconciled3bData);
   
-  // Re-apply free service restrictions after reconcile
+  // Re-apply free service restrictions and ensure colors
   restrictFreeServiceFeatures();
 }
-
       function updateRow(rowElement, newRow) {
-        const match = newRow[0];
-        Array.from(rowElement.cells).forEach((cell, index) => {
-          cell.textContent = newRow[index];
-        });
-        colorRow(rowElement, match);
-      }
+  const match = newRow[0];
+  Array.from(rowElement.cells).forEach((cell, index) => {
+    cell.textContent = newRow[index];
+  });
+  colorRow(rowElement, match); // Color apply karo
+}
 
      function normalizeInvoiceNumber(invNum) {
     return invNum.replace(/[\s\/\\.,"?\']/g, '');
@@ -1204,6 +1205,81 @@ function findMatch(row, sourceData, compareData, is3b, diffAllowed) {
                Math.abs(source.sgst - compare.sgst) <= diffAllowed;
       }
 
+  function applyFreeServiceColors() {
+  const isFreeService = localStorage.getItem("isFreeService") === "true";
+  if (!isFreeService) return; // Sirf free service mode mein kaam kare
+
+  const tables = document.querySelectorAll("#gstr2b-container table, #gstr3b-container table");
+  tables.forEach(table => {
+    const rows = table.querySelectorAll("tbody tr");
+    rows.forEach(row => {
+      const match = row.cells[0].textContent; // Match criteria from first cell
+      let backgroundColor = "#f0f0f0"; // Default locked color
+      let textColor = "black"; // Default text color
+
+      // Match criteria ke hisaab se colors set karo
+      if (detailedReconciliationCheckbox.checked) {
+        switch (match) {
+          case 'Match - GSTN, Invoice No., Date':
+            backgroundColor = "#00ced1"; // Turquoise
+            textColor = "white";
+            break;
+          case 'Match - GSTN, Invoice No.':
+            backgroundColor = "#4b0082"; // Indigo
+            textColor = "white";
+            break;
+          case 'Match - GSTN, Date':
+            backgroundColor = "#32cd32"; // Lime Green
+            textColor = "white";
+            break;
+          case 'Match - GSTN':
+            backgroundColor = "#ffbf00"; // Amber
+            textColor = "black";
+            break;
+          case 'Unmatch - GSTN Not Exist':
+            backgroundColor = "#dc143c"; // Crimson
+            textColor = "white";
+            break;
+          case 'Unmatch - Amt Diff':
+            backgroundColor = "#ff4500"; // Orange Red
+            textColor = "white";
+            break;
+          default:
+            backgroundColor = "#ff00ff"; // Magenta
+            textColor = "white";
+            break;
+        }
+      } else {
+        switch (match) {
+          case 'Match':
+            backgroundColor = "#00ced1"; // Turquoise
+            textColor = "white";
+            break;
+          case 'Unmatch - GSTN Not Exist':
+            backgroundColor = "#dc143c"; // Crimson
+            textColor = "white";
+            break;
+          case 'Unmatch - Amt Diff':
+            backgroundColor = "#ff4500"; // Orange Red
+            textColor = "white";
+            break;
+          default:
+            backgroundColor = "#ff00ff"; // Magenta
+            textColor = "white";
+            break;
+        }
+      }
+
+      // Har cell par color apply karo
+      const cells = row.querySelectorAll("td");
+      cells.forEach(cell => {
+        cell.style.backgroundColor = backgroundColor;
+        cell.style.color = textColor;
+      });
+    });
+  });
+}
+
       function colorRow(rowElement, match) {
   rowElement.className = '';
   if (detailedReconciliationCheckbox.checked) {
@@ -1213,14 +1289,14 @@ function findMatch(row, sourceData, compareData, is3b, diffAllowed) {
       case 'Match - GSTN, Date': rowElement.classList.add('match-gstn-date'); break;
       case 'Match - GSTN': rowElement.classList.add('match-gstn'); break;
       case 'Unmatch - GSTN Not Exist': rowElement.classList.add('gstn-not-match'); break;
-      case 'Unmatch - Amt Diff': rowElement.classList.add('amt-diff'); break; // Naya criteria
+      case 'Unmatch - Amt Diff': rowElement.classList.add('amt-diff'); break;
       default: rowElement.classList.add('no-match'); break;
     }
   } else {
     switch (match) {
       case 'Match': rowElement.classList.add('match'); break;
       case 'Unmatch - GSTN Not Exist': rowElement.classList.add('gstn-not-match'); break;
-      case 'Unmatch - Amt Diff': rowElement.classList.add('amt-diff'); break; // Naya criteria
+      case 'Unmatch - Amt Diff': rowElement.classList.add('amt-diff'); break;
       default: rowElement.classList.add('no-match'); break;
     }
   }
