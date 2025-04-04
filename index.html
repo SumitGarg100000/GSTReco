@@ -6,7 +6,7 @@
     <title>Ledger Webpage</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        /* Same CSS as before */
+        /* Your existing CSS remains unchanged */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -77,7 +77,7 @@
             background: #0056b3;
         }
         .ledger-header {
-            text-align: center;
+            text-align center;
             margin-bottom: 20px;
         }
         .ledger-header h3 {
@@ -107,6 +107,7 @@
     </style>
 </head>
 <body>
+    <!-- HTML structure remains unchanged -->
     <div class="container">
         <h1>Ledger Management System</h1>
         <div class="tabs">
@@ -244,65 +245,72 @@
 
         function parseInputDate(dateStr) {
             if (!dateStr) return null;
-            const [year, month, day] = dateStr.split('-'); // Input date is in yyyy-mm-dd format
+            const [year, month, day] = dateStr.split('-');
             return new Date(year, month - 1, day);
         }
 
-        async function loadLedger() {
-        async function loadLedger() {
-    const party = document.getElementById('party').value;
-    const startDateStr = document.getElementById('start-date').value;
-    const endDateStr = document.getElementById('end-date').value;
-
-    if (!party || !sheetData.Consolidate) return;
-
-    const rows = sheetData.Consolidate;
-    const tbody = document.querySelector('#ledger-table tbody');
-    tbody.innerHTML = '';
-
-    // *** New Helper Function to Clean Numbers ***
-    function cleanNumber(value) {
-        if (!value) return 0;
-        // Remove any non-numeric characters except decimal point
-        const cleaned = value.toString().replace(/[^0-9.]/g, '');
-        return parseFloat(cleaned) || 0;
-    }
-
-    let balance = 0;
-    let hasData = false;
-
-    rows.slice(1).forEach(row => {
-        const rowDateStr = row[0]; // Column A
-        const rowParty = row[2]; // Column C
-        const rowDate = parseDateForComparison(rowDateStr);
-
-        if (rowParty === party && rowDate) {
-            let includeRow = true;
-            if (startDate && endDate) {
-                includeRow = rowDate >= startDate && rowDate <= endDate;
-            }
-
-            if (includeRow) {
-                hasData = true;
-                // *** Changed: Using cleanNumber instead of direct parseFloat ***
-                const debit = cleanNumber(row[8]); // Column I
-                const credit = cleanNumber(row[9]); // Column J
-                balance += debit - credit;
-
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${formatDateToDDMMMYYYY(rowDateStr)}</td>
-                    <td>${row[1] || ''}</td>
-                    <td>${row[2] || ''}</td>
-                    <td>${row[3] || ''}</td>
-                    <td>${debit.toLocaleString()}</td>
-                    <td>${credit.toLocaleString()}</td>
-                    <td>${balance.toLocaleString()}</td>
-                `;
-                tbody.appendChild(tr);
-            }
+        // Modified number cleaning function to handle commas properly
+        function cleanNumber(value) {
+            if (!value) return 0;
+            // Convert to string and remove everything except numbers, decimal points, and keep the number intact
+            const cleaned = value.toString().replace(/[^0-9.]/g, '');
+            return parseFloat(cleaned) || 0;
         }
-    });
+
+        async function loadLedger() {
+            const party = document.getElementById('party').value;
+            const startDateStr = document.getElementById('start-date').value;
+            const endDateStr = document.getElementById('end-date').value;
+
+            if (!party || !sheetData.Consolidate) return;
+
+            const rows = sheetData.Consolidate;
+            const tbody = document.querySelector('#ledger-table tbody');
+            tbody.innerHTML = '';
+
+            document.getElementById('ledger-party-name').textContent = party;
+            document.getElementById('ledger-period').textContent = startDateStr && endDateStr ? 
+                `Period: ${formatDateToDDMMMYYYY(startDateStr)} To ${formatDateToDDMMMYYYY(endDateStr)}` : 
+                'Period: All Dates';
+
+            const startDate = startDateStr ? parseInputDate(startDateStr) : null;
+            const endDate = endDateStr ? parseInputDate(endDateStr) : null;
+
+            let balance = 0;
+            let hasData = false;
+
+            rows.slice(1).forEach(row => {
+                const rowDateStr = row[0]; // Column A
+                const rowParty = row[2]; // Column C
+                const rowDate = parseDateForComparison(rowDateStr);
+
+                if (rowParty === party && rowDate) {
+                    let includeRow = true;
+                    if (startDate && endDate) {
+                        includeRow = rowDate >= startDate && rowDate <= endDate;
+                    }
+
+                    if (includeRow) {
+                        hasData = true;
+                        // Modified to handle numbers with commas correctly
+                        const debit = cleanNumber(row[8]); // Column I
+                        const credit = cleanNumber(row[9]); // Column J
+                        balance += debit - credit;
+
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${formatDateToDDMMMYYYY(rowDateStr)}</td>
+                            <td>${row[1] || ''}</td>
+                            <td>${row[2] || ''}</td>
+                            <td>${row[3] || ''}</td>
+                            <td>${debit.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                            <td>${credit.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                            <td>${balance.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    }
+                }
+            });
 
             if (!hasData) {
                 tbody.innerHTML = '<tr><td colspan="7">No data found for selected party and date range</td></tr>';
