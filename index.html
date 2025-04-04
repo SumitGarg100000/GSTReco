@@ -11,98 +11,145 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 20px;
-            background-color: #f4f4f4;
+            background-color: #f0f2f5;
         }
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
         h1 {
             text-align: center;
-            color: #333;
+            color: #2c3e50;
+            margin-bottom: 20px;
         }
         .tabs {
             display: flex;
-            border-bottom: 2px solid #007bff;
-            margin-bottom: 20px;
+            border-bottom: 3px solid #3498db;
+            margin-bottom: 25px;
         }
         .tab-button {
             flex: 1;
-            padding: 10px;
-            background: #f1f1f1;
+            padding: 12px;
+            background: #ecf0f1;
             border: none;
             cursor: pointer;
             font-size: 16px;
-            transition: background 0.3s;
+            transition: all 0.3s ease;
         }
         .tab-button:hover {
-            background: #ddd;
+            background: #bdc3c7;
         }
         .tab-button.active {
-            background: #007bff;
+            background: #3498db;
             color: #fff;
         }
         .tab-content {
             display: none;
+            animation: fadeIn 0.5s ease-in-out;
         }
         .tab-content.active {
             display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
         .ledger-filter {
             margin-bottom: 20px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
         }
         .ledger-filter label {
-            font-weight: bold;
+            font-weight: 600;
+            color: #34495e;
         }
         .ledger-filter select, .ledger-filter input {
-            padding: 5px;
-            font-size: 16px;
+            padding: 8px;
+            font-size: 15px;
+            border: 1px solid #dcdcdc;
+            border-radius: 5px;
+            background: #fff;
         }
         .ledger-filter button {
-            padding: 5px 10px;
-            background: #007bff;
+            padding: 8px 15px;
+            background: #3498db;
             color: #fff;
             border: none;
-            border-radius: 4px;
+            border-radius: 5px;
             cursor: pointer;
+            transition: background 0.3s;
         }
         .ledger-filter button:hover {
-            background: #0056b3;
+            background: #2980b9;
         }
         .ledger-header {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            color: #2c3e50;
         }
         .ledger-header h3 {
             margin: 10px 0;
-            color: #007bff;
+            color: #3498db;
+            font-size: 24px;
         }
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
+            background: #fff;
         }
         th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
+            border: 1px solid #e0e0e0;
+            padding: 10px;
             text-align: center;
         }
         th {
-            background: #007bff;
+            background: #3498db;
             color: #fff;
+            font-weight: 600;
         }
         tr:nth-child(even) {
-            background: #f9f9f9;
+            background: #f8f9fa;
         }
         tr:hover {
-            background: #f1f1f1;
+            background: #e8ecef;
+        }
+        @media print {
+            body {
+                padding: 0;
+                background: #fff;
+            }
+            .container {
+                box-shadow: none;
+                padding: 10px;
+            }
+            .tabs, .ledger-filter {
+                display: none;
+            }
+            table {
+                border: 1px solid #000;
+            }
+            th {
+                background: #3498db !important;
+                color: #fff !important;
+                -webkit-print-color-adjust: exact;
+            }
+            tr:nth-child(even) {
+                background: #f8f9fa !important;
+                -webkit-print-color-adjust: exact;
+            }
+            .ledger-header {
+                color: #000 !important;
+            }
+            .ledger-header h3 {
+                color: #3498db !important;
+                -webkit-print-color-adjust: exact;
+            }
         }
     </style>
 </head>
@@ -120,6 +167,9 @@
                 <thead>
                     <tr>
                         <th>Party Name</th>
+                        <th>Head</th>
+                        <th>Debit/Credit</th>
+                        <th>Balance</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -199,9 +249,20 @@
             const rows = sheetData.Master;
             const tbody = document.querySelector('#master-table tbody');
             tbody.innerHTML = '';
-            rows.slice(1).forEach(row => {
+            const dataRange = rows.slice(2, 300); // A3 to D300
+            dataRange.forEach(row => {
+                const partyName = row[0] || '';
+                const head = row[1] || '';
+                const debitCredit = row[2] || '';
+                const balance = Math.round(cleanNumber(row[3])) || 0;
+
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${row[0] || ''}</td>`;
+                tr.innerHTML = `
+                    <td>${partyName}</td>
+                    <td>${head}</td>
+                    <td>${debitCredit}</td>
+                    <td>${balance.toLocaleString('en-IN')}</td>
+                `;
                 tbody.appendChild(tr);
             });
         }
@@ -210,11 +271,14 @@
             if (!sheetData.Master) return;
             const rows = sheetData.Master;
             const partySelect = document.getElementById('party');
-            rows.slice(1).forEach(row => {
-                const option = document.createElement('option');
-                option.value = row[0];
-                option.textContent = row[0];
-                partySelect.appendChild(option);
+            rows.slice(2).forEach(row => {
+                const partyName = row[0];
+                if (partyName) {
+                    const option = document.createElement('option');
+                    option.value = partyName;
+                    option.textContent = partyName;
+                    partySelect.appendChild(option);
+                }
             });
         }
 
@@ -263,7 +327,6 @@
             tbody.innerHTML = '';
 
             document.getElementById('ledger-party-name').textContent = party;
-            // Fixed Period display to show user-selected dates correctly
             document.getElementById('ledger-period').textContent = startDateStr && endDateStr ? 
                 `Period: ${formatDateToDDMMMYYYY(startDateStr)} To ${formatDateToDDMMMYYYY(endDateStr)}` : 
                 'Period: All Dates';
@@ -275,11 +338,10 @@
             let hasOpening = false;
             let filteredRows = [];
 
-            // Filter rows and check for "Opening"
             rows.slice(1).forEach(row => {
-                const rowDateStr = row[0]; // Column A
-                const rowParty = row[2]; // Column C
-                const rowType = row[3]; // Column D
+                const rowDateStr = row[0];
+                const rowParty = row[2];
+                const rowType = row[3];
                 const rowDate = parseDateForComparison(rowDateStr);
 
                 if (rowParty === party && rowDate) {
@@ -299,11 +361,10 @@
 
             if (hasData) {
                 if (hasOpening) {
-                    // Display data as is if "Opening" exists
                     filteredRows.forEach(row => {
-                        const debit = cleanNumber(row[8]); // Column I
-                        const credit = cleanNumber(row[9]); // Column J
-                        const balance = cleanNumber(row[10]); // Column K
+                        const debit = Math.round(cleanNumber(row[8]));
+                        const credit = Math.round(cleanNumber(row[9]));
+                        const balance = Math.round(cleanNumber(row[10]));
 
                         const tr = document.createElement('tr');
                         tr.innerHTML = `
@@ -311,46 +372,41 @@
                             <td>${row[1] || ''}</td>
                             <td>${row[2] || ''}</td>
                             <td>${row[3] || ''}</td>
-                            <td>${debit.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                            <td>${credit.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                            <td>${balance.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                            <td>${debit.toLocaleString('en-IN')}</td>
+                            <td>${credit.toLocaleString('en-IN')}</td>
+                            <td>${balance.toLocaleString('en-IN')}</td>
                         `;
                         tbody.appendChild(tr);
                     });
                 } else {
-                    // Add custom opening row and shift data down if no "Opening"
                     if (filteredRows.length > 0) {
                         const firstRow = filteredRows[0];
-                        const firstDebit = cleanNumber(firstRow[8]); // Column I of 2nd row
-                        const firstCredit = cleanNumber(firstRow[9]); // Column J of 2nd row
-                        const firstBalance = cleanNumber(firstRow[10]); // Column K of 2nd row
+                        const firstDebit = Math.round(cleanNumber(firstRow[8]));
+                        const firstCredit = Math.round(cleanNumber(firstRow[9]));
+                        const firstBalance = Math.round(cleanNumber(firstRow[10]));
 
-                        // Calculate opening debit and balance
                         const openingDebit = firstBalance + firstCredit - firstDebit;
                         const openingCredit = 0;
-                        const openingBalance = openingDebit; // Since credit is 0
+                        const openingBalance = openingDebit;
 
-                        // Use first row's date if no start date is selected, otherwise use startDateStr
                         const openingDate = startDateStr ? startDateStr : firstRow[0];
 
-                        // Add opening row with Vch No. as "1"
                         const openingTr = document.createElement('tr');
                         openingTr.innerHTML = `
                             <td>${formatDateToDDMMMYYYY(openingDate)}</td>
                             <td>1</td>
                             <td>${party}</td>
                             <td>Opening</td>
-                            <td>${openingDebit.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                            <td>${openingCredit.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                            <td>${openingBalance.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                            <td>${openingDebit.toLocaleString('en-IN')}</td>
+                            <td>${openingCredit.toLocaleString('en-IN')}</td>
+                            <td>${openingBalance.toLocaleString('en-IN')}</td>
                         `;
                         tbody.appendChild(openingTr);
 
-                        // Add remaining rows
                         filteredRows.forEach(row => {
-                            const debit = cleanNumber(row[8]); // Column I
-                            const credit = cleanNumber(row[9]); // Column J
-                            const balance = cleanNumber(row[10]); // Column K
+                            const debit = Math.round(cleanNumber(row[8]));
+                            const credit = Math.round(cleanNumber(row[9]));
+                            const balance = Math.round(cleanNumber(row[10]));
 
                             const tr = document.createElement('tr');
                             tr.innerHTML = `
@@ -358,9 +414,9 @@
                                 <td>${row[1] || ''}</td>
                                 <td>${row[2] || ''}</td>
                                 <td>${row[3] || ''}</td>
-                                <td>${debit.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                                <td>${credit.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                                <td>${balance.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                <td>${debit.toLocaleString('en-IN')}</td>
+                                <td>${credit.toLocaleString('en-IN')}</td>
+                                <td>${balance.toLocaleString('en-IN')}</td>
                             `;
                             tbody.appendChild(tr);
                         });
@@ -379,12 +435,14 @@
             printWindow.document.write('<html><head><title>Print Ledger</title>');
             printWindow.document.write('<style>');
             printWindow.document.write(`
-                body { font-family: Arial, sans-serif; }
+                body { font-family: Arial, sans-serif; margin: 10px; }
                 table { width: 100%; border-collapse: collapse; }
-                th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-                th { background: #007bff; color: #fff; }
+                th, td { border: 1px solid #000; padding: 10px; text-align: center; }
+                th { background: #3498db; color: #fff; }
+                tr:nth-child(even) { background: #f8f9fa; }
                 .ledger-filter { display: none; }
-                .ledger-header { text-align: center; }
+                .ledger-header { text-align: center; color: #000; }
+                .ledger-header h3 { color: #3498db; }
             `);
             printWindow.document.write('</style></head><body>');
             printWindow.document.write(ledgerContent);
