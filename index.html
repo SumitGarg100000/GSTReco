@@ -173,11 +173,11 @@
             try {
                 const response = await fetch(EXCEL_FILE_URL);
                 const arrayBuffer = await response.arrayBuffer();
-                const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+                const workbook = XLSX.read(arrayBuffer, { type: 'array', dateNF: 'dd-mmm-yyyy' });
                 sheetData = {};
                 workbook.SheetNames.forEach(sheetName => {
                     const worksheet = workbook.Sheets[sheetName];
-                    sheetData[sheetName] = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                    sheetData[sheetName] = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
                 });
                 return sheetData;
             } catch (error) {
@@ -217,35 +217,41 @@
             });
         }
 
-        function formatDateForDisplay(dateStr) {
-            if (!dateStr) return '';
-            const date = new Date(dateStr);
-            const day = String(date.getDate()).padStart(2, '0');
+        function formatDateToDDMMMYYYY(date) {
+            if (!date) return '';
+            let d;
+            if (typeof date === 'string') {
+                const [day, month, year] = date.split('-');
+                const monthIndex = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'].indexOf(month.toLowerCase());
+                d = new Date(year, monthIndex, day);
+            } else {
+                d = new Date(date);
+            }
+            const day = String(d.getDate()).padStart(2, '0');
             const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            const month = monthNames[date.getMonth()];
-            const year = date.getFullYear();
+            const month = monthNames[d.getMonth()];
+            const year = d.getFullYear();
             return `${day}-${month}-${year}`;
         }
 
-        function parseExcelDate(dateStr) {
+        function parseDateForComparison(dateStr) {
             if (!dateStr) return null;
-            // Handle Excel date format (assuming dd-mmm-yyyy or similar)
-            const parts = dateStr.split('-');
-            if (parts.length !== 3) return null;
-            
-            const day = parseInt(parts[0]);
-            const monthNames = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
-            const month = monthNames.indexOf(parts[1].toLowerCase());
-            const year = parseInt(parts[2]);
-            
-            if (isNaN(day) || month === -1 || isNaN(year)) return null;
-            return new Date(year, month, day);
+            const [day, month, year] = dateStr.split('-');
+            const monthIndex = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'].indexOf(month.toLowerCase());
+            if (monthIndex === -1) return null;
+            return new Date(year, monthIndex, day);
+        }
+
+        function parseInputDate(dateStr) {
+            if (!dateStr) return null;
+            const [year, month, day] = dateStr.split('-'); // Input date is in yyyy-mm-dd format
+            return new Date(year, month - 1, day);
         }
 
         async function loadLedger() {
             const party = document.getElementById('party').value;
-            const startDate = document.getElementById('start-date').value;
-            const endDate = document.getElementById('end-date').value;
+            const startDateStr = document.getElementById('start-date').value;
+            const endDateStr = document.getElementById('end-date').value;
 
             if (!party || !sheetData.Consolidate) return;
 
@@ -254,9 +260,12 @@
             tbody.innerHTML = '';
 
             document.getElementById('ledger-party-name').textContent = party;
-            document.getElementById('ledger-period').textContent = startDate && endDate ? 
-                `Period: ${formatDateForDisplay(startDate)} To ${formatDateForDisplay(endDate)}` : 
+            document.getElementById('ledger-period').textContent = startDateStr && endDateStr ? 
+                `Period: ${formatDateToDDMMMYYYY(startDateStr)} To ${formatDateToDDMMMYYYY(endDateStr)}` : 
                 'Period: All Dates';
+
+            const startDate = startDateStr ? parseInputDate(startDateStr) : null;
+            const endDate = endDateStr ? parseInputDate(endDateStr) : null;
 
             let balance = 0;
             let hasData = false;
@@ -264,15 +273,12 @@
             rows.slice(1).forEach(row => {
                 const rowDateStr = row[0]; // Column A
                 const rowParty = row[2]; // Column C
+                const rowDate = parseDateForComparison(rowDateStr);
 
-                if (rowParty === party) {
-                    const rowDate = parseExcelDate(rowDateStr);
+                if (rowParty === party && rowDate) {
                     let includeRow = true;
-
-                    if (startDate && endDate && rowDate) {
-                        const start = new Date(startDate);
-                        const end = new Date(endDate);
-                        includeRow = rowDate >= start && rowDate <= end;
+                    if (startDate && endDate) {
+                        includeRow = rowDate >= startDate && rowDate <= endDate;
                     }
 
                     if (includeRow) {
@@ -283,7 +289,7 @@
 
                         const tr = document.createElement('tr');
                         tr.innerHTML = `
-                            <td>${formatDateForDisplay(rowDate)}</td> <!-- Formatted Date -->
+                            <td>${formatDateToDDMMMYYYY(rowDateStr)}</td> <!-- Formatted Date -->
                             <td>${row[1] || ''}</td> <!-- Column B -->
                             <td>${row[2] || ''}</td> <!-- Column C -->
                             <td>${row[3] || ''}</td> <!-- Column D -->
