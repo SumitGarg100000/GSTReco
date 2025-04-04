@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -219,14 +220,7 @@
 
         function formatDateToDDMMMYYYY(date) {
             if (!date) return '';
-            let d;
-            if (typeof date === 'string') {
-                const [day, month, year] = date.split('-');
-                const monthIndex = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'].indexOf(month.toLowerCase());
-                d = new Date(year, monthIndex, day);
-            } else {
-                d = new Date(date);
-            }
+            const d = new Date(date);
             const day = String(d.getDate()).padStart(2, '0');
             const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
             const month = monthNames[d.getMonth()];
@@ -269,6 +263,7 @@
             tbody.innerHTML = '';
 
             document.getElementById('ledger-party-name').textContent = party;
+            // Fixed Period display to show user-selected dates correctly
             document.getElementById('ledger-period').textContent = startDateStr && endDateStr ? 
                 `Period: ${formatDateToDDMMMYYYY(startDateStr)} To ${formatDateToDDMMMYYYY(endDateStr)}` : 
                 'Period: All Dates';
@@ -280,7 +275,7 @@
             let hasOpening = false;
             let filteredRows = [];
 
-            // First, filter rows and check for "Opening"
+            // Filter rows and check for "Opening"
             rows.slice(1).forEach(row => {
                 const rowDateStr = row[0]; // Column A
                 const rowParty = row[2]; // Column C
@@ -304,7 +299,7 @@
 
             if (hasData) {
                 if (hasOpening) {
-                    // If "Opening" exists, display data as is
+                    // Display data as is if "Opening" exists
                     filteredRows.forEach(row => {
                         const debit = cleanNumber(row[8]); // Column I
                         const credit = cleanNumber(row[9]); // Column J
@@ -323,7 +318,7 @@
                         tbody.appendChild(tr);
                     });
                 } else {
-                    // If no "Opening", add custom opening row and shift data down
+                    // Add custom opening row and shift data down if no "Opening"
                     if (filteredRows.length > 0) {
                         const firstRow = filteredRows[0];
                         const firstDebit = cleanNumber(firstRow[8]); // Column I of 2nd row
@@ -335,11 +330,14 @@
                         const openingCredit = 0;
                         const openingBalance = openingDebit; // Since credit is 0
 
-                        // Add opening row
+                        // Use first row's date if no start date is selected, otherwise use startDateStr
+                        const openingDate = startDateStr ? startDateStr : firstRow[0];
+
+                        // Add opening row with Vch No. as "1"
                         const openingTr = document.createElement('tr');
                         openingTr.innerHTML = `
-                            <td>${formatDateToDDMMMYYYY(startDateStr)}</td>
-                            <td></td>
+                            <td>${formatDateToDDMMMYYYY(openingDate)}</td>
+                            <td>1</td>
                             <td>${party}</td>
                             <td>Opening</td>
                             <td>${openingDebit.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
