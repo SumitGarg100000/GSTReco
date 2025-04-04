@@ -1,1 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ledger Webpage</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        /* Same CSS as before */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #007bff;
+            margin-bottom: 20px;
+        }
+        .tab-button {
+            flex: 1;
+            padding: 10px;
+            background: #f1f1f1;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        .tab-button:hover {
+            background: #ddd;
+        }
+        .tab-button.active {
+            background: #007bff;
+            color: #fff;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .ledger-filter {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .ledger-filter label {
+            font-weight: bold;
+        }
+        .ledger-filter select, .ledger-filter input {
+            padding: 5px;
+            font-size: 16px;
+        }
+        .ledger-filter button {
+            padding: 5px 10px;
+            background: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .ledger-filter button:hover {
+            background: #0056b3;
+        }
+        .ledger-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .ledger-header h3 {
+            margin: 10px 0;
+            color: #007bff;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background: #007bff;
+            color: #fff;
+        }
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        tr:hover {
+            background: #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Ledger Management System</h1>
+        <div class="tabs">
+            <button class="tab-button active" onclick="openTab('master-data')">Master Data</button>
+            <button class="tab-button" onclick="openTab('ledger')">Ledger</button>
+        </div>
 
+        <div id="master-data" class="tab-content active">
+            <h2>Master Data</h2>
+            <table id="master-table">
+                <thead>
+                    <tr>
+                        <th>Party Name</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div id="ledger" class="tab-content">
+            <h2>Ledger</h2>
+            <div class="ledger-filter">
+                <label for="party">Select Party:</label>
+                <select id="party" onchange="loadLedger()">
+                    <option value="">-- Select Party --</option>
+                </select>
+
+                <label for="start-date">From:</label>
+                <input type="date" id="start-date" onchange="loadLedger()">
+
+                <label for="end-date">To:</label>
+                <input type="date" id="end-date" onchange="loadLedger()">
+
+                <button onclick="printLedger()">Print Ledger</button>
+            </div>
+
+            <div class="ledger-header" id="ledger-header">
+                <p><strong>Prepared By:</strong> Sumit Garg</p>
+                <h3 id="ledger-party-name"></h3>
+                <p id="ledger-period"><strong>Period:</strong> </p>
+            </div>
+            <table id="ledger-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Vch No</th>
+                        <th>Party Name</th>
+                        <th>Type</th>
+                        <th>Debit</th>
+                        <th>Credit</th>
+                        <th>Balance</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const EXCEL_FILE_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTuJ8mXACkt_Jkt3VB1BUTRk3TEryiBi4Pjhrcgt3Odnl6tjyqVexhWqmjzP9sSHcwJqEpymF-7J3C7/pub?output=xlsx';
+        let sheetData = {};
+
+        async function fetchExcelData() {
+            try {
+                const response = await fetch(EXCEL_FILE_URL);
+                const arrayBuffer = await response.arrayBuffer();
+                const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+                sheetData = {};
+                workbook.SheetNames.forEach(sheetName => {
+                    const worksheet = workbook.Sheets[sheetName];
+                    sheetData[sheetName] = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                });
+                console.log('Fetched sheet names:', workbook.SheetNames);
+                console.log('Consolidate sheet data:', sheetData.Consolidate);
+                return sheetData;
+            } catch (error) {
+                console.error('Error fetching Excel data:', error);
+                return null;
+            }
+        }
+
+        function openTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-button').forEach(button => button.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        async function loadMasterData() {
+            if (!sheetData.Master) {
+                console.log('No Master sheet found');
+                return;
+            }
+            const rows = sheetData.Master;
+            const tbody = document.querySelector('#master-table tbody');
+            tbody.innerHTML = '';
+            rows.slice(1).forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${row[0] || ''}</td>`;
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function loadPartyDropdown() {
+            if (!sheetData.Master) {
+                console.log('No Master sheet for dropdown');
+                return;
+            }
+            const rows = sheetData.Master;
+            const partySelect = document.getElementById('party');
+            rows.slice(1).forEach(row => {
+                const option = document.createElement('option');
+                option.value = row[0];
+                option.textContent = row[0];
+                partySelect.appendChild(option);
+            });
+        }
+
+        async function loadLedger() {
+            const party = document.getElementById('party').value;
+            const startDate = document.getElementById('start-date').value;
+            const endDate = document.getElementById('end-date').value;
+
+            if (!party) {
+                console.log('No party selected');
+                return;
+            }
+            if (!sheetData.Consolidate) {
+                console.log('No Consolidate sheet found');
+                return;
+            }
+
+            console.log('Loading ledger for party:', party);
+            console.log('Date range:', startDate, 'to', endDate);
+
+            const rows = sheetData.Consolidate;
+            const tbody = document.querySelector('#ledger-table tbody');
+            tbody.innerHTML = '';
+
+            document.getElementById('ledger-party-name').textContent = party;
+            document.getElementById('ledger-period').textContent = startDate && endDate ? 
+                `Period: ${formatDate(startDate)} To ${formatDate(endDate)}` : 'Period: All Dates';
+
+            let balance = 0;
+            let hasData = false;
+
+            rows.slice(1).forEach((row, index) => {
+                console.log(`Row ${index}:`, row);
+                const rowDateStr = row[0]; // Column A
+                const rowParty = row[2]; // Column C
+
+                if (rowParty === party) {
+                    let includeRow = true;
+                    if (startDate && endDate) {
+                        const rowDate = parseDate(rowDateStr);
+                        const start = new Date(startDate);
+                        const end = new Date(endDate);
+                        includeRow = rowDate >= start && rowDate <= end;
+                    }
+
+                    if (includeRow) {
+                        hasData = true;
+                        const debit = parseFloat(row[8]) || 0; // Column I
+                        const credit = parseFloat(row[9]) || 0; // Column J
+                        balance += debit - credit;
+
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${row[0] || ''}</td> <!-- Column A -->
+                            <td>${row[1] || ''}</td> <!-- Column B -->
+                            <td>${row[2] || ''}</td> <!-- Column C -->
+                            <td>${row[3] || ''}</td> <!-- Column D -->
+                            <td>${debit.toLocaleString()}</td> <!-- Column I -->
+                            <td>${credit.toLocaleString()}</td> <!-- Column J -->
+                            <td>${balance.toLocaleString()}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    }
+                }
+            });
+
+            if (!hasData) {
+                console.log('No matching data found for selected criteria');
+                tbody.innerHTML = '<tr><td colspan="7">No data found for selected party and date range</td></tr>';
+            }
+        }
+
+        function parseDate(dateStr) {
+            try {
+                if (!dateStr) return null;
+                const [day, month, year] = dateStr.toString().split('-');
+                const monthIndex = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].indexOf(month);
+                if (monthIndex === -1) throw new Error('Invalid month');
+                return new Date(year, monthIndex, day);
+            } catch (error) {
+                console.error('Date parsing error:', error, 'Date string:', dateStr);
+                return null;
+            }
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][date.getMonth()];
+            const year = date.getFullYear();
+            return `${day}-${month}-${year}`;
+        }
+
+        function printLedger() {
+            const ledgerContent = document.getElementById('ledger').innerHTML;
+            const printWindow = window.open('', '', 'height=600,width=800');
+            printWindow.document.write('<html><head><title>Print Ledger</title>');
+            printWindow.document.write('<style>');
+            printWindow.document.write(`
+                body { font-family: Arial, sans-serif; }
+                table { width: 100%; border-collapse: collapse; }
+                th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+                th { background: #007bff; color: #fff; }
+                .ledger-filter { display: none; }
+                .ledger-header { text-align: center; }
+            `);
+            printWindow.document.write('</style></head><body>');
+            printWindow.document.write(ledgerContent);
+            printWindow.document.write('</body></html>');
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await fetchExcelData();
+            await loadMasterData();
+            await loadPartyDropdown();
+            console.log('Initial data load complete');
+        });
+    </script>
+</body>
+</html>
