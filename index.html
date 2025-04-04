@@ -4,28 +4,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ledger Webpage</title>
+    <title>Ledger Management System with Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-size: 100%;
+            font-family: inherit;
+        }
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Arial, sans-serif;
             margin: 0;
             padding: 20px;
-            background-color: #f0f2f5;
+            background: #F8F9FA;
+            color: #333;
         }
         .container {
-            max-width: 1200px;
+            max-width: 1300px;
             margin: 0 auto;
-            background: #ffffff;
+            background: #fff;
             padding: 25px;
             border-radius: 10px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
         h1 {
             text-align: center;
-            color: #2c3e50;
+            color: #00796b;
+            font-size: 2.5em;
             margin-bottom: 20px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
         }
+        /* Login Section Styles */
+        #login-section {
+            transition: opacity 0.5s;
+        }
+        #login-section.hidden, #ledger-section.hidden {
+            display: none;
+        }
+        .input-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+            gap: 20px;
+        }
+        .input-section div {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        label {
+            font-weight: bold;
+            color: #00695c;
+        }
+        input[type="text"], input[type="password"] {
+            padding: 10px;
+            border: 2px solid #26a69a;
+            border-radius: 5px;
+            background: #f1f8e9;
+            transition: border-color 0.3s;
+            font-size: 1em;
+        }
+        input[type="text"]:hover, input[type="password"]:hover {
+            border-color: #00796b;
+        }
+        button {
+            display: inline-block;
+            margin: 10px;
+            padding: 12px 30px;
+            background: linear-gradient(45deg, #26a69a, #00796b);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+        #error {
+            color: red;
+            text-align: center;
+            margin-top: 10px;
+        }
+        /* Ledger Section Styles */
         .tabs {
             display: flex;
             border-bottom: 3px solid #3498db;
@@ -119,6 +186,14 @@
         tr:hover {
             background: #e8ecef;
         }
+        #logout-btn {
+            background: linear-gradient(45deg, #ff4444, #cc0000);
+            margin: 20px auto;
+            display: block;
+        }
+        #logout-btn:hover {
+            background: linear-gradient(45deg, #cc0000, #ff4444);
+        }
         @media print {
             body {
                 padding: 0;
@@ -129,7 +204,7 @@
                 box-shadow: none;
                 padding: 10px;
             }
-            .tabs, .ledger-filter {
+            .tabs, .ledger-filter, #logout-btn {
                 display: none;
             }
             table {
@@ -158,74 +233,160 @@
                 print-color-adjust: exact;
             }
         }
+        @media (max-width: 768px) {
+            .input-section { flex-direction: column; }
+            .container { padding: 20px; }
+            h1 { font-size: 2em; }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Ledger Management System</h1>
-        <div class="tabs">
-            <button class="tab-button active" onclick="openTab('master-data')">Master Data</button>
-            <button class="tab-button" onclick="openTab('ledger')">Ledger</button>
+        <!-- Login Section -->
+        <div id="login-section">
+            <h1>Login to Ledger Management System</h1>
+            <div class="input-section">
+                <div>
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" value="" placeholder="Enter username">
+                </div>
+                <div>
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" value="" placeholder="Enter password">
+                </div>
+            </div>
+            <button onclick="login()">Login</button>
+            <p id="error"></p>
         </div>
 
-        <div id="master-data" class="tab-content active">
-            <h2>Master Data</h2>
-            <table id="master-table">
-                <thead>
-                    <tr>
-                        <th>Party Name</th>
-                        <th>Head</th>
-                        <th>Debit/Credit</th>
-                        <th>Balance</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
-
-        <div id="ledger" class="tab-content">
-            <h2>Ledger</h2>
-            <div class="ledger-filter">
-                <label for="party">Select Party:</label>
-                <select id="party" onchange="loadLedger()">
-                    <option value="">-- Select Party --</option>
-                </select>
-
-                <label for="start-date">From:</label>
-                <input type="date" id="start-date" onchange="loadLedger()">
-
-                <label for="end-date">To:</label>
-                <input type="date" id="end-date" onchange="loadLedger()">
-
-                <button onclick="printLedger()">Print Ledger</button>
+        <!-- Ledger Section -->
+        <div id="ledger-section" class="hidden">
+            <h1>Ledger Management System</h1>
+            <div class="tabs">
+                <button class="tab-button active" onclick="openTab('master-data')">Master Data</button>
+                <button class="tab-button" onclick="openTab('ledger')">Ledger</button>
             </div>
 
-            <div class="ledger-header" id="ledger-header">
-                <p><strong>Prepared By:</strong> Sumit Garg</p>
-                <h3 id="ledger-party-name"></h3>
-                <p id="ledger-period"><strong>Period:</strong> </p>
+            <div id="master-data" class="tab-content active">
+                <h2>Master Data</h2>
+                <table id="master-table">
+                    <thead>
+                        <tr>
+                            <th>Party Name</th>
+                            <th>Head</th>
+                            <th>Debit/Credit</th>
+                            <th>Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
             </div>
-            <table id="ledger-table">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Vch No</th>
-                        <th>Party Name</th>
-                        <th>Type</th>
-                        <th>Debit</th>
-                        <th>Credit</th>
-                        <th>Balance</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
+
+            <div id="ledger" class="tab-content">
+                <h2>Ledger</h2>
+                <div class="ledger-filter">
+                    <label for="party">Select Party:</label>
+                    <select id="party" onchange="loadLedger()">
+                        <option value="">-- Select Party --</option>
+                    </select>
+
+                    <label for="start-date">From:</label>
+                    <input type="date" id="start-date" onchange="loadLedger()">
+
+                    <label for="end-date">To:</label>
+                    <input type="date" id="end-date" onchange="loadLedger()">
+
+                    <button onclick="printLedger()">Print Ledger</button>
+                </div>
+
+                <div class="ledger-header" id="ledger-header">
+                    <p><strong>Prepared By:</strong> Sumit Garg</p>
+                    <h3 id="ledger-party-name"></h3>
+                    <p id="ledger-period"><strong>Period:</strong> </p>
+                </div>
+                <table id="ledger-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Vch No</th>
+                            <th>Party Name</th>
+                            <th>Type</th>
+                            <th>Debit</th>
+                            <th>Credit</th>
+                            <th>Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <button id="logout-btn" onclick="logout()">Logout</button>
         </div>
     </div>
 
     <script>
+        const users = {
+            "Sumitgarg": { password: "Garg@123", expiry: "2026-04-30" },
+            "user1": { password: "pass123", expiry: "2025-04-30" },
+            "user2": { password: "pass456", expiry: "2025-05-15" }
+        };
+
         const EXCEL_FILE_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTuJ8mXACkt_Jkt3VB1BUTRk3TEryiBi4Pjhrcgt3Odnl6tjyqVexhWqmjzP9sSHcwJqEpymF-7J3C7/pub?output=xlsx';
         let sheetData = {};
 
+        // Login Functionality
+        document.addEventListener("DOMContentLoaded", function() {
+            const loggedInUser = localStorage.getItem("loggedInUser");
+            if (loggedInUser && checkSubscription(loggedInUser)) {
+                showLedgerSection();
+            } else {
+                showLoginSection();
+            }
+        });
+
+        function login() {
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+            const error = document.getElementById("error");
+
+            if (users[username] && users[username].password === password) {
+                if (checkSubscription(username)) {
+                    localStorage.setItem("loggedInUser", username);
+                    document.getElementById("username").value = "";
+                    document.getElementById("password").value = "";
+                    error.textContent = "";
+                    showLedgerSection();
+                } else {
+                    error.textContent = "Your subscription has expired!";
+                }
+            } else {
+                error.textContent = "Invalid username or password!";
+            }
+        }
+
+        function checkSubscription(username) {
+            const expiryDate = new Date(users[username].expiry);
+            const today = new Date();
+            return today <= expiryDate;
+        }
+
+        function logout() {
+            localStorage.removeItem("loggedInUser");
+            showLoginSection();
+        }
+
+        function showLoginSection() {
+            document.getElementById("login-section").classList.remove("hidden");
+            document.getElementById("ledger-section").classList.add("hidden");
+        }
+
+        function showLedgerSection() {
+            document.getElementById("login-section").classList.add("hidden");
+            document.getElementById("ledger-section").classList.remove("hidden");
+            loadMasterData();
+            loadPartyDropdown();
+        }
+
+        // Ledger Functionality
         async function fetchExcelData() {
             const cachedData = localStorage.getItem('sheetData');
             if (cachedData) {
@@ -263,11 +424,12 @@
         }
 
         async function loadMasterData() {
+            await fetchExcelData();
             if (!sheetData.Master) return;
             const rows = sheetData.Master;
             const tbody = document.querySelector('#master-table tbody');
             tbody.innerHTML = '';
-            const dataRange = rows.slice(2, 300); // A3 to D300
+            const dataRange = rows.slice(2, 300);
             dataRange.forEach(row => {
                 const partyName = row[0] || '';
                 const head = row[1] || '';
@@ -286,9 +448,11 @@
         }
 
         async function loadPartyDropdown() {
+            await fetchExcelData();
             if (!sheetData.Master) return;
             const rows = sheetData.Master;
             const partySelect = document.getElementById('party');
+            partySelect.innerHTML = '<option value="">-- Select Party --</option>';
             rows.slice(2).forEach(row => {
                 const partyName = row[0];
                 if (partyName) {
@@ -472,12 +636,6 @@
             printWindow.document.close();
             printWindow.print();
         }
-
-        document.addEventListener('DOMContentLoaded', async () => {
-            await fetchExcelData();
-            await loadMasterData();
-            await loadPartyDropdown();
-        });
     </script>
 </body>
 </html>
