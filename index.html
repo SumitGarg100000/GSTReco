@@ -419,7 +419,7 @@
                             <td>${openingCredit.toLocaleString('en-IN')}</td>
                             <td>${openingBalance.toLocaleString('en-IN')}</td>
                         `;
-                        tbody.appendChild(tr);
+                        tbody.appendChild(openingTr);
 
                         filteredRows.forEach(row => {
                             const debit = Math.round(cleanNumber(row[8]));
