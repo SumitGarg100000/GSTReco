@@ -277,10 +277,14 @@
             const endDate = endDateStr ? parseInputDate(endDateStr) : null;
 
             let hasData = false;
+            let hasOpening = false;
+            let filteredRows = [];
 
+            // First, filter rows and check for "Opening"
             rows.slice(1).forEach(row => {
                 const rowDateStr = row[0]; // Column A
                 const rowParty = row[2]; // Column C
+                const rowType = row[3]; // Column D
                 const rowDate = parseDateForComparison(rowDateStr);
 
                 if (rowParty === party && rowDate) {
@@ -288,16 +292,27 @@
                     if (startDate && endDate) {
                         includeRow = rowDate >= startDate && rowDate <= endDate;
                     }
-
                     if (includeRow) {
+                        filteredRows.push(row);
+                        if (rowType === "Opening") {
+                            hasOpening = true;
+                        }
                         hasData = true;
+                    }
+                }
+            });
+
+            if (hasData) {
+                if (hasOpening) {
+                    // If "Opening" exists, display data as is
+                    filteredRows.forEach(row => {
                         const debit = cleanNumber(row[8]); // Column I
                         const credit = cleanNumber(row[9]); // Column J
-                        const balance = cleanNumber(row[10]); // Column K - Picking balance directly
+                        const balance = cleanNumber(row[10]); // Column K
 
                         const tr = document.createElement('tr');
                         tr.innerHTML = `
-                            <td>${formatDateToDDMMMYYYY(rowDateStr)}</td>
+                            <td>${formatDateToDDMMMYYYY(row[0])}</td>
                             <td>${row[1] || ''}</td>
                             <td>${row[2] || ''}</td>
                             <td>${row[3] || ''}</td>
@@ -306,9 +321,54 @@
                             <td>${balance.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                         `;
                         tbody.appendChild(tr);
+                    });
+                } else {
+                    // If no "Opening", add custom opening row and shift data down
+                    if (filteredRows.length > 0) {
+                        const firstRow = filteredRows[0];
+                        const firstDebit = cleanNumber(firstRow[8]); // Column I of 2nd row
+                        const firstCredit = cleanNumber(firstRow[9]); // Column J of 2nd row
+                        const firstBalance = cleanNumber(firstRow[10]); // Column K of 2nd row
+
+                        // Calculate opening debit and balance
+                        const openingDebit = firstBalance + firstCredit - firstDebit;
+                        const openingCredit = 0;
+                        const openingBalance = openingDebit; // Since credit is 0
+
+                        // Add opening row
+                        const openingTr = document.createElement('tr');
+                        openingTr.innerHTML = `
+                            <td>${formatDateToDDMMMYYYY(startDateStr)}</td>
+                            <td></td>
+                            <td>${party}</td>
+                            <td>Opening</td>
+                            <td>${openingDebit.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                            <td>${openingCredit.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                            <td>${openingBalance.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                        `;
+                        tbody.appendChild(openingTr);
+
+                        // Add remaining rows
+                        filteredRows.forEach(row => {
+                            const debit = cleanNumber(row[8]); // Column I
+                            const credit = cleanNumber(row[9]); // Column J
+                            const balance = cleanNumber(row[10]); // Column K
+
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = `
+                                <td>${formatDateToDDMMMYYYY(row[0])}</td>
+                                <td>${row[1] || ''}</td>
+                                <td>${row[2] || ''}</td>
+                                <td>${row[3] || ''}</td>
+                                <td>${debit.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                <td>${credit.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                <td>${balance.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                            `;
+                            tbody.appendChild(tr);
+                        });
                     }
                 }
-            });
+            }
 
             if (!hasData) {
                 tbody.innerHTML = '<tr><td colspan="7">No data found for selected party and date range</td></tr>';
