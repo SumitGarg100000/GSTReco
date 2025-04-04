@@ -259,63 +259,63 @@
 
         async function loadLedger() {
             const party = document.getElementById('party').value;
-            const startDateStr = document.getElementById('start-date').value;
-            const endDateStr = document.getElementById('end-date').value;
+        async function loadLedger() {
+    const party = document.getElementById('party').value;
+    const startDateStr = document.getElementById('start-date').value;
+    const endDateStr = document.getElementById('end-date').value;
 
-            if (!party || !sheetData.Consolidate) return;
+    if (!party || !sheetData.Consolidate) return;
 
-            const rows = sheetData.Consolidate;
-            const tbody = document.querySelector('#ledger-table tbody');
-            tbody.innerHTML = '';
+    const rows = sheetData.Consolidate;
+    const tbody = document.querySelector('#ledger-table tbody');
+    tbody.innerHTML = '';
 
-            document.getElementById('ledger-party-name').textContent = party;
-            document.getElementById('ledger-period').textContent = startDateStr && endDateStr ? 
-                `Period: ${formatDateToDDMMMYYYY(startDateStr)} To ${formatDateToDDMMMYYYY(endDateStr)}` : 
-                'Period: All Dates';
+    document.getElementById('ledger-party-name').textContent = party;
+    document.getElementById('ledger-period').textContent = startDateStr && endDateStr ? 
+        `Period: ${formatDateToDDMMMYYYY(startDateStr)} To ${formatDateToDDMMMYYYY(endDateStr)}` : 
+        'Period: All Dates';
 
-            const startDate = startDateStr ? parseInputDate(startDateStr) : null;
-            const endDate = endDateStr ? parseInputDate(endDateStr) : null;
+    const startDate = startDateStr ? parseInputDate(startDateStr) : null;
+    const endDate = endDateStr ? parseInputDate(endDateStr) : null;
 
-            let balance = 0;
-            let hasData = false;
+    let hasData = false;
 
-            rows.slice(1).forEach(row => {
-                const rowDateStr = row[0]; // Column A
-                const rowParty = row[2]; // Column C
-                const rowDate = parseDateForComparison(rowDateStr);
+    rows.slice(1).forEach(row => {
+        const rowDateStr = row[0]; // Column A
+        const rowParty = row[2]; // Column C
+        const rowDate = parseDateForComparison(rowDateStr);
 
-                if (rowParty === party && rowDate) {
-                    let includeRow = true;
-                    if (startDate && endDate) {
-                        includeRow = rowDate >= startDate && rowDate <= endDate;
-                    }
+        if (rowParty === party && rowDate) {
+            let includeRow = true;
+            if (startDate && endDate) {
+                includeRow = rowDate >= startDate && rowDate <= endDate;
+            }
 
-                    if (includeRow) {
-                        hasData = true;
-                        // Modified to handle numbers with commas correctly
-                        const debit = cleanNumber(row[8]); // Column I
-                        const credit = cleanNumber(row[9]); // Column J
-                        balance += debit - credit;
+            if (includeRow) {
+                hasData = true;
+                const debit = cleanNumber(row[8]); // Column I
+                const credit = cleanNumber(row[9]); // Column J
+                const balance = cleanNumber(row[10]); // Column K
 
-                        const tr = document.createElement('tr');
-                        tr.innerHTML = `
-                            <td>${formatDateToDDMMMYYYY(rowDateStr)}</td>
-                            <td>${row[1] || ''}</td>
-                            <td>${row[2] || ''}</td>
-                            <td>${row[3] || ''}</td>
-                            <td>${debit.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                            <td>${credit.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                            <td>${balance.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                        `;
-                        tbody.appendChild(tr);
-                    }
-                }
-            });
-
-            if (!hasData) {
-                tbody.innerHTML = '<tr><td colspan="7">No data found for selected party and date range</td></tr>';
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${formatDateToDDMMMYYYY(rowDateStr)}</td>
+                    <td>${row[1] || ''}</td>
+                    <td>${row[2] || ''}</td>
+                    <td>${row[3] || ''}</td>
+                    <td>${debit.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                    <td>${credit.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                    <td>${balance.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                `;
+                tbody.appendChild(tr);
             }
         }
+    });
+
+    if (!hasData) {
+        tbody.innerHTML = '<tr><td colspan="7">No data found for selected party and date range</td></tr>';
+    }
+}
 
         function printLedger() {
             const ledgerContent = document.getElementById('ledger').innerHTML;
