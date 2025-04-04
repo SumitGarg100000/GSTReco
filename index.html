@@ -179,8 +179,6 @@
                     const worksheet = workbook.Sheets[sheetName];
                     sheetData[sheetName] = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
                 });
-                console.log('Fetched sheet names:', workbook.SheetNames);
-                console.log('Consolidate sheet data:', sheetData.Consolidate);
                 return sheetData;
             } catch (error) {
                 console.error('Error fetching Excel data:', error);
@@ -196,10 +194,7 @@
         }
 
         async function loadMasterData() {
-            if (!sheetData.Master) {
-                console.log('No Master sheet found');
-                return;
-            }
+            if (!sheetData.Master) return;
             const rows = sheetData.Master;
             const tbody = document.querySelector('#master-table tbody');
             tbody.innerHTML = '';
@@ -211,10 +206,7 @@
         }
 
         async function loadPartyDropdown() {
-            if (!sheetData.Master) {
-                console.log('No Master sheet for dropdown');
-                return;
-            }
+            if (!sheetData.Master) return;
             const rows = sheetData.Master;
             const partySelect = document.getElementById('party');
             rows.slice(1).forEach(row => {
@@ -225,22 +217,37 @@
             });
         }
 
+        function formatDateForDisplay(dateStr) {
+            if (!dateStr) return '';
+            const date = new Date(dateStr);
+            const day = String(date.getDate()).padStart(2, '0');
+            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const month = monthNames[date.getMonth()];
+            const year = date.getFullYear();
+            return `${day}-${month}-${year}`;
+        }
+
+        function parseExcelDate(dateStr) {
+            if (!dateStr) return null;
+            // Handle Excel date format (assuming dd-mmm-yyyy or similar)
+            const parts = dateStr.split('-');
+            if (parts.length !== 3) return null;
+            
+            const day = parseInt(parts[0]);
+            const monthNames = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+            const month = monthNames.indexOf(parts[1].toLowerCase());
+            const year = parseInt(parts[2]);
+            
+            if (isNaN(day) || month === -1 || isNaN(year)) return null;
+            return new Date(year, month, day);
+        }
+
         async function loadLedger() {
             const party = document.getElementById('party').value;
             const startDate = document.getElementById('start-date').value;
             const endDate = document.getElementById('end-date').value;
 
-            if (!party) {
-                console.log('No party selected');
-                return;
-            }
-            if (!sheetData.Consolidate) {
-                console.log('No Consolidate sheet found');
-                return;
-            }
-
-            console.log('Loading ledger for party:', party);
-            console.log('Date range:', startDate, 'to', endDate);
+            if (!party || !sheetData.Consolidate) return;
 
             const rows = sheetData.Consolidate;
             const tbody = document.querySelector('#ledger-table tbody');
@@ -248,20 +255,21 @@
 
             document.getElementById('ledger-party-name').textContent = party;
             document.getElementById('ledger-period').textContent = startDate && endDate ? 
-                `Period: ${formatDate(startDate)} To ${formatDate(endDate)}` : 'Period: All Dates';
+                `Period: ${formatDateForDisplay(startDate)} To ${formatDateForDisplay(endDate)}` : 
+                'Period: All Dates';
 
             let balance = 0;
             let hasData = false;
 
-            rows.slice(1).forEach((row, index) => {
-                console.log(`Row ${index}:`, row);
+            rows.slice(1).forEach(row => {
                 const rowDateStr = row[0]; // Column A
                 const rowParty = row[2]; // Column C
 
                 if (rowParty === party) {
+                    const rowDate = parseExcelDate(rowDateStr);
                     let includeRow = true;
-                    if (startDate && endDate) {
-                        const rowDate = parseDate(rowDateStr);
+
+                    if (startDate && endDate && rowDate) {
                         const start = new Date(startDate);
                         const end = new Date(endDate);
                         includeRow = rowDate >= start && rowDate <= end;
@@ -275,7 +283,7 @@
 
                         const tr = document.createElement('tr');
                         tr.innerHTML = `
-                            <td>${row[0] || ''}</td> <!-- Column A -->
+                            <td>${formatDateForDisplay(rowDate)}</td> <!-- Formatted Date -->
                             <td>${row[1] || ''}</td> <!-- Column B -->
                             <td>${row[2] || ''}</td> <!-- Column C -->
                             <td>${row[3] || ''}</td> <!-- Column D -->
@@ -289,30 +297,8 @@
             });
 
             if (!hasData) {
-                console.log('No matching data found for selected criteria');
                 tbody.innerHTML = '<tr><td colspan="7">No data found for selected party and date range</td></tr>';
             }
-        }
-
-        function parseDate(dateStr) {
-            try {
-                if (!dateStr) return null;
-                const [day, month, year] = dateStr.toString().split('-');
-                const monthIndex = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].indexOf(month);
-                if (monthIndex === -1) throw new Error('Invalid month');
-                return new Date(year, monthIndex, day);
-            } catch (error) {
-                console.error('Date parsing error:', error, 'Date string:', dateStr);
-                return null;
-            }
-        }
-
-        function formatDate(dateStr) {
-            const date = new Date(dateStr);
-            const day = date.getDate().toString().padStart(2, '0');
-            const month = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][date.getMonth()];
-            const year = date.getFullYear();
-            return `${day}-${month}-${year}`;
         }
 
         function printLedger() {
@@ -339,7 +325,6 @@
             await fetchExcelData();
             await loadMasterData();
             await loadPartyDropdown();
-            console.log('Initial data load complete');
         });
     </script>
 </body>
