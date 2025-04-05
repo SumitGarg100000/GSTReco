@@ -972,30 +972,34 @@
         }
 
         function restoreState() {
-            const currentTab = localStorage.getItem('currentTab') || 'master-data';
-            openTab(currentTab);
+    const currentTab = localStorage.getItem('currentTab') || 'master-data';
+    openTab(currentTab);
 
-            const selectedParty = localStorage.getItem('selectedParty');
-            const startDate = localStorage.getItem('startDate');
-            const endDate = localStorage.getItem('endDate');
-            const savedSelectedRows = localStorage.getItem('selectedRows');
+    const selectedParty = localStorage.getItem('selectedParty');
+    const startDate = localStorage.getItem('startDate');
+    const endDate = localStorage.getItem('endDate');
+    const savedSelectedRows = localStorage.getItem('selectedRows');
 
-            if (selectedParty) document.getElementById('party').value = selectedParty;
-            if (startDate) document.getElementById('start-date').value = startDate;
-            if (endDate) document.getElementById('end-date').value = endDate;
+    // Load party dropdown first, then set the selected value
+    loadPartyDropdown().then(() => {
+        if (selectedParty) document.getElementById('party').value = selectedParty;
+    });
 
-            if (currentTab === 'ledger') {
-                loadLedger();
-                if (savedSelectedRows) {
-                    selectedRows = JSON.parse(savedSelectedRows);
-                    isSumMode = true;
-                    const sumButton = document.querySelector('.ledger-filter button[onclick="startSumMode()"]');
-                    sumButton.style.background = '#e74c3c';
-                    sumButton.textContent = 'Stop Sum';
-                    updateTotal();
-                }
-            }
+    if (startDate) document.getElementById('start-date').value = startDate;
+    if (endDate) document.getElementById('end-date').value = endDate;
+
+    if (currentTab === 'ledger') {
+        loadLedger();
+        if (savedSelectedRows) {
+            selectedRows = JSON.parse(savedSelectedRows);
+            isSumMode = true;
+            const sumButton = document.querySelector('.ledger-filter button[onclick="startSumMode()"]');
+            sumButton.style.background = '#e74c3c';
+            sumButton.textContent = 'Stop Sum';
+            updateTotal();
         }
+    }
+}
 
         function restoreSelectedRows() {
             const savedSelectedRows = localStorage.getItem('selectedRows');
