@@ -107,6 +107,7 @@
             border: none;
             cursor: pointer;
             font-size: 16px;
+            color: #333;
             transition: all 0.3s ease;
         }
         .tab-button:hover {
@@ -197,20 +198,26 @@
         th, td {
             border: 1px solid #e0e0e0;
             padding: 10px;
-            text-align: center;
-            white-space: nowrap;
+            text-align: left;
         }
-        th:nth-child(1), td:nth-child(1) { width: 100px; }
-        th:nth-child(2), td:nth-child(2) { width: 80px; }
-        th:nth-child(3), td:nth-child(3) { min-width: 150px; white-space: normal; word-wrap: break-word; }
-        th:nth-child(4), td:nth-child(4) { width: 80px; }
-        th:nth-child(5), td:nth-child(5) { width: 100px; }
-        th:nth-child(6), td:nth-child(6) { width: 100px; }
-        th:nth-child(7), td:nth-child(7) { width: 120px; }
+        #master-table th:nth-child(1), #master-table td:nth-child(1) { width: 200px; } /* Party Name */
+        #master-table th:nth-child(2), #master-table td:nth-child(2) { width: 150px; } /* Head */
+        #master-table th:nth-child(3), #master-table td:nth-child(3) { width: 60px; } /* Debit/Credit */
+        #master-table th:nth-child(4), #master-table td:nth-child(4) { width: 100px; text-align: center; } /* Balance */
+        #ledger-table th:nth-child(1), #ledger-table td:nth-child(1) { width: 100px; }
+        #ledger-table th:nth-child(2), #ledger-table td:nth-child(2) { width: 80px; }
+        #ledger-table th:nth-child(3), #ledger-table td:nth-child(3) { min-width: 150px; white-space: normal; word-wrap: break-word; }
+        #ledger-table th:nth-child(4), #ledger-table td:nth-child(4) { width: 80px; }
+        #ledger-table th:nth-child(5), #ledger-table td:nth-child(5) { width: 100px; }
+        #ledger-table th:nth-child(6), #ledger-table td:nth-child(6) { width: 100px; }
+        #ledger-table th:nth-child(7), #ledger-table td:nth-child(7) { width: 120px; }
         th {
             background: #3498db;
             color: #fff;
             font-weight: 600;
+        }
+        #ledger-table th, #ledger-table td {
+            text-align: center;
         }
         tr:nth-child(even) {
             background: #f8f9fa;
@@ -301,15 +308,18 @@
                 border: 1px solid #000;
                 padding: 8px;
                 text-align: center;
-                white-space: nowrap;
             }
-            th:nth-child(1), td:nth-child(1) { width: 100px; }
-            th:nth-child(2), td:nth-child(2) { width: 80px; }
-            th:nth-child(3), td:nth-child(3) { min-width: 150px; white-space: normal; word-wrap: break-word; }
-            th:nth-child(4), td:nth-child(4) { width: 80px; }
-            th:nth-child(5), td:nth-child(5) { width: 100px; }
-            th:nth-child(6), td:nth-child(6) { width: 100px; }
-            th:nth-child(7), td:nth-child(7) { width: 120px; }
+            #master-table th:nth-child(1), #master-table td:nth-child(1) { width: 200px; text-align: left; }
+            #master-table th:nth-child(2), #master-table td:nth-child(2) { width: 150px; text-align: left; }
+            #master-table th:nth-child(3), #master-table td:nth-child(3) { width: 60px; text-align: left; }
+            #master-table th:nth-child(4), #master-table td:nth-child(4) { width: 100px; text-align: center; }
+            #ledger-table th:nth-child(1), #ledger-table td:nth-child(1) { width: 100px; }
+            #ledger-table th:nth-child(2), #ledger-table td:nth-child(2) { width: 80px; }
+            #ledger-table th:nth-child(3), #ledger-table td:nth-child(3) { min-width: 150px; white-space: normal; word-wrap: break-word; }
+            #ledger-table th:nth-child(4), #ledger-table td:nth-child(4) { width: 80px; }
+            #ledger-table th:nth-child(5), #ledger-table td:nth-child(5) { width: 100px; }
+            #ledger-table th:nth-child(6), #ledger-table td:nth-child(6) { width: 100px; }
+            #ledger-table th:nth-child(7), #ledger-table td:nth-child(7) { width: 120px; }
             th {
                 background: #3498db !important;
                 color: #fff !important;
@@ -575,19 +585,37 @@
             const rows = sheetData.Master;
             const tbody = document.querySelector('#master-table tbody');
             tbody.innerHTML = '';
+
             const dataRange = rows.slice(2, 300);
+            let uniqueParties = new Set();
+            let filteredData = [];
+
             dataRange.forEach(row => {
                 const partyName = row[0] || '';
-                const head = row[1] || '';
-                const debitCredit = row[2] || '';
-                const balance = Math.round(cleanNumber(row[3])) || 0;
+                if (partyName && !uniqueParties.has(partyName)) {
+                    uniqueParties.add(partyName);
+                    filteredData.push({
+                        partyName: partyName,
+                        head: row[1] || '',
+                        debitCredit: row[2] || '',
+                        balance: Math.round(cleanNumber(row[3])) || 0
+                    });
+                }
+            });
 
+            filteredData.sort((a, b) => {
+                const headCompare = b.head.localeCompare(a.head); // Descending order for Head (Z to A)
+                if (headCompare !== 0) return headCompare;
+                return a.partyName.localeCompare(b.partyName); // Ascending order for Party Name (A to Z)
+            });
+
+            filteredData.forEach(data => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td>${partyName}</td>
-                    <td>${head}</td>
-                    <td>${debitCredit}</td>
-                    <td>${balance.toLocaleString('en-IN')}</td>
+                    <td>${data.partyName}</td>
+                    <td>${data.head}</td>
+                    <td>${data.debitCredit}</td>
+                    <td>${data.balance.toLocaleString('en-IN')}</td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -748,7 +776,7 @@
                             <td>${openingCredit.toLocaleString('en-IN')}</td>
                             <td>${openingBalance.toLocaleString('en-IN')}</td>
                         `;
-                        tbody.appendChild(openingTr);
+                        tbody.appendChild(tr);
 
                         filteredRows.forEach(row => {
                             const debit = Math.round(cleanNumber(row[8]));
@@ -796,7 +824,7 @@
             printWindow.document.write('<style>');
             printWindow.document.write(`
                 body { font-family: Arial, sans-serif; margin: 10px; color: #000; }
-                table { width: 100%; border-collapse: collapse; table-layout: auto; }
+                table { width: 100%; Grief-collapse: collapse; table-layout: auto; }
                 th, td { border: 1px solid #e0e0e0; padding: 8px; text-align: center; white-space: nowrap; }
                 th:nth-child(1), td:nth-child(1) { width: 100px; }
                 th:nth-child(2), td:nth-child(2) { width: 80px; }
