@@ -198,7 +198,7 @@
         th, td {
             border: 1px solid #e0e0e0;
             padding: 10px;
-            text-align: left;
+            text-align: center;
         }
         #master-table th:nth-child(1), #master-table td:nth-child(1) { width: 200px; } /* Party Name */
         #master-table th:nth-child(2), #master-table td:nth-child(2) { width: 150px; } /* Head */
@@ -313,13 +313,13 @@
             #master-table th:nth-child(2), #master-table td:nth-child(2) { width: 150px; text-align: left; }
             #master-table th:nth-child(3), #master-table td:nth-child(3) { width: 60px; text-align: left; }
             #master-table th:nth-child(4), #master-table td:nth-child(4) { width: 100px; text-align: center; }
-            #ledger-table th:nth-child(1), #ledger-table td:nth-child(1) { width: 100px; }
-            #ledger-table th:nth-child(2), #ledger-table td:nth-child(2) { width: 80px; }
+            #ledger-table th:nth-child(1), #ledger-table td:nth-child(1) { width: 100px;}
+            #ledger-table th:nth-child(2), #ledger-table td:nth-child(2) { width: 80px;}
             #ledger-table th:nth-child(3), #ledger-table td:nth-child(3) { min-width: 150px; white-space: normal; word-wrap: break-word; }
-            #ledger-table th:nth-child(4), #ledger-table td:nth-child(4) { width: 80px; }
-            #ledger-table th:nth-child(5), #ledger-table td:nth-child(5) { width: 100px; }
-            #ledger-table th:nth-child(6), #ledger-table td:nth-child(6) { width: 100px; }
-            #ledger-table th:nth-child(7), #ledger-table td:nth-child(7) { width: 120px; }
+            #ledger-table th:nth-child(4), #ledger-table td:nth-child(4) { width: 80px;}
+            #ledger-table th:nth-child(5), #ledger-table td:nth-child(5) { width: 100px;}
+            #ledger-table th:nth-child(6), #ledger-table td:nth-child(6) { width: 100px;}
+            #ledger-table th:nth-child(7), #ledger-table td:nth-child(7) { width: 120px;}
             th {
                 background: #3498db !important;
                 color: #fff !important;
@@ -824,7 +824,7 @@
             printWindow.document.write('<style>');
             printWindow.document.write(`
                 body { font-family: Arial, sans-serif; margin: 10px; color: #000; }
-                table { width: 100%; Grief-collapse: collapse; table-layout: auto; }
+                table { width: 100%; border-collapse: collapse; table-layout: auto; }
                 th, td { border: 1px solid #e0e0e0; padding: 8px; text-align: center; white-space: nowrap; }
                 th:nth-child(1), td:nth-child(1) { width: 100px; }
                 th:nth-child(2), td:nth-child(2) { width: 80px; }
