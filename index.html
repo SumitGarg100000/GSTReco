@@ -225,6 +225,55 @@
         #logout-btn:hover {
             background: linear-gradient(45deg, #cc0000, #ff4444);
         }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 10px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .summary-table th, .summary-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        .summary-table th {
+            background: #3498db;
+            color: white;
+        }
+        .summary-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
         @media print {
             body {
                 padding: 0;
@@ -258,7 +307,7 @@
             th {
                 background: #3498db !important;
                 color: #fff !important;
-                -webkit-print-color-adjust: enrich;
+                -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
             tr:nth-child(even) {
@@ -343,6 +392,7 @@
                     <input type="date" id="end-date" onchange="loadLedger()">
 
                     <button onclick="printLedger()">Print Ledger</button>
+                    <button onclick="showSummary()">Summary</button>
                     <button onclick="startSumMode()">Sum</button>
                     <button onclick="refreshData()">Refresh Data</button>
                     <span id="refresh-status"></span>
@@ -373,6 +423,15 @@
         </div>
     </div>
 
+    <!-- Modal for Summary -->
+    <div id="summary-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Summary</h2>
+            <div id="summary-content"></div>
+        </div>
+    </div>
+
     <script>
         const EXCEL_FILE_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRNdhGT25UjRLglfupCo-7x2lGKE7-e2q7Zal0fC7fMVTwRpQzrtJqV5bK1ML2tB1PTH0OeyuLiNjcS/pub?output=xlsx';
         let sheetData = {};
@@ -387,6 +446,7 @@
             const loggedInUser = localStorage.getItem("loggedInUser");
             if (loggedInUser && checkSubscription(loggedInUser)) {
                 showLedgerSection();
+                restoreState();
             } else {
                 showLoginSection();
             }
@@ -421,6 +481,11 @@
 
         function logout() {
             localStorage.removeItem("loggedInUser");
+            localStorage.removeItem("currentTab");
+            localStorage.removeItem("selectedParty");
+            localStorage.removeItem("startDate");
+            localStorage.removeItem("endDate");
+            localStorage.removeItem("selectedRows");
             showLoginSection();
         }
 
@@ -493,7 +558,8 @@
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.tab-button').forEach(button => button.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
-            event.target.classList.add('active');
+            document.querySelector(`.tab-button[onclick="openTab('${tabId}')"]`).classList.add('active');
+            localStorage.setItem('currentTab', tabId);
         }
 
         async function loadMasterData() {
@@ -581,6 +647,10 @@
             const startDateStr = document.getElementById('start-date').value;
             const endDateStr = document.getElementById('end-date').value;
 
+            localStorage.setItem('selectedParty', party);
+            localStorage.setItem('startDate', startDateStr);
+            localStorage.setItem('endDate', endDateStr);
+
             if (!party || !sheetData.Consolidate) {
                 console.error('No party selected or Consolidate sheet not found');
                 return;
@@ -593,10 +663,14 @@
             document.getElementById('ledger-party-name').textContent = party;
             document.getElementById('ledger-period').textContent = startDateStr && endDateStr ? 
                 `Period: ${formatDateToDDMMMYYYY(startDateStr)} To ${formatDateToDDMMMYYYY(endDateStr)}` : 
-                'Period: All Dates';
+                startDateStr ? `Period: ${formatDateToDDMMMYYYY(startDateStr)} To Last Date` : 'Period: All Dates';
 
             const startDate = startDateStr ? parseInputDate(startDateStr) : null;
-            const endDate = endDateStr ? parseInputDate(endDateStr) : null;
+            let endDate = endDateStr ? parseInputDate(endDateStr) : null;
+
+            if (startDate && !endDate) {
+                endDate = getLastDate(rows);
+            }
 
             let hasData = false;
             let hasOpening = false;
@@ -612,6 +686,8 @@
                     let includeRow = true;
                     if (startDate && endDate) {
                         includeRow = rowDate >= startDate && rowDate <= endDate;
+                    } else if (startDate) {
+                        includeRow = rowDate >= startDate;
                     }
                     if (includeRow) {
                         filteredRows.push(row);
@@ -691,6 +767,19 @@
             if (!hasData) {
                 tbody.innerHTML = '<tr><td colspan="7">No data found for selected party and date range</td></tr>';
             }
+
+            restoreSelectedRows();
+        }
+
+        function getLastDate(rows) {
+            let latestDate = null;
+            rows.slice(1).forEach(row => {
+                const rowDate = parseDateForComparison(row[0]);
+                if (rowDate && (!latestDate || rowDate > latestDate)) {
+                    latestDate = rowDate;
+                }
+            });
+            return latestDate;
         }
 
         function printLedger() {
@@ -756,6 +845,7 @@
 
             const total = totalDebit - totalCredit;
             document.getElementById('sum-total').textContent = isSumMode && selectedRows.length > 0 ? `Total: ${total.toLocaleString('en-IN')}` : '';
+            localStorage.setItem('selectedRows', JSON.stringify(selectedRows));
         }
 
         document.querySelector('#ledger-table tbody').addEventListener('click', (event) => {
@@ -775,6 +865,97 @@
                 updateTotal();
             }
         });
+
+        function showSummary() {
+            const modal = document.getElementById('summary-modal');
+            const content = document.getElementById('summary-content');
+            const tbody = document.querySelector('#ledger-table tbody');
+            const party = document.getElementById('party').value;
+            const startDateStr = document.getElementById('start-date').value;
+            const endDateStr = document.getElementById('end-date').value;
+
+            if (!party) {
+                alert('Please select a party first!');
+                return;
+            }
+
+            let summaryData = {};
+            let totalDebit = 0;
+            let totalCredit = 0;
+
+            selectedRows.forEach(index => {
+                const row = tbody.rows[index];
+                const type = row.cells[3].textContent;
+                const debit = cleanNumber(row.cells[4].textContent);
+                const credit = cleanNumber(row.cells[5].textContent);
+
+                if (!summaryData[type]) {
+                    summaryData[type] = { debit: 0, credit: 0 };
+                }
+                summaryData[type].debit += debit;
+                summaryData[type].credit += credit;
+                totalDebit += debit;
+                totalCredit += credit;
+            });
+
+            let html = `<p><strong>Party:</strong> ${party}</p>`;
+            html += `<p><strong>Period:</strong> ${startDateStr ? formatDateToDDMMMYYYY(startDateStr) : 'All'} To ${endDateStr ? formatDateToDDMMMYYYY(endDateStr) : 'Last Date'}</p>`;
+            html += '<table class="summary-table"><thead><tr><th>Type</th><th>Debit</th><th>Credit</th></tr></thead><tbody>';
+
+            for (const type in summaryData) {
+                html += `<tr><td>${type}</td><td>${summaryData[type].debit.toLocaleString('en-IN')}</td><td>${summaryData[type].credit.toLocaleString('en-IN')}</td></tr>`;
+            }
+
+            html += `<tr><td><strong>Total</strong></td><td><strong>${totalDebit.toLocaleString('en-IN')}</strong></td><td><strong>${totalCredit.toLocaleString('en-IN')}</strong></td></tr>`;
+            html += '</tbody></table>';
+
+            content.innerHTML = html;
+            modal.style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('summary-modal').style.display = 'none';
+        }
+
+        function restoreState() {
+            const currentTab = localStorage.getItem('currentTab') || 'master-data';
+            openTab(currentTab);
+
+            const selectedParty = localStorage.getItem('selectedParty');
+            const startDate = localStorage.getItem('startDate');
+            const endDate = localStorage.getItem('endDate');
+            const savedSelectedRows = localStorage.getItem('selectedRows');
+
+            if (selectedParty) document.getElementById('party').value = selectedParty;
+            if (startDate) document.getElementById('start-date').value = startDate;
+            if (endDate) document.getElementById('end-date').value = endDate;
+
+            if (currentTab === 'ledger') {
+                loadLedger();
+                if (savedSelectedRows) {
+                    selectedRows = JSON.parse(savedSelectedRows);
+                    isSumMode = true;
+                    const sumButton = document.querySelector('.ledger-filter button[onclick="startSumMode()"]');
+                    sumButton.style.background = '#e74c3c';
+                    sumButton.textContent = 'Stop Sum';
+                    updateTotal();
+                }
+            }
+        }
+
+        function restoreSelectedRows() {
+            const savedSelectedRows = localStorage.getItem('selectedRows');
+            if (savedSelectedRows && isSumMode) {
+                selectedRows = JSON.parse(savedSelectedRows);
+                const tbody = document.querySelector('#ledger-table tbody');
+                selectedRows.forEach(index => {
+                    if (tbody.rows[index]) {
+                        tbody.rows[index].classList.add('selected');
+                    }
+                });
+                updateTotal();
+            }
+        }
     </script>
 </body>
 </html>
