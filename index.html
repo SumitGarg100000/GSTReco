@@ -449,293 +449,326 @@
         </div>
     </div>
 
-    <script>
-        const EXCEL_FILE_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRNdhGT25UjRLglfupCo-7x2lGKE7-e2q7Zal0fC7fMVTwRpQzrtJqV5bK1ML2tB1PTH0OeyuLiNjcS/pub?output=xlsx';
-        let sheetData = {};
-        let isSumMode = false;
-        let selectedRows = [];
+<script>
+    const EXCEL_FILE_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRNdhGT25UjRLglfupCo-7x2lGKE7-e2q7Zal0fC7fMVTwRpQzrtJqV5bK1ML2tB1PTH0OeyuLiNjcS/pub?output=xlsx';
+    let sheetData = {};
+    let isSumMode = false;
+    let selectedRows = [];
 
-        const users = {
-            "Scrap": { password: "sutli@123", expiry: "2026-04-30" }
-        };
+    const users = {
+        "Scrap": { password: "sutli@123", expiry: "2026-04-30" }
+    };
 
-        document.addEventListener("DOMContentLoaded", function() {
-            const loggedInUser = localStorage.getItem("loggedInUser");
-            if (loggedInUser && checkSubscription(loggedInUser)) {
-                showLedgerSection();
-                restoreState();
-            } else {
-                showLoginSection();
-            }
-            setInterval(refreshData, 300000);
-        });
-
-        function login() {
-            const username = document.getElementById("username").value;
-            const password = document.getElementById("password").value;
-            const error = document.getElementById("error");
-
-            if (users[username] && users[username].password === password) {
-                if (checkSubscription(username)) {
-                    localStorage.setItem("loggedInUser", username);
-                    document.getElementById("username").value = "";
-                    document.getElementById("password").value = "";
-                    error.textContent = "";
-                    showLedgerSection();
-                } else {
-                    error.textContent = "Your subscription has expired!";
-                }
-            } else {
-                error.textContent = "Invalid username or password!";
-            }
-        }
-
-        function checkSubscription(username) {
-            const expiryDate = new Date(users[username].expiry);
-            const today = new Date();
-            return today <= expiryDate;
-        }
-
-        function logout() {
-            localStorage.removeItem("loggedInUser");
-            localStorage.removeItem("currentTab");
-            localStorage.removeItem("selectedParty");
-            localStorage.removeItem("startDate");
-            localStorage.removeItem("endDate");
-            localStorage.removeItem("selectedRows");
+    document.addEventListener("DOMContentLoaded", function() {
+        const loggedInUser = localStorage.getItem("loggedInUser");
+        if (loggedInUser && checkSubscription(loggedInUser)) {
+            showLedgerSection();
+            restoreState();
+        } else {
             showLoginSection();
         }
+        setInterval(refreshData, 300000);
+    });
 
-        function showLoginSection() {
-            document.getElementById("login-section").classList.remove("hidden");
-            document.getElementById("ledger-section").classList.add("hidden");
+    function login() {
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+        const error = document.getElementById("error");
+
+        if (users[username] && users[username].password === password) {
+            if (checkSubscription(username)) {
+                localStorage.setItem("loggedInUser", username);
+                document.getElementById("username").value = "";
+                document.getElementById("password").value = "";
+                error.textContent = "";
+                showLedgerSection();
+            } else {
+                error.textContent = "Your subscription has expired!";
+            }
+        } else {
+            error.textContent = "Invalid username or password!";
+        }
+    }
+
+    function checkSubscription(username) {
+        const expiryDate = new Date(users[username].expiry);
+        const today = new Date();
+        return today <= expiryDate;
+    }
+
+    function logout() {
+        localStorage.removeItem("loggedInUser");
+        localStorage.removeItem("currentTab");
+        localStorage.removeItem("selectedParty");
+        localStorage.removeItem("startDate");
+        localStorage.removeItem("endDate");
+        localStorage.removeItem("selectedRows");
+        localStorage.removeItem("isSumMode"); // Clear sum mode too
+        showLoginSection();
+    }
+
+    function showLoginSection() {
+        document.getElementById("login-section").classList.remove("hidden");
+        document.getElementById("ledger-section").classList.add("hidden");
+    }
+
+    function showLedgerSection() {
+        document.getElementById("login-section").classList.add("hidden");
+        document.getElementById("ledger-section").classList.remove("hidden");
+        loadMasterData();
+        loadPartyDropdown();
+    }
+
+    async function fetchExcelData(forceRefresh = false) {
+        if (forceRefresh) {
+            localStorage.removeItem('sheetData');
         }
 
-        function showLedgerSection() {
-            document.getElementById("login-section").classList.add("hidden");
-            document.getElementById("ledger-section").classList.remove("hidden");
-            loadMasterData();
-            loadPartyDropdown();
+        const cachedData = localStorage.getItem('sheetData');
+        if (cachedData && !forceRefresh) {
+            sheetData = JSON.parse(cachedData);
+            console.log('Loaded data from cache');
+            return sheetData;
         }
 
-        async function fetchExcelData(forceRefresh = false) {
-            if (forceRefresh) {
-                localStorage.removeItem('sheetData');
-            }
+        try {
+            const urlWithTimestamp = `${EXCEL_FILE_URL}&t=${new Date().getTime()}`;
+            const response = await fetch(urlWithTimestamp);
+            const arrayBuffer = await response.arrayBuffer();
+            const workbook = XLSX.read(arrayBuffer, { type: 'array', dateNF: 'dd-mmm-yyyy' });
+            sheetData = {};
+            const requiredSheets = ['Master', 'Consolidate'];
+            requiredSheets.forEach(sheetName => {
+                if (workbook.SheetNames.includes(sheetName)) {
+                    const worksheet = workbook.Sheets[sheetName];
+                    sheetData[sheetName] = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
+                }
+            });
+            localStorage.setItem('sheetData', JSON.stringify(sheetData));
+            console.log('Fresh data fetched and cached');
+            return sheetData;
+        } catch (error) {
+            console.error('Error fetching Excel data:', error);
+            return null;
+        }
+    }
 
-            const cachedData = localStorage.getItem('sheetData');
-            if (cachedData && !forceRefresh) {
-                sheetData = JSON.parse(cachedData);
-                console.log('Loaded data from cache');
-                return sheetData;
-            }
+    async function refreshData() {
+        const refreshStatus = document.getElementById('refresh-status');
+        refreshStatus.style.color = 'red';
+        refreshStatus.textContent = 'Wait..';
 
-            try {
-                const urlWithTimestamp = `${EXCEL_FILE_URL}&t=${new Date().getTime()}`;
-                const response = await fetch(urlWithTimestamp);
-                const arrayBuffer = await response.arrayBuffer();
-                const workbook = XLSX.read(arrayBuffer, { type: 'array', dateNF: 'dd-mmm-yyyy' });
-                sheetData = {};
-                const requiredSheets = ['Master', 'Consolidate'];
-                requiredSheets.forEach(sheetName => {
-                    if (workbook.SheetNames.includes(sheetName)) {
-                        const worksheet = workbook.Sheets[sheetName];
-                        sheetData[sheetName] = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
-                    }
+        await fetchExcelData(true);
+        loadMasterData();
+        await loadPartyDropdown();
+        restoreState(); // Restore state after refreshing data
+
+        refreshStatus.style.color = 'green';
+        refreshStatus.textContent = 'Data Updated';
+        setTimeout(() => {
+            refreshStatus.textContent = '';
+        }, 5000);
+    }
+
+    function openTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.tab-button').forEach(button => button.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        document.querySelector(`.tab-button[onclick="openTab('${tabId}')"]`).classList.add('active');
+        localStorage.setItem('currentTab', tabId);
+    }
+
+    async function loadMasterData() {
+        await fetchExcelData();
+        if (!sheetData.Master) return;
+        const rows = sheetData.Master;
+        const tbody = document.querySelector('#master-table tbody');
+        tbody.innerHTML = '';
+
+        const dataRange = rows.slice(2, 300);
+        let uniqueParties = new Set();
+        let filteredData = [];
+
+        dataRange.forEach(row => {
+            const partyName = row[0] || '';
+            if (partyName && !uniqueParties.has(partyName)) {
+                uniqueParties.add(partyName);
+                filteredData.push({
+                    partyName: partyName,
+                    head: row[1] || '',
+                    debitCredit: row[2] || '',
+                    balance: Math.round(cleanNumber(row[3])) || 0
                 });
-                localStorage.setItem('sheetData', JSON.stringify(sheetData));
-                console.log('Fresh data fetched and cached');
-                return sheetData;
-            } catch (error) {
-                console.error('Error fetching Excel data:', error);
-                return null;
             }
+        });
+
+        filteredData.sort((a, b) => {
+            const headCompare = b.head.localeCompare(a.head);
+            if (headCompare !== 0) return headCompare;
+            return a.partyName.localeCompare(b.partyName);
+        });
+
+        filteredData.forEach(data => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${data.partyName}</td>
+                <td>${data.head}</td>
+                <td>${data.debitCredit}</td>
+                <td>${data.balance.toLocaleString('en-IN')}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    async function loadPartyDropdown() {
+        await fetchExcelData();
+        if (!sheetData.Master) return;
+        const rows = sheetData.Master;
+        const partySelect = document.getElementById('party');
+        partySelect.innerHTML = '<option value="">-- Select Party --</option>';
+        rows.slice(2).forEach(row => {
+            const partyName = row[0];
+            if (partyName) {
+                const option = document.createElement('option');
+                option.value = partyName;
+                option.textContent = partyName;
+                partySelect.appendChild(option);
+            }
+        });
+    }
+
+    function formatDateToDDMMMYYYY(date) {
+        if (!date) return '';
+        const d = new Date(date);
+        const day = String(d.getDate()).padStart(2, '0');
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const month = monthNames[d.getMonth()];
+        const year = d.getFullYear();
+        return `${day}-${month}-${year}`;
+    }
+
+    function parseDateForComparison(dateStr) {
+        if (!dateStr) return null;
+        const [day, month, year] = dateStr.split('-');
+        const monthIndex = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'].indexOf(month.toLowerCase());
+        if (monthIndex === -1) return null;
+        return new Date(year, monthIndex, day);
+    }
+
+    function parseInputDate(dateStr) {
+        if (!dateStr) return null;
+        const [year, month, day] = dateStr.split('-');
+        return new Date(year, month - 1, day);
+    }
+
+    function cleanNumber(value) {
+        if (!value) return 0;
+        const cleaned = value.toString().replace(/[^0-9.]/g, '');
+        return parseFloat(cleaned) || 0;
+    }
+
+    async function loadLedger() {
+        const party = document.getElementById('party').value;
+        const startDateStr = document.getElementById('start-date').value;
+        const endDateStr = document.getElementById('end-date').value;
+
+        localStorage.setItem('selectedParty', party);
+        localStorage.setItem('startDate', startDateStr);
+        localStorage.setItem('endDate', endDateStr);
+        localStorage.setItem('isSumMode', isSumMode); // Save sum mode state
+
+        if (!party || !sheetData.Consolidate) {
+            console.error('No party selected or Consolidate sheet not found');
+            return;
         }
 
-        async function refreshData() {
-            const refreshStatus = document.getElementById('refresh-status');
-            refreshStatus.style.color = 'red';
-            refreshStatus.textContent = 'Wait..';
+        const rows = sheetData.Consolidate;
+        const tbody = document.querySelector('#ledger-table tbody');
+        tbody.innerHTML = '';
 
-            const selectedParty = document.getElementById('party').value;
-            await fetchExcelData(true);
-            loadMasterData();
-            await loadPartyDropdown();
-            document.getElementById('party').value = selectedParty;
-            loadLedger();
+        document.getElementById('ledger-party-name').textContent = party;
+        document.getElementById('ledger-period').textContent = startDateStr && endDateStr ? 
+            `Period: ${formatDateToDDMMMYYYY(startDateStr)} To ${formatDateToDDMMMYYYY(endDateStr)}` : 
+            startDateStr ? `Period: ${formatDateToDDMMMYYYY(startDateStr)} To Last Date` : 'Period: All Dates';
 
-            refreshStatus.style.color = 'green';
-            refreshStatus.textContent = 'Data Updated';
-            setTimeout(() => {
-                refreshStatus.textContent = '';
-            }, 5000);
+        const startDate = startDateStr ? parseInputDate(startDateStr) : null;
+        let endDate = endDateStr ? parseInputDate(endDateStr) : null;
+
+        if (startDate && !endDate) {
+            endDate = getLastDate(rows);
         }
 
-        function openTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.tab-button').forEach(button => button.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            document.querySelector(`.tab-button[onclick="openTab('${tabId}')"]`).classList.add('active');
-            localStorage.setItem('currentTab', tabId);
-        }
+        let hasData = false;
+        let hasOpening = false;
+        let filteredRows = [];
 
-        async function loadMasterData() {
-            await fetchExcelData();
-            if (!sheetData.Master) return;
-            const rows = sheetData.Master;
-            const tbody = document.querySelector('#master-table tbody');
-            tbody.innerHTML = '';
+        rows.slice(1).forEach(row => {
+            const rowDateStr = row[0];
+            const rowParty = row[2];
+            const rowType = row[3];
+            const rowDate = parseDateForComparison(rowDateStr);
 
-            const dataRange = rows.slice(2, 300);
-            let uniqueParties = new Set();
-            let filteredData = [];
-
-            dataRange.forEach(row => {
-                const partyName = row[0] || '';
-                if (partyName && !uniqueParties.has(partyName)) {
-                    uniqueParties.add(partyName);
-                    filteredData.push({
-                        partyName: partyName,
-                        head: row[1] || '',
-                        debitCredit: row[2] || '',
-                        balance: Math.round(cleanNumber(row[3])) || 0
-                    });
+            if (rowParty === party && rowDate) {
+                let includeRow = true;
+                if (startDate && endDate) {
+                    includeRow = rowDate >= startDate && rowDate <= endDate;
+                } else if (startDate) {
+                    includeRow = rowDate >= startDate;
                 }
-            });
-
-            filteredData.sort((a, b) => {
-                const headCompare = b.head.localeCompare(a.head); // Descending order for Head (Z to A)
-                if (headCompare !== 0) return headCompare;
-                return a.partyName.localeCompare(b.partyName); // Ascending order for Party Name (A to Z)
-            });
-
-            filteredData.forEach(data => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${data.partyName}</td>
-                    <td>${data.head}</td>
-                    <td>${data.debitCredit}</td>
-                    <td>${data.balance.toLocaleString('en-IN')}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        async function loadPartyDropdown() {
-            await fetchExcelData();
-            if (!sheetData.Master) return;
-            const rows = sheetData.Master;
-            const partySelect = document.getElementById('party');
-            const currentValue = localStorage.getItem('selectedParty') || partySelect.value;
-            partySelect.innerHTML = '<option value="">-- Select Party --</option>';
-            rows.slice(2).forEach(row => {
-                const partyName = row[0];
-                if (partyName) {
-                    const option = document.createElement('option');
-                    option.value = partyName;
-                    option.textContent = partyName;
-                    partySelect.appendChild(option);
-                }
-            });
-            partySelect.value = currentValue;
-        }
-
-        function formatDateToDDMMMYYYY(date) {
-            if (!date) return '';
-            const d = new Date(date);
-            const day = String(d.getDate()).padStart(2, '0');
-            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            const month = monthNames[d.getMonth()];
-            const year = d.getFullYear();
-            return `${day}-${month}-${year}`;
-        }
-
-        function parseDateForComparison(dateStr) {
-            if (!dateStr) return null;
-            const [day, month, year] = dateStr.split('-');
-            const monthIndex = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'].indexOf(month.toLowerCase());
-            if (monthIndex === -1) return null;
-            return new Date(year, monthIndex, day);
-        }
-
-        function parseInputDate(dateStr) {
-            if (!dateStr) return null;
-            const [year, month, day] = dateStr.split('-');
-            return new Date(year, month - 1, day);
-        }
-
-        function cleanNumber(value) {
-            if (!value) return 0;
-            const cleaned = value.toString().replace(/[^0-9.]/g, '');
-            return parseFloat(cleaned) || 0;
-        }
-
-        async function loadLedger() {
-            isSumMode = false;
-            selectedRows = [];
-            document.getElementById('sum-total').textContent = '';
-            const sumButton = document.querySelector('.ledger-filter button[onclick="startSumMode()"]');
-            sumButton.style.background = '#3498db';
-            sumButton.textContent = 'Sum';
-
-            const party = document.getElementById('party').value;
-            const startDateStr = document.getElementById('start-date').value;
-            const endDateStr = document.getElementById('end-date').value;
-
-            localStorage.setItem('selectedParty', party);
-            localStorage.setItem('startDate', startDateStr);
-            localStorage.setItem('endDate', endDateStr);
-
-            if (!party || !sheetData.Consolidate) {
-                console.error('No party selected or Consolidate sheet not found');
-                return;
-            }
-
-            const rows = sheetData.Consolidate;
-            const tbody = document.querySelector('#ledger-table tbody');
-            tbody.innerHTML = '';
-
-            document.getElementById('ledger-party-name').textContent = party;
-            document.getElementById('ledger-period').textContent = startDateStr && endDateStr ? 
-                `Period: ${formatDateToDDMMMYYYY(startDateStr)} To ${formatDateToDDMMMYYYY(endDateStr)}` : 
-                startDateStr ? `Period: ${formatDateToDDMMMYYYY(startDateStr)} To Last Date` : 'Period: All Dates';
-
-            const startDate = startDateStr ? parseInputDate(startDateStr) : null;
-            let endDate = endDateStr ? parseInputDate(endDateStr) : null;
-
-            if (startDate && !endDate) {
-                endDate = getLastDate(rows);
-            }
-
-            let hasData = false;
-            let hasOpening = false;
-            let filteredRows = [];
-
-            rows.slice(1).forEach(row => {
-                const rowDateStr = row[0];
-                const rowParty = row[2];
-                const rowType = row[3];
-                const rowDate = parseDateForComparison(rowDateStr);
-
-                if (rowParty === party && rowDate) {
-                    let includeRow = true;
-                    if (startDate && endDate) {
-                        includeRow = rowDate >= startDate && rowDate <= endDate;
-                    } else if (startDate) {
-                        includeRow = rowDate >= startDate;
+                if (includeRow) {
+                    filteredRows.push(row);
+                    if (rowType === "Opening") {
+                        hasOpening = true;
                     }
-                    if (includeRow) {
-                        filteredRows.push(row);
-                        if (rowType === "Opening") {
-                            hasOpening = true;
-                        }
-                        hasData = true;
-                    }
+                    hasData = true;
                 }
-            });
+            }
+        });
 
-            if (hasData) {
-                if (hasOpening) {
+        if (hasData) {
+            if (hasOpening) {
+                filteredRows.forEach(row => {
+                    const debit = Math.round(cleanNumber(row[8]));
+                    const credit = Math.round(cleanNumber(row[9]));
+                    const balance = Math.round(cleanNumber(row[10]));
+
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${formatDateToDDMMMYYYY(row[0])}</td>
+                        <td>${row[1] || ''}</td>
+                        <td>${row[2] || ''}</td>
+                        <td>${row[3] || ''}</td>
+                        <td>${debit.toLocaleString('en-IN')}</td>
+                        <td>${credit.toLocaleString('en-IN')}</td>
+                        <td>${balance.toLocaleString('en-IN')}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } else {
+                if (filteredRows.length > 0) {
+                    const firstRow = filteredRows[0];
+                    const firstDebit = Math.round(cleanNumber(firstRow[8]));
+                    const firstCredit = Math.round(cleanNumber(firstRow[9]));
+                    const firstBalance = Math.round(cleanNumber(firstRow[10]));
+
+                    const openingDebit = firstBalance + firstCredit - firstDebit;
+                    const openingCredit = 0;
+                    const openingBalance = openingDebit;
+
+                    const openingDate = startDateStr ? startDateStr : firstRow[0];
+
+                    const openingTr = document.createElement('tr');
+                    openingTr.innerHTML = `
+                        <td>${formatDateToDDMMMYYYY(openingDate)}</td>
+                        <td>1</td>
+                        <td>${party}</td>
+                        <td>Opening</td>
+                        <td>${openingDebit.toLocaleString('en-IN')}</td>
+                        <td>${openingCredit.toLocaleString('en-IN')}</td>
+                        <td>${openingBalance.toLocaleString('en-IN')}</td>
+                    `;
+                    tbody.appendChild(openingTr);
+
                     filteredRows.forEach(row => {
                         const debit = Math.round(cleanNumber(row[8]));
                         const credit = Math.round(cleanNumber(row[9]));
@@ -753,267 +786,224 @@
                         `;
                         tbody.appendChild(tr);
                     });
-                } else {
-                    if (filteredRows.length > 0) {
-                        const firstRow = filteredRows[0];
-                        const firstDebit = Math.round(cleanNumber(firstRow[8]));
-                        const firstCredit = Math.round(cleanNumber(firstRow[9]));
-                        const firstBalance = Math.round(cleanNumber(firstRow[10]));
-
-                        const openingDebit = firstBalance + firstCredit - firstDebit;
-                        const openingCredit = 0;
-                        const openingBalance = openingDebit;
-
-                        const openingDate = startDateStr ? startDateStr : firstRow[0];
-
-                        const openingTr = document.createElement('tr');
-                        openingTr.innerHTML = `
-                            <td>${formatDateToDDMMMYYYY(openingDate)}</td>
-                            <td>1</td>
-                            <td>${party}</td>
-                            <td>Opening</td>
-                            <td>${openingDebit.toLocaleString('en-IN')}</td>
-                            <td>${openingCredit.toLocaleString('en-IN')}</td>
-                            <td>${openingBalance.toLocaleString('en-IN')}</td>
-                        `;
-                        tbody.appendChild(openingTr);
-
-                        filteredRows.forEach(row => {
-                            const debit = Math.round(cleanNumber(row[8]));
-                            const credit = Math.round(cleanNumber(row[9]));
-                            const balance = Math.round(cleanNumber(row[10]));
-
-                            const tr = document.createElement('tr');
-                            tr.innerHTML = `
-                                <td>${formatDateToDDMMMYYYY(row[0])}</td>
-                                <td>${row[1] || ''}</td>
-                                <td>${row[2] || ''}</td>
-                                <td>${row[3] || ''}</td>
-                                <td>${debit.toLocaleString('en-IN')}</td>
-                                <td>${credit.toLocaleString('en-IN')}</td>
-                                <td>${balance.toLocaleString('en-IN')}</td>
-                            `;
-                            tbody.appendChild(tr);
-                        });
-                    }
                 }
             }
+        }
 
-            if (!hasData) {
-                tbody.innerHTML = '<tr><td colspan="7">No data found for selected party and date range</td></tr>';
+        if (!hasData) {
+            tbody.innerHTML = '<tr><td colspan="7">No data found for selected party and date range</td></tr>';
+        }
+
+        restoreSelectedRows();
+    }
+
+    function getLastDate(rows) {
+        let latestDate = null;
+        rows.slice(1).forEach(row => {
+            const rowDate = parseDateForComparison(row[0]);
+            if (rowDate && (!latestDate || rowDate > latestDate)) {
+                latestDate = rowDate;
             }
+        });
+        return latestDate;
+    }
 
-            restoreSelectedRows();
-        }
+    function printLedger() {
+        const ledgerContent = document.getElementById('ledger').innerHTML;
+        const printWindow = window.open('', '', 'height=600,width=800');
+        printWindow.document.write('<html><head><title>Print Ledger</title>');
+        printWindow.document.write('<style>');
+        printWindow.document.write(`
+            body { font-family: Arial, sans-serif; margin: 10px; color: #000; }
+            table { width: 100%; border-collapse: collapse; table-layout: auto; }
+            th, td { border: 1px solid #e0e0e0; padding: 8px; text-align: center; white-space: nowrap; }
+            th:nth-child(1), td:nth-child(1) { width: 100px; }
+            th:nth-child(2), td:nth-child(2) { width: 80px; }
+            th:nth-child(3), td:nth-child(3) { min-width: 150px; white-space: normal; word-wrap: break-word; }
+            th:nth-child(4), td:nth-child(4) { width: 80px; }
+            th:nth-child(5), td:nth-child(5) { width: 100px; }
+            th:nth-child(6), td:nth-child(6) { width: 100px; }
+            th:nth-child(7), td:nth-child(7) { width: 120px; }
+            th { background: #3498db; color: #fff; }
+            tr:nth-child(even) { background: #f8f9fa; }
+            .ledger-filter { display: none; }
+            .ledger-header { text-align: center; color: #000; }
+            .ledger-header h3 { color: #3498db; }
+            @media print {
+                th { background: #3498db !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                tr:nth-child(even) { background: #f8f9fa !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            }
+        `);
+        printWindow.document.write('</style></head><body>');
+        printWindow.document.write(ledgerContent);
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+        printWindow.print();
+    }
 
-        function getLastDate(rows) {
-            let latestDate = null;
-            rows.slice(1).forEach(row => {
-                const rowDate = parseDateForComparison(row[0]);
-                if (rowDate && (!latestDate || rowDate > latestDate)) {
-                    latestDate = rowDate;
-                }
-            });
-            return latestDate;
-        }
+    function startSumMode() {
+        isSumMode = !isSumMode;
+        const sumButton = document.querySelector('.ledger-filter button[onclick="startSumMode()"]');
+        sumButton.style.background = isSumMode ? '#e74c3c' : '#3498db';
+        sumButton.textContent = isSumMode ? 'Stop Sum' : 'Sum';
+        selectedRows = [];
+        updateTotal();
+        resetRowStyles();
+        localStorage.setItem('isSumMode', isSumMode); // Save sum mode state
+    }
 
-        function printLedger() {
-            const ledgerContent = document.getElementById('ledger').innerHTML;
-            const printWindow = window.open('', '', 'height=600,width=800');
-            printWindow.document.write('<html><head><title>Print Ledger</title>');
-            printWindow.document.write('<style>');
-            printWindow.document.write(`
-                body { font-family: Arial, sans-serif; margin: 10px; color: #000; }
-                table { width: 100%; border-collapse: collapse; table-layout: auto; }
-                th, td { border: 1px solid #e0e0e0; padding: 8px; text-align: center; white-space: nowrap; }
-                th:nth-child(1), td:nth-child(1) { width: 100px; }
-                th:nth-child(2), td:nth-child(2) { width: 80px; }
-                th:nth-child(3), td:nth-child(3) { min-width: 150px; white-space: normal; word-wrap: break-word; }
-                th:nth-child(4), td:nth-child(4) { width: 80px; }
-                th:nth-child(5), td:nth-child(5) { width: 100px; }
-                th:nth-child(6), td:nth-child(6) { width: 100px; }
-                th:nth-child(7), td:nth-child(7) { width: 120px; }
-                th { background: #3498db; color: #fff; }
-                tr:nth-child(even) { background: #f8f9fa; }
-                .ledger-filter { display: none; }
-                .ledger-header { text-align: center; color: #000; }
-                .ledger-header h3 { color: #3498db; }
-                @media print {
-                    th { background: #3498db !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                    tr:nth-child(even) { background: #f8f9fa !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                }
-            `);
-            printWindow.document.write('</style></head><body>');
-            printWindow.document.write(ledgerContent);
-            printWindow.document.write('</body></html>');
-            printWindow.document.close();
-            printWindow.print();
-        }
+    function resetRowStyles() {
+        const rows = document.querySelectorAll('#ledger-table tbody tr');
+        rows.forEach(row => row.classList.remove('selected'));
+    }
 
-        function startSumMode() {
-            isSumMode = !isSumMode;
-            const sumButton = document.querySelector('.ledger-filter button[onclick="startSumMode()"]');
-            sumButton.style.background = isSumMode ? '#e74c3c' : '#3498db';
-            sumButton.textContent = isSumMode ? 'Stop Sum' : 'Sum';
-            selectedRows = [];
+    function updateTotal() {
+        const tbody = document.querySelector('#ledger-table tbody');
+        let totalDebit = 0;
+        let totalCredit = 0;
+
+        selectedRows.forEach(index => {
+            const row = tbody.rows[index];
+            const debit = cleanNumber(row.cells[4].textContent);
+            const credit = cleanNumber(row.cells[5].textContent);
+            totalDebit += debit;
+            totalCredit += credit;
+        });
+
+        const total = totalDebit - totalCredit;
+        document.getElementById('sum-total').textContent = isSumMode && selectedRows.length > 0 ? `Total: ${total.toLocaleString('en-IN')}` : '';
+        localStorage.setItem('selectedRows', JSON.stringify(selectedRows));
+    }
+
+    document.querySelector('#ledger-table tbody').addEventListener('click', (event) => {
+        if (!isSumMode) return;
+
+        const row = event.target.parentElement;
+        const rowIndex = Array.from(row.parentElement.children).indexOf(row);
+
+        if (row.tagName === 'TR') {
+            if (selectedRows.includes(rowIndex)) {
+                selectedRows = selectedRows.filter(i => i !== rowIndex);
+                row.classList.remove('selected');
+            } else {
+                selectedRows.push(rowIndex);
+                row.classList.add('selected');
+            }
             updateTotal();
-            resetRowStyles();
+        }
+    });
+
+    function showSummary() {
+        const modal = document.getElementById('summary-modal');
+        const content = document.getElementById('summary-content');
+        const party = document.getElementById('party').value;
+        const startDateStr = document.getElementById('start-date').value;
+        const endDateStr = document.getElementById('end-date').value;
+
+        if (!party || !sheetData.Consolidate) {
+            alert('Please select a party first!');
+            return;
         }
 
-        function resetRowStyles() {
-            const rows = document.querySelectorAll('#ledger-table tbody tr');
-            rows.forEach(row => row.classList.remove('selected'));
+        const rows = sheetData.Consolidate;
+        const startDate = startDateStr ? parseInputDate(startDateStr) : null;
+        let endDate = endDateStr ? parseInputDate(endDateStr) : null;
+
+        if (startDate && !endDate) {
+            endDate = getLastDate(rows);
         }
 
-        function updateTotal() {
-            const tbody = document.querySelector('#ledger-table tbody');
-            let totalDebit = 0;
-            let totalCredit = 0;
+        let summaryData = {};
+        let totalDebit = 0;
+        let totalCredit = 0;
 
-            selectedRows.forEach(index => {
-                const row = tbody.rows[index];
-                const debit = cleanNumber(row.cells[4].textContent);
-                const credit = cleanNumber(row.cells[5].textContent);
-                totalDebit += debit;
-                totalCredit += credit;
-            });
+        rows.slice(1).forEach(row => {
+            const rowDateStr = row[0];
+            const rowParty = row[2];
+            const rowType = row[3];
+            const rowDate = parseDateForComparison(rowDateStr);
+            const debit = Math.round(cleanNumber(row[8]));
+            const credit = Math.round(cleanNumber(row[9]));
 
-            const total = totalDebit - totalCredit;
-            document.getElementById('sum-total').textContent = isSumMode && selectedRows.length > 0 ? `Total: ${total.toLocaleString('en-IN')}` : '';
-            localStorage.setItem('selectedRows', JSON.stringify(selectedRows));
-        }
-
-        document.querySelector('#ledger-table tbody').addEventListener('click', (event) => {
-            if (!isSumMode) return;
-
-            const row = event.target.parentElement;
-            const rowIndex = Array.from(row.parentElement.children).indexOf(row);
-
-            if (row.tagName === 'TR') {
-                if (selectedRows.includes(rowIndex)) {
-                    selectedRows = selectedRows.filter(i => i !== rowIndex);
-                    row.classList.remove('selected');
-                } else {
-                    selectedRows.push(rowIndex);
-                    row.classList.add('selected');
+            if (rowParty === party && rowDate) {
+                let includeRow = true;
+                if (startDate && endDate) {
+                    includeRow = rowDate >= startDate && rowDate <= endDate;
+                } else if (startDate) {
+                    includeRow = rowDate >= startDate;
                 }
-                updateTotal();
+                if (includeRow) {
+                    if (!summaryData[rowType]) {
+                        summaryData[rowType] = { debit: 0, credit: 0 };
+                    }
+                    summaryData[rowType].debit += debit;
+                    summaryData[rowType].credit += credit;
+                    totalDebit += debit;
+                    totalCredit += credit;
+                }
             }
         });
 
-        function showSummary() {
-            const modal = document.getElementById('summary-modal');
-            const content = document.getElementById('summary-content');
-            const party = document.getElementById('party').value;
-            const startDateStr = document.getElementById('start-date').value;
-            const endDateStr = document.getElementById('end-date').value;
+        let html = `<p><strong>Party:</strong> ${party}</p>`;
+        html += `<p><strong>Period:</strong> ${startDateStr ? formatDateToDDMMMYYYY(startDateStr) : 'All'} To ${endDateStr ? formatDateToDDMMMYYYY(endDateStr) : 'Last Date'}</p>`;
+        html += '<table class="summary-table"><thead><tr><th>Type</th><th>Debit</th><th>Credit</th></tr></thead><tbody>';
 
-            if (!party || !sheetData.Consolidate) {
-                alert('Please select a party first!');
-                return;
+        for (const type in summaryData) {
+            html += `<tr><td>${type}</td><td>${summaryData[type].debit.toLocaleString('en-IN')}</td><td>${summaryData[type].credit.toLocaleString('en-IN')}</td></tr>`;
+        }
+
+        html += `<tr><td><strong>Total</strong></td><td><strong>${totalDebit.toLocaleString('en-IN')}</strong></td><td><strong>${totalCredit.toLocaleString('en-IN')}</strong></td></tr>`;
+        html += '</tbody></table>';
+
+        content.innerHTML = html;
+        modal.style.display = 'block';
+    }
+
+    function closeModal() {
+        document.getElementById('summary-modal').style.display = 'none';
+    }
+
+    function restoreState() {
+        const currentTab = localStorage.getItem('currentTab') || 'master-data';
+        openTab(currentTab);
+
+        const selectedParty = localStorage.getItem('selectedParty');
+        const startDate = localStorage.getItem('startDate');
+        const endDate = localStorage.getItem('endDate');
+        const savedSelectedRows = localStorage.getItem('selectedRows');
+        const savedSumMode = localStorage.getItem('isSumMode');
+
+        // Restore party dropdown and other inputs
+        loadPartyDropdown().then(() => {
+            if (selectedParty) document.getElementById('party').value = selectedParty;
+            if (startDate) document.getElementById('start-date').value = startDate;
+            if (endDate) document.getElementById('end-date').value = endDate;
+
+            if (currentTab === 'ledger') {
+                loadLedger(); // Load ledger with restored filters
+                if (savedSumMode === 'true' && savedSelectedRows) {
+                    isSumMode = true;
+                    selectedRows = JSON.parse(savedSelectedRows);
+                    const sumButton = document.querySelector('.ledger-filter button[onclick="startSumMode()"]');
+                    sumButton.style.background = '#e74c3c';
+                    sumButton.textContent = 'Stop Sum';
+                    restoreSelectedRows();
+                }
             }
+        });
+    }
 
-            const rows = sheetData.Consolidate;
-            const startDate = startDateStr ? parseInputDate(startDateStr) : null;
-            let endDate = endDateStr ? parseInputDate(endDateStr) : null;
-
-            if (startDate && !endDate) {
-                endDate = getLastDate(rows);
-            }
-
-            let summaryData = {};
-            let totalDebit = 0;
-            let totalCredit = 0;
-
-            rows.slice(1).forEach(row => {
-                const rowDateStr = row[0];
-                const rowParty = row[2];
-                const rowType = row[3];
-                const rowDate = parseDateForComparison(rowDateStr);
-                const debit = Math.round(cleanNumber(row[8]));
-                const credit = Math.round(cleanNumber(row[9]));
-
-                if (rowParty === party && rowDate) {
-                    let includeRow = true;
-                    if (startDate && endDate) {
-                        includeRow = rowDate >= startDate && rowDate <= endDate;
-                    } else if (startDate) {
-                        includeRow = rowDate >= startDate;
-                    }
-                    if (includeRow) {
-                        if (!summaryData[rowType]) {
-                            summaryData[rowType] = { debit: 0, credit: 0 };
-                        }
-                        summaryData[rowType].debit += debit;
-                        summaryData[rowType].credit += credit;
-                        totalDebit += debit;
-                        totalCredit += credit;
-                    }
+    function restoreSelectedRows() {
+        if (isSumMode && selectedRows.length > 0) {
+            const tbody = document.querySelector('#ledger-table tbody');
+            selectedRows.forEach(index => {
+                if (tbody.rows[index]) {
+                    tbody.rows[index].classList.add('selected');
                 }
             });
-
-            let html = `<p><strong>Party:</strong> ${party}</p>`;
-            html += `<p><strong>Period:</strong> ${startDateStr ? formatDateToDDMMMYYYY(startDateStr) : 'All'} To ${endDateStr ? formatDateToDDMMMYYYY(endDateStr) : 'Last Date'}</p>`;
-            html += '<table class="summary-table"><thead><tr><th>Type</th><th>Debit</th><th>Credit</th></tr></thead><tbody>';
-
-            for (const type in summaryData) {
-                html += `<tr><td>${type}</td><td>${summaryData[type].debit.toLocaleString('en-IN')}</td><td>${summaryData[type].credit.toLocaleString('en-IN')}</td></tr>`;
-            }
-
-            html += `<tr><td><strong>Total</strong></td><td><strong>${totalDebit.toLocaleString('en-IN')}</strong></td><td><strong>${totalCredit.toLocaleString('en-IN')}</strong></td></tr>`;
-            html += '</tbody></table>';
-
-            content.innerHTML = html;
-            modal.style.display = 'block';
-        }
-
-        function closeModal() {
-            document.getElementById('summary-modal').style.display = 'none';
-        }
-
-        function restoreState() {
-    const currentTab = localStorage.getItem('currentTab') || 'master-data';
-    openTab(currentTab);
-
-    const selectedParty = localStorage.getItem('selectedParty');
-    const startDate = localStorage.getItem('startDate');
-    const endDate = localStorage.getItem('endDate');
-    const savedSelectedRows = localStorage.getItem('selectedRows');
-
-    // Load party dropdown first, then set the selected value
-    loadPartyDropdown().then(() => {
-        if (selectedParty) document.getElementById('party').value = selectedParty;
-    });
-
-    if (startDate) document.getElementById('start-date').value = startDate;
-    if (endDate) document.getElementById('end-date').value = endDate;
-
-    if (currentTab === 'ledger') {
-        loadLedger();
-        if (savedSelectedRows) {
-            selectedRows = JSON.parse(savedSelectedRows);
-            isSumMode = true;
-            const sumButton = document.querySelector('.ledger-filter button[onclick="startSumMode()"]');
-            sumButton.style.background = '#e74c3c';
-            sumButton.textContent = 'Stop Sum';
             updateTotal();
         }
     }
-}
-
-        function restoreSelectedRows() {
-            const savedSelectedRows = localStorage.getItem('selectedRows');
-            if (savedSelectedRows && isSumMode) {
-                selectedRows = JSON.parse(savedSelectedRows);
-                const tbody = document.querySelector('#ledger-table tbody');
-                selectedRows.forEach(index => {
-                    if (tbody.rows[index]) {
-                        tbody.rows[index].classList.add('selected');
-                    }
-                });
-                updateTotal();
-            }
-        }
-    </script>
+</script>
 </body>
 </html>
