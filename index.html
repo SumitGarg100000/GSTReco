@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        /* Yahan wahi CSS hai jo pehle tha, koi change nahi kiya */
         * {
             margin: 0;
             padding: 0;
@@ -128,18 +127,29 @@
             margin-bottom: 20px;
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 10px;
+            flex-wrap: wrap; /* To keep elements inside the page */
+            justify-content: center;
         }
         .ledger-filter label {
             font-weight: 600;
             color: #34495e;
         }
-        .ledger-filter select, .ledger-filter input {
+        .ledger-filter select {
             padding: 8px;
             font-size: 15px;
             border: 1px solid #dcdcdc;
             border-radius: 5px;
             background: #fff;
+            width: 150px; /* Reduced dropdown width */
+        }
+        .ledger-filter input[type="date"] {
+            padding: 8px;
+            font-size: 15px;
+            border: 1px solid #dcdcdc;
+            border-radius: 5px;
+            background: #fff;
+            width: 130px; /* Fixed width for date inputs */
         }
         .ledger-filter button {
             padding: 8px 15px;
@@ -149,9 +159,14 @@
             border-radius: 5px;
             cursor: pointer;
             transition: background 0.3s;
+            width: 120px; /* Fixed width for buttons */
         }
         .ledger-filter button:hover {
             background: #2980b9;
+        }
+        #refresh-status {
+            margin-left: 10px;
+            font-weight: bold;
         }
         .ledger-header {
             text-align: center;
@@ -168,11 +183,36 @@
             border-collapse: collapse;
             margin-top: 20px;
             background: #fff;
+            table-layout: auto; /* Allow columns to adjust based on content */
         }
         th, td {
             border: 1px solid #e0e0e0;
             padding: 10px;
             text-align: center;
+            white-space: nowrap; /* Prevent wrapping except for Party Name */
+        }
+        th:nth-child(1), td:nth-child(1) { /* Date column */
+            width: 100px; /* Fixed width for Date to stay in one row */
+        }
+        th:nth-child(2), td:nth-child(2) { /* Vch No */
+            width: 80px;
+        }
+        th:nth-child(3), td:nth-child(3) { /* Party Name */
+            min-width: 150px; /* Allow wrapping for Party Name */
+            white-space: normal; /* Allow wrapping */
+            word-wrap: break-word;
+        }
+        th:nth-child(4), td:nth-child(4) { /* Type */
+            width: 80px;
+        }
+        th:nth-child(5), td:nth-child(5) { /* Debit */
+            width: 100px;
+        }
+        th:nth-child(6), td:nth-child(6) { /* Credit */
+            width: 100px;
+        }
+        th:nth-child(7), td:nth-child(7) { /* Balance */
+            width: 120px;
         }
         th {
             background: #3498db;
@@ -203,12 +243,30 @@
                 box-shadow: none;
                 padding: 10px;
             }
-            .tabs, .ledger-filter, #logout-btn {
+            .tabs, .ledger-filter, #logout-btn, #refresh-status {
                 display: none;
             }
             table {
                 border: 1px solid #000;
+                width: 100%;
             }
+            th, td {
+                border: 1px solid #000;
+                padding: 8px;
+                text-align: center;
+                white-space: nowrap;
+            }
+            th:nth-child(1), td:nth-child(1) { width: 100px; }
+            th:nth-child(2), td:nth-child(2) { width: 80px; }
+            th:nth-child(3), td:nth-child(3) { 
+                min-width: 150px; 
+                white-space: normal; 
+                word-wrap: break-word; 
+            }
+            th:nth-child(4), td:nth-child(4) { width: 80px; }
+            th:nth-child(5), td:nth-child(5) { width: 100px; }
+            th:nth-child(6), td:nth-child(6) { width: 100px; }
+            th:nth-child(7), td:nth-child(7) { width: 120px; }
             th {
                 background: #3498db !important;
                 color: #fff !important;
@@ -236,6 +294,7 @@
             .input-section { flex-direction: column; }
             .container { padding: 20px; }
             h1 { font-size: 2em; }
+            .ledger-filter { flex-direction: column; }
         }
     </style>
 </head>
@@ -297,6 +356,7 @@
 
                     <button onclick="printLedger()">Print Ledger</button>
                     <button onclick="refreshData()">Refresh Data</button>
+                    <span id="refresh-status"></span>
                 </div>
 
                 <div class="ledger-header" id="ledger-header">
@@ -339,8 +399,7 @@
             } else {
                 showLoginSection();
             }
-            // Auto-refresh every 5 minutes (300000 ms)
-            setInterval(refreshData, 300000);
+            setInterval(refreshData, 300000); // Auto-refresh every 5 minutes
         });
 
         function login() {
@@ -386,10 +445,9 @@
             loadPartyDropdown();
         }
 
-        // Fetch Excel Data with Cache Busting
         async function fetchExcelData(forceRefresh = false) {
             if (forceRefresh) {
-                localStorage.removeItem('sheetData'); // Clear cache if forced refresh
+                localStorage.removeItem('sheetData');
             }
 
             const cachedData = localStorage.getItem('sheetData');
@@ -400,7 +458,6 @@
             }
 
             try {
-                // Add timestamp to URL to bypass cache and force fresh fetch
                 const urlWithTimestamp = `${EXCEL_FILE_URL}&t=${new Date().getTime()}`;
                 const response = await fetch(urlWithTimestamp);
                 const arrayBuffer = await response.arrayBuffer();
@@ -422,12 +479,23 @@
             }
         }
 
-        // Manual Refresh Function
         async function refreshData() {
-            await fetchExcelData(true); // Force refresh
+            const refreshStatus = document.getElementById('refresh-status');
+            refreshStatus.style.color = 'red';
+            refreshStatus.textContent = 'Wait..';
+
+            const selectedParty = document.getElementById('party').value; // Save selected party
+            await fetchExcelData(true);
             loadMasterData();
-            loadPartyDropdown();
-            loadLedger(); // Refresh ledger if already selected
+            await loadPartyDropdown();
+            document.getElementById('party').value = selectedParty; // Restore selected party
+            loadLedger();
+
+            refreshStatus.style.color = 'green';
+            refreshStatus.textContent = 'Data Updated';
+            setTimeout(() => {
+                refreshStatus.textContent = '';
+            }, 5000); // Hide message after 5 seconds
         }
 
         function openTab(tabId) {
@@ -466,6 +534,7 @@
             if (!sheetData.Master) return;
             const rows = sheetData.Master;
             const partySelect = document.getElementById('party');
+            const currentValue = partySelect.value; // Save current selection
             partySelect.innerHTML = '<option value="">-- Select Party --</option>';
             rows.slice(2).forEach(row => {
                 const partyName = row[0];
@@ -476,6 +545,7 @@
                     partySelect.appendChild(option);
                 }
             });
+            partySelect.value = currentValue; // Restore previous selection
         }
 
         function formatDateToDDMMMYYYY(date) {
@@ -597,7 +667,7 @@
                             <td>${openingCredit.toLocaleString('en-IN')}</td>
                             <td>${openingBalance.toLocaleString('en-IN')}</td>
                         `;
-                        tbody.appendChild(openingTr);
+                        tbody.appendChild(tr);
 
                         filteredRows.forEach(row => {
                             const debit = Math.round(cleanNumber(row[8]));
@@ -632,8 +702,15 @@
             printWindow.document.write('<style>');
             printWindow.document.write(`
                 body { font-family: Arial, sans-serif; margin: 10px; color: #000; }
-                table { width: 100%; border-collapse: collapse; }
-                th, td { border: 1px solid #e0e0e0; padding: 10px; text-align: center; }
+                table { width: 100%; border-collapse: collapse; table-layout: auto; }
+                th, td { border: 1px solid #e0e0e0; padding: 8px; text-align: center; white-space: nowrap; }
+                th:nth-child(1), td:nth-child(1) { width: 100px; }
+                th:nth-child(2), td:nth-child(2) { width: 80px; }
+                th:nth-child(3), td:nth-child(3) { min-width: 150px; white-space: normal; word-wrap: break-word; }
+                th:nth-child(4), td:nth-child(4) { width: 80px; }
+                th:nth-child(5), td:nth-child(5) { width: 100px; }
+                th:nth-child(6), td:nth-child(6) { width: 100px; }
+                th:nth-child(7), td:nth-child(7) { width: 120px; }
                 th { background: #3498db; color: #fff; }
                 tr:nth-child(even) { background: #f8f9fa; }
                 .ledger-filter { display: none; }
