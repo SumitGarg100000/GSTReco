@@ -753,134 +753,179 @@
     }
 
     async function loadLedger() {
-        const party = document.getElementById('party').value; // Input se value lenge
-        const startDateStr = document.getElementById('start-date').value;
-        const endDateStr = document.getElementById('end-date').value;
+    const party = document.getElementById('party').value;
+    const startDateStr = document.getElementById('start-date').value;
+    const endDateStr = document.getElementById('end-date').value;
 
-        localStorage.setItem('selectedParty', party);
-        localStorage.setItem('startDate', startDateStr);
-        localStorage.setItem('endDate', endDateStr);
-        localStorage.setItem('isSumMode', isSumMode); // Save sum mode state
+    localStorage.setItem('selectedParty', party);
+    localStorage.setItem('startDate', startDateStr);
+    localStorage.setItem('endDate', endDateStr);
+    localStorage.setItem('isSumMode', isSumMode);
 
-        if (!party || !sheetData.Consolidate) {
-            console.error('No party selected or Consolidate sheet not found');
-            return;
+    if (!party || !sheetData.Consolidate) {
+        console.error('No party selected or Consolidate sheet not found');
+        return;
+    }
+
+    const rows = sheetData.Consolidate;
+    const tbody = document.querySelector('#ledger-table tbody');
+    tbody.innerHTML = '';
+
+    document.getElementById('ledger-party-name').textContent = party;
+    document.getElementById('ledger-period').textContent = startDateStr && endDateStr ? 
+        `Period: ${formatDateToDDMMMYYYY(startDateStr)} To ${formatDateToDDMMMYYYY(endDateStr)}` : 
+        startDateStr ? `Period: ${formatDateToDDMMMYYYY(startDateStr)} To Last Date` : 
+        endDateStr ? `Period: First Date To ${formatDateToDDMMMYYYY(endDateStr)}` : 'Period: All Dates'; // Updated to handle all date range cases (Instructions 3, 4, 5)
+
+    const startDate = startDateStr ? parseInputDate(startDateStr) : null;
+    const endDate = endDateStr ? parseInputDate(endDateStr) : null;
+
+    let filteredRows = [];
+    let hasOpening = false;
+
+    // Filter rows based on party and date range (Instructions 1, 2, 3, 4, 5)
+    rows.slice(1).forEach(row => {
+        const rowDateStr = row[0];
+        const rowParty = row[2];
+        const rowType = row[3];
+        const rowDate = parseDateForComparison(rowDateStr);
+
+        if (rowParty === party && rowDate) {
+            let includeRow = true;
+            if (startDate && endDate) {
+                includeRow = rowDate >= startDate && rowDate <= endDate; // Both dates provided (Instruction 2)
+            } else if (startDate) {
+                includeRow = rowDate >= startDate; // Only From date (Instruction 3)
+            } else if (endDate) {
+                includeRow = rowDate <= endDate; // Only To date (Instruction 4)
+            } // If both blank, include all (Instruction 5)
+            if (includeRow) {
+                filteredRows.push(row);
+                if (rowType === "Opening") {
+                    hasOpening = true; // Check if Opening exists (Instruction 6)
+                }
+            }
         }
+    });
 
-        const rows = sheetData.Consolidate;
-        const tbody = document.querySelector('#ledger-table tbody');
-        tbody.innerHTML = '';
+    // If filtered data exists
+    if (filteredRows.length > 0) {
+        if (hasOpening) {
+            // If Opening exists, start from 1st row (Instruction 6)
+            filteredRows.forEach(row => {
+                const debit = Math.round(cleanNumber(row[8])); // Use Excel values directly (Instruction 7)
+                const credit = Math.round(cleanNumber(row[9]));
+                const balance = Math.round(cleanNumber(row[10]));
 
-        document.getElementById('ledger-party-name').textContent = party;
-        document.getElementById('ledger-period').textContent = startDateStr && endDateStr ? 
-            `Period: ${formatDateToDDMMMYYYY(startDateStr)} To ${formatDateToDDMMMYYYY(endDateStr)}` : 
-            startDateStr ? `Period: ${formatDateToDDMMMYYYY(startDateStr)} To Last Date` : 'Period: All Dates';
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${formatDateToDDMMMYYYY(row[0])}</td>
+                    <td>${row[1] || ''}</td>
+                    <td>${row[2] || ''}</td>
+                    <td>${row[3] || ''}</td>
+                    <td>${debit.toLocaleString('en-IN')}</td>
+                    <td>${credit.toLocaleString('en-IN')}</td>
+                    <td>${balance.toLocaleString('en-IN')}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } else {
+            // If no Opening, add opening row first (Instructions 8, 9)
+            let totalDebit = 0;
+            let totalCredit = 0;
+            const dayBeforeStart = startDate ? new Date(startDate) : null;
+            if (dayBeforeStart) {
+                dayBeforeStart.setDate(dayBeforeStart.getDate() - 1);
+            }
 
-        const startDate = startDateStr ? parseInputDate(startDateStr) : null;
-        let endDate = endDateStr ? parseInputDate(endDateStr) : null;
+            // Calculate opening balance up to day before start date (Instruction 9)
+            rows.slice(1).forEach(row => {
+                const rowDateStr = row[0];
+                const rowParty = row[2];
+                const rowDate = parseDateForComparison(rowDateStr);
 
-        if (startDate && !endDate) {
-            endDate = getLastDate(rows);
+                if (rowParty === party && rowDate && (!dayBeforeStart || rowDate <= dayBeforeStart)) {
+                    totalDebit += Math.round(cleanNumber(row[8]));
+                    totalCredit += Math.round(cleanNumber(row[9]));
+                }
+            });
+
+            const openingDebit = totalDebit - totalCredit;
+            const openingCredit = 0;
+            const openingBalance = openingDebit;
+
+            // Add opening row (Instruction 9)
+            const openingDate = startDateStr || (filteredRows[0] ? filteredRows[0][0] : ''); // Use From date or next row's date if blank
+            const trOpening = document.createElement('tr');
+            trOpening.innerHTML = `
+                <td>${formatDateToDDMMMYYYY(openingDate)}</td>
+                <td>1</td>
+                <td>${party}</td>
+                <td>Opening</td>
+                <td>${openingDebit.toLocaleString('en-IN')}</td>
+                <td>${openingCredit.toLocaleString('en-IN')}</td>
+                <td>${openingBalance.toLocaleString('en-IN')}</td>
+            `;
+            tbody.appendChild(trOpening);
+
+            // Add filtered data starting from next row (Instruction 8)
+            filteredRows.forEach(row => {
+                const debit = Math.round(cleanNumber(row[8])); // Use Excel values directly (Instruction 7)
+                const credit = Math.round(cleanNumber(row[9]));
+                const balance = Math.round(cleanNumber(row[10]));
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${formatDateToDDMMMYYYY(row[0])}</td>
+                    <td>${row[1] || ''}</td>
+                    <td>${row[2] || ''}</td>
+                    <td>${row[3] || ''}</td>
+                    <td>${debit.toLocaleString('en-IN')}</td>
+                    <td>${credit.toLocaleString('en-IN')}</td>
+                    <td>${balance.toLocaleString('en-IN')}</td>
+                `;
+                tbody.appendChild(tr);
+            });
         }
-
-        let hasData = false;
-        let hasOpening = false;
-        let filteredRows = [];
+    } else if (startDate) {
+        // If no data in range but start date exists, show opening balance (Instruction 9)
+        let totalDebit = 0;
+        let totalCredit = 0;
+        const dayBeforeStart = new Date(startDate);
+        dayBeforeStart.setDate(dayBeforeStart.getDate() - 1);
 
         rows.slice(1).forEach(row => {
             const rowDateStr = row[0];
             const rowParty = row[2];
-            const rowType = row[3];
             const rowDate = parseDateForComparison(rowDateStr);
 
-            if (rowParty === party && rowDate) {
-                let includeRow = true;
-                if (startDate && endDate) {
-                    includeRow = rowDate >= startDate && rowDate <= endDate;
-                } else if (startDate) {
-                    includeRow = rowDate >= startDate;
-                }
-                if (includeRow) {
-                    filteredRows.push(row);
-                    if (rowType === "Opening") {
-                        hasOpening = true;
-                    }
-                    hasData = true;
-                }
+            if (rowParty === party && rowDate && rowDate <= dayBeforeStart) {
+                totalDebit += Math.round(cleanNumber(row[8]));
+                totalCredit += Math.round(cleanNumber(row[9]));
             }
         });
 
-        if (hasData) {
-            if (hasOpening) {
-                filteredRows.forEach(row => {
-                    const debit = Math.round(cleanNumber(row[8]));
-                    const credit = Math.round(cleanNumber(row[9]));
-                    const balance = Math.round(cleanNumber(row[10]));
+        const openingDebit = totalDebit - totalCredit;
+        const openingCredit = 0;
+        const openingBalance = openingDebit;
 
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td>${formatDateToDDMMMYYYY(row[0])}</td>
-                        <td>${row[1] || ''}</td>
-                        <td>${row[2] || ''}</td>
-                        <td>${row[3] || ''}</td>
-                        <td>${debit.toLocaleString('en-IN')}</td>
-                        <td>${credit.toLocaleString('en-IN')}</td>
-                        <td>${balance.toLocaleString('en-IN')}</td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-            } else {
-                if (filteredRows.length > 0) {
-                    const firstRow = filteredRows[0];
-                    const firstDebit = Math.round(cleanNumber(firstRow[8]));
-                    const firstCredit = Math.round(cleanNumber(firstRow[9]));
-                    const firstBalance = Math.round(cleanNumber(firstRow[10]));
-
-                    const openingDebit = firstBalance + firstCredit - firstDebit;
-                    const openingCredit = 0;
-                    const openingBalance = openingDebit;
-
-                    const openingDate = startDateStr ? startDateStr : firstRow[0];
-
-                    const openingTr = document.createElement('tr');
-                    openingTr.innerHTML = `
-                        <td>${formatDateToDDMMMYYYY(openingDate)}</td>
-                        <td>1</td>
-                        <td>${party}</td>
-                        <td>Opening</td>
-                        <td>${openingDebit.toLocaleString('en-IN')}</td>
-                        <td>${openingCredit.toLocaleString('en-IN')}</td>
-                        <td>${openingBalance.toLocaleString('en-IN')}</td>
-                    `;
-                    tbody.appendChild(openingTr);
-
-                    filteredRows.forEach(row => {
-                        const debit = Math.round(cleanNumber(row[8]));
-                        const credit = Math.round(cleanNumber(row[9]));
-                        const balance = Math.round(cleanNumber(row[10]));
-
-                        const tr = document.createElement('tr');
-                        tr.innerHTML = `
-                            <td>${formatDateToDDMMMYYYY(row[0])}</td>
-                            <td>${row[1] || ''}</td>
-                            <td>${row[2] || ''}</td>
-                            <td>${row[3] || ''}</td>
-                            <td>${debit.toLocaleString('en-IN')}</td>
-                            <td>${credit.toLocaleString('en-IN')}</td>
-                            <td>${balance.toLocaleString('en-IN')}</td>
-                        `;
-                        tbody.appendChild(tr);
-                    });
-                }
-            }
-        }
-
-        if (!hasData) {
-            tbody.innerHTML = '<tr><td colspan="7">No data found for selected party and date range</td></tr>';
-        }
-
-        restoreSelectedRows();
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${formatDateToDDMMMYYYY(startDateStr)}</td>
+            <td>1</td>
+            <td>${party}</td>
+            <td>Opening</td>
+            <td>${openingDebit.toLocaleString('en-IN')}</td>
+            <td>${openingCredit.toLocaleString('en-IN')}</td>
+            <td>${openingBalance.toLocaleString('en-IN')}</td>
+        `;
+        tbody.appendChild(tr);
+    } else {
+        tbody.innerHTML = '<tr><td colspan="7">No data found for selected party and date range</td></tr>';
     }
+
+    restoreSelectedRows();
+}
 
     function getLastDate(rows) {
         let latestDate = null;
