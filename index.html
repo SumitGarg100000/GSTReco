@@ -435,7 +435,7 @@
                     <label for="party">Select Party:</label>
                     <div class="custom-dropdown"> <!-- Added custom dropdown container -->
                         <input type="text" id="party" oninput="filterDropdown()" placeholder="Type or select party">
-                        <span class="dropdown-arrow" onclick="toggleDropdown()"▼</span> <!-- Arrow for toggling -->
+                        <span class="dropdown-arrow" onclick="toggleDropdown()">▼</span> <!-- Arrow for toggling -->
                         <div id="party-dropdown" class="dropdown-list" style="display: none;"> <!-- Hidden dropdown list -->
                             <!-- Options dynamically added via JS -->
                         </div>
@@ -481,14 +481,14 @@
     <!-- Modal for Summary -->
     <div id="summary-modal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeModal()">Ãƒâ€”</span>
+            <span class="close" onclick="closeModal()">Ã—</span>
             <h2>Summary</h2>
             <div id="summary-content"></div>
         </div>
     </div>
 
 <script>
-    const EXCEL_FILE_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRNdhGT25UjRLglfupCo-7x2lGKE7-e2q7Zal0fC7fMVTwRpQzrtJqV5bK1ML2tB1PTH0OeyuLiNjcS/pub?output=xlsx';
+    const EXCEL_FILE_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQpiYZNby0GJhOyrZAg-ttC_TLgyuUp0LZ1z_mKXWUdTJOtENDVYhXBJhlDIqKamfqoBodOAnvBKXXt/pub?output=xlsx';
     let sheetData = {};
     let isSumMode = false;
     let selectedRows = [];
