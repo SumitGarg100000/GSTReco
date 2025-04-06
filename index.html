@@ -780,6 +780,7 @@
     const startDate = startDateStr ? parseInputDate(startDateStr) : null;
     const endDate = endDateStr ? parseInputDate(endDateStr) : null;
 
+    // Context: Above lines (unchanged)
     let filteredRows = [];
     let hasOpening = false;
 
@@ -793,27 +794,27 @@
         if (rowParty === party && rowDate) {
             let includeRow = true;
             if (startDate && endDate) {
-                includeRow = rowDate >= startDate && rowDate <= endDate; // Both dates provided (Instruction 2)
+                includeRow = rowDate >= startDate && rowDate <= endDate;
             } else if (startDate) {
-                includeRow = rowDate >= startDate; // Only From date (Instruction 3)
+                includeRow = rowDate >= startDate;
             } else if (endDate) {
-                includeRow = rowDate <= endDate; // Only To date (Instruction 4)
-            } // If both blank, include all (Instruction 5)
+                includeRow = rowDate <= endDate;
+            }
             if (includeRow) {
                 filteredRows.push(row);
                 if (rowType === "Opening") {
-                    hasOpening = true; // Check if Opening exists (Instruction 6)
+                    hasOpening = true;
                 }
             }
         }
     });
 
-    // If filtered data exists
+    // Start of the section to modify
     if (filteredRows.length > 0) {
         if (hasOpening) {
             // If Opening exists, start from 1st row (Instruction 6)
             filteredRows.forEach(row => {
-                const debit = Math.round(cleanNumber(row[8])); // Use Excel values directly (Instruction 7)
+                const debit = Math.round(cleanNumber(row[8]));
                 const credit = Math.round(cleanNumber(row[9]));
                 const balance = Math.round(cleanNumber(row[10]));
 
@@ -830,32 +831,48 @@
                 tbody.appendChild(tr);
             });
         } else {
-            // If no Opening, add opening row first (Instructions 8, 9)
+            // Replace this entire else block with the new code
+            // New code starts here
             let totalDebit = 0;
             let totalCredit = 0;
-            const dayBeforeStart = startDate ? new Date(startDate) : null;
-            if (dayBeforeStart) {
-                dayBeforeStart.setDate(dayBeforeStart.getDate() - 1);
+            const firstFilteredDate = filteredRows[0] ? parseDateForComparison(filteredRows[0][0]) : null;
+            const dayBeforeFirst = firstFilteredDate ? new Date(firstFilteredDate) : null;
+            if (dayBeforeFirst) {
+                dayBeforeFirst.setDate(dayBeforeFirst.getDate() - 1); // One day before first filtered date
             }
 
-            // Calculate opening balance up to day before start date (Instruction 9)
-            rows.slice(1).forEach(row => {
-                const rowDateStr = row[0];
-                const rowParty = row[2];
-                const rowDate = parseDateForComparison(rowDateStr);
+            // Only calculate if startDate is not provided; otherwise, use startDate logic
+            if (!startDate && dayBeforeFirst) {
+                rows.slice(1).forEach(row => {
+                    const rowDateStr = row[0];
+                    const rowParty = row[2];
+                    const rowDate = parseDateForComparison(rowDateStr);
 
-                if (rowParty === party && rowDate && (!dayBeforeStart || rowDate <= dayBeforeStart)) {
-                    totalDebit += Math.round(cleanNumber(row[8]));
-                    totalCredit += Math.round(cleanNumber(row[9]));
-                }
-            });
+                    if (rowParty === party && rowDate && rowDate <= dayBeforeFirst) {
+                        totalDebit += Math.round(cleanNumber(row[8]));
+                        totalCredit += Math.round(cleanNumber(row[9]));
+                    }
+                });
+            } else if (startDate) {
+                const dayBeforeStart = new Date(startDate);
+                dayBeforeStart.setDate(dayBeforeStart.getDate() - 1);
+                rows.slice(1).forEach(row => {
+                    const rowDateStr = row[0];
+                    const rowParty = row[2];
+                    const rowDate = parseDateForComparison(rowDateStr);
+
+                    if (rowParty === party && rowDate && rowDate <= dayBeforeStart) {
+                        totalDebit += Math.round(cleanNumber(row[8]));
+                        totalCredit += Math.round(cleanNumber(row[9]));
+                    }
+                });
+            }
 
             const openingDebit = totalDebit - totalCredit;
             const openingCredit = 0;
             const openingBalance = openingDebit;
 
-            // Add opening row (Instruction 9)
-            const openingDate = startDateStr || (filteredRows[0] ? filteredRows[0][0] : ''); // Use From date or next row's date if blank
+            const openingDate = startDateStr || (filteredRows[0] ? filteredRows[0][0] : '');
             const trOpening = document.createElement('tr');
             trOpening.innerHTML = `
                 <td>${formatDateToDDMMMYYYY(openingDate)}</td>
@@ -868,9 +885,8 @@
             `;
             tbody.appendChild(trOpening);
 
-            // Add filtered data starting from next row (Instruction 8)
             filteredRows.forEach(row => {
-                const debit = Math.round(cleanNumber(row[8])); // Use Excel values directly (Instruction 7)
+                const debit = Math.round(cleanNumber(row[8]));
                 const credit = Math.round(cleanNumber(row[9]));
                 const balance = Math.round(cleanNumber(row[10]));
 
@@ -886,6 +902,7 @@
                 `;
                 tbody.appendChild(tr);
             });
+            // New code ends here
         }
     } else if (startDate) {
         // If no data in range but start date exists, show opening balance (Instruction 9)
@@ -904,7 +921,7 @@
                 totalCredit += Math.round(cleanNumber(row[9]));
             }
         });
-
+    // Context: Below lines (unchanged)
         const openingDebit = totalDebit - totalCredit;
         const openingCredit = 0;
         const openingBalance = openingDebit;
@@ -925,7 +942,6 @@
     }
 
     restoreSelectedRows();
-}
 
     function getLastDate(rows) {
         let latestDate = null;
