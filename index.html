@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -452,8 +451,8 @@
                     <button onclick="showSummary()">Summary</button>
                     <button onclick="startSumMode()">Sum</button>
                     <button onclick="refreshData()">Refresh</button>
-                    <button onclick="clearLedgerFilters()">Clear</button> <!-- Added Clear Button -->
-                    <span id="refresh-status"></span>
+                     <button onclick="clearLedgerFilters()">Clear</button> <!-- Added Clear Button -->
+    <span id="refresh-status"></span>
                     <span id="sum-total"></span>
                 </div>
 
@@ -754,131 +753,131 @@
         return parseFloat(cleaned) || 0;
     }
 
-    
-    async function loadLedger() {
-        const party = document.getElementById('party').value;
-        const startDateStr = document.getElementById('start-date').value;
-        const endDateStr = document.getElementById('end-date').value;
+async function loadLedger() {
+    const party = document.getElementById('party').value;
+    const startDateStr = document.getElementById('start-date').value;
+    const endDateStr = document.getElementById('end-date').value;
 
-        localStorage.setItem('selectedParty', party);
-        localStorage.setItem('startDate', startDateStr);
-        localStorage.setItem('endDate', endDateStr);
-        localStorage.setItem('isSumMode', isSumMode);
+    localStorage.setItem('selectedParty', party);
+    localStorage.setItem('startDate', startDateStr);
+    localStorage.setItem('endDate', endDateStr);
+    localStorage.setItem('isSumMode', isSumMode);
 
-        if (!party || !sheetData.Consolidate) {
-            console.error('No party selected or Consolidate sheet not found');
-            return;
+    if (!party || !sheetData.Consolidate) {
+        console.error('No party selected or Consolidate sheet not found');
+        return;
+    }
+
+    const rows = sheetData.Consolidate;
+    const tbody = document.querySelector('#ledger-table tbody');
+    tbody.innerHTML = '';
+
+    document.getElementById('ledger-party-name').textContent = party;
+    document.getElementById('ledger-period').textContent = startDateStr && endDateStr ? 
+        `Period: ${formatDateToDDMMMYYYY(startDateStr)} To ${formatDateToDDMMMYYYY(endDateStr)}` : 
+        startDateStr ? `Period: ${formatDateToDDMMMYYYY(startDateStr)} To Last Date` : 'Period: All Dates';
+
+    const startDate = startDateStr ? parseInputDate(startDateStr) : null;
+    let endDate = endDateStr ? parseInputDate(endDateStr) : null;
+
+    if (startDate && !endDate) {
+        endDate = getLastDate(rows);
+    }
+
+    let hasData = false;
+    let filteredRows = [];
+
+    // Filter rows for the selected party and date range
+    rows.slice(1).forEach(row => {
+        const rowDateStr = row[0];
+        const rowParty = row[2];
+        const rowDate = parseDateForComparison(rowDateStr);
+
+        if (rowParty === party && rowDate) {
+            let includeRow = true;
+            if (startDate && endDate) {
+                includeRow = rowDate >= startDate && rowDate <= endDate;
+            } else if (startDate) {
+                includeRow = rowDate >= startDate;
+            }
+            if (includeRow) {
+                filteredRows.push(row);
+                hasData = true;
+            }
         }
+    });
 
-        const rows = sheetData.Consolidate;
-        const tbody = document.querySelector('#ledger-table tbody');
-        tbody.innerHTML = '';
+    if (hasData) {
+        // If data exists in the date range, display it
+        filteredRows.forEach(row => {
+            const debit = Math.round(cleanNumber(row[8]));
+            const credit = Math.round(cleanNumber(row[9]));
+            const balance = Math.round(cleanNumber(row[10]));
 
-        document.getElementById('ledger-party-name').textContent = party;
-        document.getElementById('ledger-period').textContent = startDateStr && endDateStr ? 
-            `Period: ${formatDateToDDMMMYYYY(startDateStr)} To ${formatDateToDDMMMYYYY(endDateStr)}` : 
-            startDateStr ? `Period: ${formatDateToDDMMMYYYY(startDateStr)} To Last Date` : 'Period: All Dates';
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${formatDateToDDMMMYYYY(row[0])}</td>
+                <td>${row[1] || ''}</td>
+                <td>${row[2] || ''}</td>
+                <td>${row[3] || ''}</td>
+                <td>${debit.toLocaleString('en-IN')}</td>
+                <td>${credit.toLocaleString('en-IN')}</td>
+                <td>${balance.toLocaleString('en-IN')}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    } else if (startDate) {
+        // If no data in selected range, calculate opening balance up to day before start date
+        let totalDebit = 0;
+        let totalCredit = 0;
+        const dayBeforeStart = new Date(startDate);
+        dayBeforeStart.setDate(dayBeforeStart.getDate() - 1);
 
-        const startDate = startDateStr ? parseInputDate(startDateStr) : null;
-        let endDate = endDateStr ? parseInputDate(endDateStr) : null;
-
-        if (startDate && !endDate) {
-            endDate = getLastDate(rows);
-        }
-
-        let hasData = false;
-        let filteredRows = [];
-
-        // Filter rows for the selected party and date range
         rows.slice(1).forEach(row => {
             const rowDateStr = row[0];
             const rowParty = row[2];
             const rowDate = parseDateForComparison(rowDateStr);
 
-            if (rowParty === party && rowDate) {
-                let includeRow = true;
-                if (startDate && endDate) {
-                    includeRow = rowDate >= startDate && rowDate <= endDate;
-                } else if (startDate) {
-                    includeRow = rowDate >= startDate;
-                }
-                if (includeRow) {
-                    filteredRows.push(row);
-                    hasData = true;
-                }
+            if (rowParty === party && rowDate && rowDate <= dayBeforeStart) {
+                totalDebit += Math.round(cleanNumber(row[8]));
+                totalCredit += Math.round(cleanNumber(row[9]));
             }
         });
 
-        if (hasData) {
-            // If data exists in the date range, display it
-            filteredRows.forEach(row => {
-                const debit = Math.round(cleanNumber(row[8]));
-                const credit = Math.round(cleanNumber(row[9]));
-                const balance = Math.round(cleanNumber(row[10]));
+        const openingDebit = totalDebit - totalCredit;
+        const openingCredit = 0;
+        const openingBalance = openingDebit;
 
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${formatDateToDDMMMYYYY(row[0])}</td>
-                    <td>${row[1] || ''}</td>
-                    <td>${row[2] || ''}</td>
-                    <td>${row[3] || ''}</td>
-                    <td>${debit.toLocaleString('en-IN')}</td>
-                    <td>${credit.toLocaleString('en-IN')}</td>
-                    <td>${balance.toLocaleString('en-IN')}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        } else if (startDate) {
-            // If no data in selected range, calculate opening balance up to day before start date
-            let totalDebit = 0;
-            let totalCredit = 0;
-            const dayBeforeStart = new Date(startDate);
-            dayBeforeStart.setDate(dayBeforeStart.getDate() - 1);
-
-            rows.slice(1).forEach(row => {
-                const rowDateStr = row[0];
-                const rowParty = row[2];
-                const rowDate = parseDateForComparison(rowDateStr);
-
-                if (rowParty === party && rowDate && rowDate <= dayBeforeStart) {
-                    totalDebit += Math.round(cleanNumber(row[8]));
-                    totalCredit += Math.round(cleanNumber(row[9]));
-                }
-            });
-
-            const openingDebit = totalDebit - totalCredit;
-            const openingCredit = 0;
-            const openingBalance = openingDebit;
-
-            // Display opening balance row
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${formatDateToDDMMMYYYY(startDateStr)}</td>
-                <td>1</td>
-                <td>${party}</td>
-                <td>Opening</td>
-                <td>${openingDebit.toLocaleString('en-IN')}</td>
-                <td>${openingCredit.toLocaleString('en-IN')}</td>
-                <td>${openingBalance.toLocaleString('en-IN')}</td>
-            `;
-            tbody.appendChild(tr);
-        } else {
-            tbody.innerHTML = '<tr><td colspan="7">No data found for selected party and date range</td></tr>';
-        }
-
-        restoreSelectedRows();
+        // Display opening balance row
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${formatDateToDDMMMYYYY(startDateStr)}</td>
+            <td>1</td>
+            <td>${party}</td>
+            <td>Opening</td>
+            <td>${openingDebit.toLocaleString('en-IN')}</td>
+            <td>${openingCredit.toLocaleString('en-IN')}</td>
+            <td>${openingBalance.toLocaleString('en-IN')}</td>
+        `;
+        tbody.appendChild(tr);
+    } else {
+        tbody.innerHTML = '<tr><td colspan="7">No data found for selected party and date range</td></tr>';
     }
 
-    // New function to clear ledger filters
-    function clearLedgerFilters() {
-        document.getElementById('party').value = '';
-        document.getElementById('start-date').value = '';
-        document.getElementById('end-date').value = '';
-        localStorage.removeItem('selectedParty');
-        localStorage.removeItem('startDate');
-        localStorage.removeItem('endDate');
-        loadLedger();
-    }
+    restoreSelectedRows();
+}
+
+// New function to clear ledger filters
+function clearLedgerFilters() {
+    document.getElementById('party').value = '';
+    document.getElementById('start-date').value = '';
+    document.getElementById('end-date').value = '';
+    localStorage.removeItem('selectedParty');
+    localStorage.removeItem('startDate');
+    localStorage.removeItem('endDate');
+    loadLedger();
+}
+    
 
     function getLastDate(rows) {
         let latestDate = null;
