@@ -753,7 +753,8 @@
     }
 
 
-async function loadLedger() {
+
+            async function loadLedger() {
     const party = document.getElementById('party').value;
     const startDateStr = document.getElementById('start-date').value;
     const endDateStr = document.getElementById('end-date').value;
@@ -815,22 +816,22 @@ async function loadLedger() {
     });
 
     if (filteredRows.length > 0) {
-        if (!startDateStr && !hasOpening) { // When From date is blank and no Opening exists
-            // Calculate first row values based on second row
+        if (!startDateStr && !hasOpening) {
+            // When From date is blank and no Opening exists
             const secondRow = filteredRows[0];
             const secondDebit = Math.round(cleanNumber(secondRow[8]));
             const secondCredit = Math.round(cleanNumber(secondRow[9]));
             const secondBalance = Math.round(cleanNumber(secondRow[10]));
 
+            // Calculate opening values as per requirement
             const openingDebit = secondBalance + secondCredit - secondDebit;
             const openingCredit = 0;
             const openingBalance = openingDebit - openingCredit;
 
             // Add calculated opening row
-            const openingDate = secondRow[0]; // Use first transaction date
             const trOpening = document.createElement('tr');
             trOpening.innerHTML = `
-                <td>${formatDateToDDMMMYYYY(openingDate)}</td>
+                <td>${formatDateToDDMMMYYYY(secondRow[0])}</td>
                 <td>1</td>
                 <td>${party}</td>
                 <td>Opening</td>
@@ -878,7 +879,7 @@ async function loadLedger() {
                 tbody.appendChild(tr);
             });
         } else {
-            // Original opening balance calculation when start date exists
+            // When start date exists, calculate opening from prior transactions
             let totalDebit = 0;
             let totalCredit = 0;
             const dayBeforeStart = startDate ? new Date(startDate) : null;
@@ -970,10 +971,7 @@ async function loadLedger() {
     }
 
     restoreSelectedRows();
-}
-
-
-
+}        
 
 
 
