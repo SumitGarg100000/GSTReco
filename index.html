@@ -140,14 +140,47 @@
             font-weight: 600;
             color: #34495e;
         }
-        .ledger-filter input[list="party-list"] {
+        .custom-dropdown { /* Added for custom dropdown container */
+            position: relative;
+            display: inline-block;
+            width: 150px;
+        }
+        .custom-dropdown input { /* Styling for input inside dropdown */
             padding: 8px;
             font-size: 15px;
             border: 1px solid #dcdcdc;
             border-radius: 5px;
             background: #fff;
-            width: 150px;
-            cursor: text;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .dropdown-arrow { /* Styling for arrow */
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .dropdown-list { /* Styling for dropdown list */
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #dcdcdc;
+            border-radius: 5px;
+            background: #fff;
+            z-index: 10;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .dropdown-list div { /* Styling for each option */
+            padding: 8px;
+            cursor: pointer;
+        }
+        .dropdown-list div:hover { /* Hover effect for options */
+            background: #f0f0f0;
         }
         .ledger-filter input[type="date"] {
             padding: 8px;
@@ -400,10 +433,13 @@
             <div id="ledger" class="tab-content">
                 <div class="ledger-filter">
                     <label for="party">Select Party:</label>
-                    <input type="text" list="party-list" id="party" oninput="loadLedger()" placeholder="Type or select party">
-                    <datalist id="party-list">
-                        <!-- Options dynamically added via JS -->
-                    </datalist>
+                    <div class="custom-dropdown"> <!-- Added custom dropdown container -->
+                        <input type="text" id="party" oninput="filterDropdown()" placeholder="Type or select party">
+                        <span class="dropdown-arrow" onclick="toggleDropdown()">▼</span> <!-- Arrow for toggling -->
+                        <div id="party-dropdown" class="dropdown-list" style="display: none;"> <!-- Hidden dropdown list -->
+                            <!-- Options dynamically added via JS -->
+                        </div>
+                    </div>
 
                     <label for="start-date">From:</label>
                     <input type="date" id="start-date" onchange="loadLedger()">
@@ -627,8 +663,8 @@
         if (!sheetData.Master) return;
 
         const rows = sheetData.Master;
-        const dataList = document.getElementById('party-list');
-        dataList.innerHTML = ''; // Clear previous options
+        const dropdownList = document.getElementById('party-dropdown'); // Changed to target custom dropdown
+        dropdownList.innerHTML = ''; // Clear previous options
 
         const uniqueParties = new Set();
         const dataRange = rows.slice(2, 300);
@@ -645,22 +681,45 @@
             }
         });
 
-        filteredData.sort((a, b) => {
+        filteredData.sort((a, b) => { // Sorting remains same
             const headCompare = b.head.localeCompare(a.head);
             if (headCompare !== 0) return headCompare;
             return a.partyName.localeCompare(b.partyName);
         });
 
-        filteredData.forEach(data => {
-            const option = document.createElement('option');
-            option.value = data.partyName;
-            dataList.appendChild(option);
+        filteredData.forEach(data => { // Changed to create divs instead of options
+            const div = document.createElement('div');
+            div.textContent = data.partyName;
+            div.onclick = () => { // Added click event to select party
+                document.getElementById('party').value = data.partyName;
+                dropdownList.style.display = 'none'; // Hide list after selection
+                loadLedger(); // Load ledger on selection
+            };
+            dropdownList.appendChild(div);
         });
 
         const selectedParty = localStorage.getItem('selectedParty');
         if (selectedParty) {
             document.getElementById('party').value = selectedParty;
         }
+    }
+    // Added new function to toggle dropdown
+    function toggleDropdown() {
+        const dropdownList = document.getElementById('party-dropdown');
+        dropdownList.style.display = dropdownList.style.display === 'block' ? 'none' : 'block';
+    }
+
+    // Added new function to filter dropdown based on input
+    function filterDropdown() {
+        const input = document.getElementById('party').value.toLowerCase();
+        const dropdownList = document.getElementById('party-dropdown');
+        const options = dropdownList.getElementsByTagName('div');
+
+        for (let i = 0; i < options.length; i++) {
+            const text = options[i].textContent.toLowerCase();
+            options[i].style.display = text.includes(input) ? '' : 'none';
+        }
+        loadLedger(); // Load ledger on typing
     }
 
     function formatDateToDDMMMYYYY(date) {
