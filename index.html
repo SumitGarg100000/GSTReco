@@ -833,7 +833,7 @@
             // If no Opening, add opening row first (Instructions 8, 9)
             let totalDebit = 0;
             let totalCredit = 0;
-            const dayBeforeStart = startDate ? new Date(startDate) : (filteredRows[1] ? new Date(filteredRows[1][0]) : null);
+            const dayBeforeStart = startDate ? new Date(startDate) : (filteredRows[0] ? new Date(filteredRows[0][0]) : null);
             if (dayBeforeStart) {
                 dayBeforeStart.setDate(dayBeforeStart.getDate() - 1);
             }
@@ -855,7 +855,7 @@
             const openingBalance = openingDebit;
 
             // Add opening row (Instruction 9)
-            const openingDate = startDateStr || (filteredRows[1] ? filteredRows[1][0] : (filteredRows[0] ? filteredRows[0][0] : '')); 
+            const openingDate = startDateStr || (filteredRows[0] ? filteredRows[0][0] : (filteredRows[0] ? filteredRows[0][0] : '')); 
             const trOpening = document.createElement('tr');
             trOpening.innerHTML = `
                 <td>${formatDateToDDMMMYYYY(openingDate)}</td>
