@@ -1136,18 +1136,19 @@
         }
 
 
-function clearFilters() {
-        document.getElementById('party').value = ''; // Party dropdown blank
-        document.getElementById('start-date').value = ''; // Start date blank
-        document.getElementById('end-date').value = ''; // End date blank
-        localStorage.removeItem('selectedParty'); // Clear saved party
-        localStorage.removeItem('startDate'); // Clear saved start date
-        localStorage.removeItem('endDate'); // Clear saved end date
-        loadLedger(); // Reload ledger with cleared filters
-}
+
 
         
     }
 </script>
+    <script>
+function clearFilters() {
+    console.log("Clear button clicked");
+    document.getElementById('party').value = '';
+    document.getElementById('start-date').value = '';
+    document.getElementById('end-date').value = '';
+    console.log("Filters cleared");
+}
+    </script>
 </body>
 </html>
