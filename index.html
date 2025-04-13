@@ -523,7 +523,7 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
     <li><strong>Prepare Your Data</strong>: Enter your GSTR-2B data in GST Portal sheet and GSTR-3B or books in client data sheet according to the sample file.</li>
     <li><strong>Upload File</strong>: Upload your prepared Excel file using the "Upload GST Data File" option.</li>
     <li><strong>Set Difference Allowed</strong>: Adjust the tolerance for differences in amounts (default is 1).</li>
-    <li><strong>Enable Detailed Reconciliation</strong>: Check this box for detailed reconciliation or leave unchecked for a simple simple reconciliation.</li>
+    <li><strong>Enable Detailed Reconciliation</strong>: Check this box for detailed reconciliation or leave unchecked for a simple reconciliation.</li>
     <li><strong>Enable Filters (Optional)</strong>: Use filters to sort or search through your data.</li>
     <li><strong>Reconcile Data</strong>: Click "Reconcile" to process and match your data.</li>
     <li><strong>Review Results</strong>: Check the GSTR-2B, GSTR-3B, and Summary tables for matched data.</li>
@@ -553,13 +553,14 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
     <li><strong>Match - GSTN, Date</strong>: Match on GSTN and date, with possible invoice number differences.</li>
     <li><strong>Match - GSTN</strong>: Match only on GSTN, with differences in invoice number and date.</li>
     <li><strong>Unmatch - GSTN Not Exist</strong>: GSTN from one sheet is not found in the other.</li>
-    <li><strong>Unmatch - Amt Diff</strong>: Showing unmatch invoices due to amt difference</li>
+    <li><strong>Unmatch - Amt Diff</strong>: GSTN and Invoice Number match, but amounts (Taxable Value, IGST, CGST, SGST) differ by more than the allowed difference.</li>
     <li><strong>Unmatch</strong>: Data does not meet any match criteria, generally due to extra invoices in either GSTR-2B or GSTR-3B/Books</li>
   </ul>
   <p>When <strong>Detailed Reconciliation</strong> is disabled, the criteria are simplified:</p>
   <ul>
     <li><strong>Match</strong>: Data matches based on any of the detailed criteria above.</li>
-    <li><strong>Unmatch - GSTN Not Exist</strong>: GSTN is not found in the other sheet.</li>
+    <li><strong>Unmatch - GSTN Not Exist</strong>: GSTN from one sheet is not found in the other.</li>
+    <li><strong>Unmatch - Amt Diff</strong>: GSTN and Invoice Number match, but amounts (Taxable Value, IGST, CGST, SGST) differ by more than the allowed difference.</li>
     <li><strong>Unmatch</strong>: Data does not meet any match criteria, generally due to extra invoices in either GSTR-2B or GSTR-3B/Books</li>
   </ul>
 </div>
@@ -858,7 +859,7 @@ function restrictFreeServiceFeatures() {
         const gstr2bSample = [
           gstr2bSampleHeaders,
         // Match - GSTN, Invoice No., Date (2 entries)
-    ['Match - GSTN, Invoice No., Date', '27AABCU9603R1ZM', 'Supplier A', 'INV001', 'Regular', '01-Mar-2025', 11800, 'Maharashtra', 'N', 18, 10000, 1800, 0, 0, 0, 'Mar-2025', '15-Mar-2025', 'Yes', 'N/A', 0, 'GSTR-1', 'IRN001', '02-Mar-2025'],
+    ['Match - GSTN, Invoice No., Date', '27AABCU9603R1ZM', 'Supplier A', 'INV001', 'Regular', '01-Mar-2025', 11802, 'Maharashtra', 'N', 18, 10000, 1802, 0, 0, 0, 'Mar-2025', '15-Mar-2025', 'Yes', 'N/A', 0, 'GSTR-1', 'IRN001', '02-Mar-2025'],
     ['Match - GSTN, Invoice No., Date', '27AABCU9603R1ZM', 'Supplier A', 'inv001', 'Regular', '01-mar-2025', 5900, 'Maharashtra', 'N', 18, 5000, 900, 0, 0, 0, 'Mar-2025', '15-Mar-2025', 'Yes', 'N/A', 0, 'GSTR-1', 'IRN002', '02-Mar-2025'],
     // Match - GSTN, Invoice No. (2 entries, different dates)
     ['Match - GSTN, Invoice No.', '29XYZ1234P1ZQ', 'Supplier B', 'INV002', 'Regular', '02-Mar-2025', 23600, 'Karnataka', 'N', 9, 20000, 0, 1800, 1800, 0, 'Mar-2025', '16-Mar-2025', 'Yes', 'N/A', 0, 'GSTR-5', 'IRN003', '03-Mar-2025'],
@@ -1607,7 +1608,7 @@ function addFilterDropdown(th, containerId, colIndex) {
 
   const filterBtn = document.createElement('button');
   filterBtn.className = 'filter-btn';
-  filterBtn.innerHTML = 'â–¼'; // Down arrow for dropdown
+  filterBtn.innerHTML = '▼'; // Down arrow for dropdown
   filterBtn.addEventListener('click', () => toggleDropdown(dropdown));
 
   const dropdownContent = document.createElement('div');
@@ -1881,49 +1882,49 @@ function displayData(data, containerId, headers, sheetType) {
     <a href="https://wa.me/9716804520" class="whatsapp-btn" target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp">
       <i class="fab fa-whatsapp"></i>
     </a>
-    <div id="instructions-modal" class="modal">
-      <div class="modal-content">
-        <span class="close-btn" onclick="hideInstructions()"></span>
-        <h2>GST Reconciliation Tool</h2>
-        <h3>How to Use the Tool</h3>
-        <ol>
-          <li>Download the sample Excel file from the link to understand the format.</li>
-          <li>Copy and paste your GSTR-2B data into the "GST Portal" sheet from column B.</li>
-          <li>Copy and paste your GSTR-3B or books data into the "Client Data" sheet from column B.</li>
-          <li>Upload your Excel file on the GST Reconciliation Tool website.</li>
-          <li>Set the "Difference Allowed" value (default is 1) to adjust matching tolerance.</li>
-          <li>Check "Detailed Reconciliation" for specific match criteria, or leave unchecked for simple Match/Unmatch view.</li>
-          <li>Review the tables (GSTR-2B, GSTR-3B, and Summary) for results.</li>
-          <li>User can edit values directly on website if needed.</li>
-          <li>Download the reconciled output file by clicking "Download Reconciled Data".</li>
-          <li>For support, contact Sumit Garg via WhatsApp 9716804520 (click on WhatsApp icon).</li>
-        </ol><br>
-        <h3>Matching Heading Criteria</h3><br>
-        <p><strong>When Detailed Reconciliation is checked:</strong></p>
-        <ol>
-          <li><strong>Match - GSTN, Invoice No., Date</strong> - Matches based on GSTN, Invoice No., and Date.</li>
-          <li><strong>Match - GSTN, Invoice No.</strong> - Matches based on GSTN and Invoice No.</li>
-          <li><strong>Match - GSTN, Date</strong> - Matches based on GSTN and Date.</li>
-          <li><strong>Match - GSTN</strong> - Matches based on GSTN only.</li>
-          <li><strong>Unmatch - GSTN Not Exist</strong> - GSTN not found in other sheet.</li>
-          <li><strong>Unmatch - Amt Diff</strong> -Showing unmatch due to amt diff</li>
-          <li><strong>Unmatch</strong> - Other reasons, generally due to extra invoices in either GST-2B or GSTR-3B/Books</li>
-        </ol>
-        <p><strong>When Detailed Reconciliation is unchecked:</strong></p>
-        <ol>
-          <li><strong>Match</strong> - Any of the above match conditions met.</li>
-          <li><strong>Unmatch - GSTN Not Exist</strong> - GSTN not found in other sheet.</li>
-             <li><strong>Unmatch - Amt Diff</strong> -Showing unmatch due to amt diff</li>
-          <li><strong>Unmatch</strong> - Other reasons, generally due to extra invoices in either GST-2B or GSTR-3B/Books</li>
-        </ol>
-      </div>
-    </div>
+ <div id="instructions-modal" class="modal">
+  <div class="modal-content">
+    <span class="close-btn" onclick="hideInstructions()"></span>
+    <h2>GST Reconciliation Tool</h2>
+    <h3>How to Use the Tool</h3>
+    <ol>
+      <li>Download the sample Excel file from the link to understand the format.</li>
+      <li>Copy and paste your GSTR-2B data into the "GST Portal" sheet from column B.</li>
+      <li>Copy and paste your GSTR-3B or books data into the "Client Data" sheet from column B.</li>
+      <li>Upload your Excel file on the GST Reconciliation Tool website.</li>
+      <li>Set the "Difference Allowed" value (default is 1) to adjust matching tolerance.</li>
+      <li>Check "Detailed Reconciliation" for specific match criteria, or leave unchecked for simple Match/Unmatch view.</li>
+      <li>Review the tables (GSTR-2B, GSTR-3B, and Summary) for results.</li>
+      <li>User can edit values directly on website if needed.</li>
+      <li>Download the reconciled output file by clicking "Download Reconciled Data".</li>
+      <li>For support, contact Sumit Garg via WhatsApp 9716804520 (click on WhatsApp icon).</li>
+    </ol><br>
+    <h3>Matching Heading Criteria</h3><br>
+    <p><strong>When Detailed Reconciliation is checked:</strong></p>
+    <ol>
+      <li><strong>Match - GSTN, Invoice No., Date</strong> - Matches based on GSTN, Invoice No., and Date.</li>
+      <li><strong>Match - GSTN, Invoice No.</strong> - Matches based on GSTN and Invoice No.</li>
+      <li><strong>Match - GSTN, Date</strong> - Matches based on GSTN and Date.</li>
+      <li><strong>Match - GSTN</strong> - Matches based on GSTN only.</li>
+      <li><strong>Unmatch - GSTN Not Exist</strong> - GSTN not found in other sheet.</li>
+      <li><strong>Unmatch - Amt Diff</strong> - GSTN and Invoice Number match, but amounts (Taxable Value, IGST, CGST, SGST) differ by more than the allowed difference.</li>
+      <li><strong>Unmatch</strong> - Other reasons, generally due to extra invoices in either GST-2B or GSTR-3B/Books</li>
+    </ol>
+    <p><strong>When Detailed Reconciliation is unchecked:</strong></p>
+    <ol>
+      <li><strong>Match</strong> - Any of the above match conditions met.</li>
+      <li><strong>Unmatch - GSTN Not Exist</strong> - GSTN not found in other sheet.</li>
+      <li><strong>Unmatch - Amt Diff</strong> - GSTN and Invoice Number match, but amounts (Taxable Value, IGST, CGST, SGST) differ by more than the allowed difference.</li>
+      <li><strong>Unmatch</strong> - Other reasons, generally due to extra invoices in either GST-2B or GSTR-3B/Books</li>
+    </ol>
+  </div>
+</div>
   </body>
   <footer>
     <div class="footer-links">
-      <a href="#">ðŸ“ž Ph : 9716804520</a>
-      <a href="#">âœ‰ï¸ Email: Sumitgarg100000@gmail.com</a>
-      <a href="#">ðŸ“ Address: Rohini, Delhi-110086</a>
+      <a href="#">📞 Ph : 9716804520</a>
+      <a href="#">✉️ Email: Sumitgarg100000@gmail.com</a>
+      <a href="#">📍 Address: Rohini, Delhi-110086</a>
     </div>
     <div class="footer-links">
       <a href="#">Privacy Policy</a>
