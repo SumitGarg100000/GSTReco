@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -1047,76 +1046,27 @@ function refreshFilters(containerId) {
   const diffAllowed = diffInput === '' ? 0 : Number(diffInput) || 1;
   const gstr2bTable = document.querySelector('#gstr2b-container table tbody');
   const gstr3bTable = document.querySelector('#gstr3b-container table tbody');
-  const reconciled2bData = new Array(gstr2bData.length).fill(null); // Track GSTR-2B matches
-  const reconciled3bData = new Array(gstr3bData.length).fill(null); // Track GSTR-3B matches
-
-  // Define criteria in exact order
-  const criteria = [
-    'Match - GSTN, Invoice No., Date',
-    'Match - GSTN, Invoice No.',
-    'Match - GSTN, Date',
-    'Match - GSTN',
-    'Unmatch - GSTN Not Exist',
-    'Unmatch - Amt Diff',
-    'Unmatch'
-  ];
-
-  // Process each criterion sequentially
-  for (const criterion of criteria) {
-    // Match from GSTR-2B perspective
-    for (let i = 0; i < gstr2bData.length; i++) {
-      if (reconciled2bData[i] !== null) continue; // Skip already matched
-      const row2b = gstr2bData[i];
-      const matchResult = findMatch(row2b, gstr2bData, gstr3bData, false, diffAllowed, criterion, reconciled3bData);
-      if (matchResult.criteria === criterion) {
-        // Update GSTR-2B record
-        reconciled2bData[i] = [matchResult.criteria, ...row2b.slice(1)];
-        if (gstr2bTable && gstr2bTable.rows[i]) {
-          updateRow(gstr2bTable.rows[i], reconciled2bData[i]);
-        }
-        // Update GSTR-3B record if matched
-        if (matchResult.matched3bIndex !== null) {
-          reconciled3bData[matchResult.matched3bIndex] = [
-            matchResult.criteria,
-            ...gstr3bData[matchResult.matched3bIndex].slice(1)
-          ];
-          if (gstr3bTable && gstr3bTable.rows[matchResult.matched3bIndex]) {
-            updateRow(gstr3bTable.rows[matchResult.matched3bIndex], reconciled3bData[matchResult.matched3bIndex]);
-          }
-        }
-      }
-    }
-
-    // Match from GSTR-3B perspective for unmatched records
-    for (let j = 0; j < gstr3bData.length; j++) {
-      if (reconciled3bData[j] !== null) continue; // Skip already matched
-      const row3b = gstr3bData[j];
-      const matchResult = findMatch(row3b, gstr3bData, gstr2bData, true, diffAllowed, criterion, reconciled2bData);
-      if (matchResult.criteria === criterion) {
-        // Update GSTR-3B record
-        reconciled3bData[j] = [matchResult.criteria, ...row3b.slice(1)];
-        if (gstr3bTable && gstr3bTable.rows[j]) {
-          updateRow(gstr3bTable.rows[j], reconciled3bData[j]);
-        }
-        // Update GSTR-2B record if matched
-        if (matchResult.matched2bIndex !== null) {
-          reconciled2bData[matchResult.matched2bIndex] = [
-            matchResult.criteria,
-            ...gstr2bData[matchResult.matched2bIndex].slice(1)
-          ];
-          if (gstr2bTable && gstr2bTable.rows[matchResult.matched2bIndex]) {
-            updateRow(gstr2bTable.rows[matchResult.matched2bIndex], reconciled2bData[matchResult.matched2bIndex]);
-          }
-        }
-      }
-    }
-  }
-
-  // Generate output and summary
+  const reconciled2bData = [];
+  const reconciled3bData = [];
+  
+  gstr2bData.forEach((row, index) => {
+    const match = findMatch(row, gstr2bData, gstr3bData, false, diffAllowed);
+    const newRow = [match, ...row.slice(1)];
+    reconciled2bData.push(newRow);
+    if (gstr2bTable && gstr2bTable.rows[index]) updateRow(gstr2bTable.rows[index], newRow);
+  });
+  
+  gstr3bData.forEach((row, index) => {
+    const match = findMatch(row, gstr3bData, gstr2bData, true, diffAllowed);
+    const newRow = [match, ...row.slice(1)];
+    reconciled3bData.push(newRow);
+    if (gstr3bTable && gstr3bTable.rows[index]) updateRow(gstr3bTable.rows[index], newRow);
+  });
+  
   displaySummary(reconciled2bData, reconciled3bData);
   generateOutput(reconciled2bData, reconciled3bData);
-
-  // Apply free service restrictions
+  
+  // Re-apply free service restrictions and ensure colors
   restrictFreeServiceFeatures();
 }
       function updateRow(rowElement, newRow) {
@@ -1132,7 +1082,7 @@ function refreshFilters(containerId) {
 }
       
 
-function findMatch(row, sourceData, compareData, is3b, diffAllowed, sourceMatchedIndices, compareMatchedIndices) {
+function findMatch(row, sourceData, compareData, is3b, diffAllowed) {
   const sourceHeaders = is3b ? gstr3bHeaders() : gstr2bHeaders();
   const compareHeaders = is3b ? gstr2bHeaders() : gstr3bHeaders();
   const invDateIdx = sourceHeaders.indexOf('Invoice Date');
@@ -1143,232 +1093,98 @@ function findMatch(row, sourceData, compareData, is3b, diffAllowed, sourceMatche
   const gstn = String(row[gstnIdx]).toLowerCase().trim();
   const invNum = normalizeInvoiceNumber(String(row[invNumIdx]).toLowerCase().trim());
 
-  // Helper function to check if a compare record is unmatched
-  const isUnmatchedCompare = (index) => !compareMatchedIndices.has(index);
+  // Debugging: Log input values
+  console.log(`Processing row: GSTN=${gstn}, InvNo=${invNum}, Date=${invDate}, is3b=${is3b}`);
 
   // 1. Match - GSTN, Invoice No., Date
-  for (let i = 0; i < compareData.length; i++) {
-    if (isUnmatchedCompare(i)) {
-      const compareRow = compareData[i];
-      const compareInvDate = String(compareRow[compareHeaders.indexOf('Invoice Date')]).toLowerCase().trim();
-      const compareGstn = String(compareRow[compareGstnIdx]).toLowerCase().trim();
-      const compareInvNum = normalizeInvoiceNumber(String(compareRow[compareHeaders.indexOf('Invoice Number')]).toLowerCase().trim());
-      if (gstn === compareGstn && invNum === compareInvNum && invDate === compareInvDate) {
-        const sourceTotals = calculateRowTotals(row, is3b);
-        const compareTotals = calculateRowTotals(compareRow, !is3b);
-        if (checkTotals(sourceTotals, compareTotals, diffAllowed)) {
-          return {
-            criteria: detailedReconciliationCheckbox.checked ? 'Match - GSTN, Invoice No., Date' : 'Match',
-            matchedIndex: i
-          };
-        }
-      }
+  console.log("Checking Match - GSTN, Invoice No., Date...");
+  const sourceTotals = calculateTotals(sourceData, invDate, gstn, invNum, is3b);
+  const compareTotals = calculateTotals(compareData, invDate, gstn, invNum, !is3b);
+  if (sourceTotals.count > 0 && compareTotals.count > 0) {
+    console.log(`Found match on GSTN, InvNo, Date. SourceTotals:`, sourceTotals, `CompareTotals:`, compareTotals);
+    if (checkTotals(sourceTotals, compareTotals, diffAllowed)) {
+      console.log("Totals match within diffAllowed. Returning Match - GSTN, Invoice No., Date");
+      return detailedReconciliationCheckbox.checked ? 'Match - GSTN, Invoice No., Date' : 'Match';
     }
-  }
-
-  // 2. Match - GSTN, Invoice No. (also checks for Unmatch - Amt Diff)
-  for (let i = 0; i < compareData.length; i++) {
-    if (isUnmatchedCompare(i)) {
-      const compareRow = compareData[i];
-      const compareGstn = String(compareRow[compareGstnIdx]).toLowerCase().trim();
-      const compareInvNum = normalizeInvoiceNumber(String(compareRow[compareHeaders.indexOf('Invoice Number')]).toLowerCase().trim());
-      if (gstn === compareGstn && invNum === compareInvNum) {
-        const sourceTotals = calculateRowTotals(row, is3b);
-        const compareTotals = calculateRowTotals(compareRow, !is3b);
-        if (checkTotals(sourceTotals, compareTotals, diffAllowed)) {
-          return {
-            criteria: detailedReconciliationCheckbox.checked ? 'Match - GSTN, Invoice No.' : 'Match',
-            matchedIndex: i
-          };
-        } else {
-          return {
-            criteria: 'Unmatch - Amt Diff',
-            matchedIndex: i
-          };
-        }
-      }
-    }
-  }
-
-  // 3. Match - GSTN, Date
-  for (let i = 0; i < compareData.length; i++) {
-    if (isUnmatchedCompare(i)) {
-      const compareRow = compareData[i];
-      const compareInvDate = String(compareRow[compareHeaders.indexOf('Invoice Date')]).toLowerCase().trim();
-      const compareGstn = String(compareRow[compareGstnIdx]).toLowerCase().trim();
-      if (gstn === compareGstn && invDate === compareInvDate) {
-        const sourceTotals = calculateRowTotals(row, is3b);
-        const compareTotals = calculateRowTotals(compareRow, !is3b);
-        if (checkTotals(sourceTotals, compareTotals, diffAllowed)) {
-          return {
-            criteria: detailedReconciliationCheckbox.checked ? 'Match - GSTN, Date' : 'Match',
-            matchedIndex: i
-          };
-        }
-      }
-    }
-  }
-
-  // 4. Match - GSTN
-  for (let i = 0; i < compareData.length; i++) {
-function findMatch(row, sourceData, compareData, is3b, diffAllowed, targetCriterion, reconciledCompareData) {
-  const sourceHeaders = is3b ? gstr3bHeaders() : gstr2bHeaders();
-  const compareHeaders = is3b ? gstr2bHeaders() : gstr3bHeaders();
-  const invDateIdx = sourceHeaders.indexOf('Invoice Date');
-  const gstnIdx = sourceHeaders.indexOf('GSTN');
-  const invNumIdx = sourceHeaders.indexOf('Invoice Number');
-  const compareGstnIdx = compareHeaders.indexOf('GSTN');
-  const invDate = String(row[invDateIdx]).toLowerCase().trim();
-  const gstn = String(row[gstnIdx]).toLowerCase().trim();
-  const invNum = normalizeInvoiceNumber(String(row[invNumIdx]).toLowerCase().trim());
-
-  // Helper to check if compare record is unmatched
-  const isUnmatchedCompare = (index) => reconciledCompareData[index] === null;
-
-  // 1. Match - GSTN, Invoice No., Date
-  if (targetCriterion === 'Match - GSTN, Invoice No., Date') {
-    for (let i = 0; i < compareData.length; i++) {
-      if (isUnmatchedCompare(i)) {
-        const compareRow = compareData[i];
-        const compareInvDate = String(compareRow[compareHeaders.indexOf('Invoice Date')]).toLowerCase().trim();
-        const compareGstn = String(compareRow[compareGstnIdx]).toLowerCase().trim();
-        const compareInvNum = normalizeInvoiceNumber(String(compareRow[compareHeaders.indexOf('Invoice Number')]).toLowerCase().trim());
-        if (gstn === compareGstn && invNum === compareInvNum && invDate === compareInvDate) {
-          const sourceTotals = calculateRowTotals(row, is3b);
-          const compareTotals = calculateRowTotals(compareRow, !is3b);
-          if (checkTotals(sourceTotals, compareTotals, diffAllowed)) {
-            return {
-              criteria: detailedReconciliationCheckbox.checked ? 'Match - GSTN, Invoice No., Date' : 'Match',
-              matchedIndex: i
-            };
-          }
-        }
-      }
-    }
+    console.log("Totals differ, moving to next check");
+  } else {
+    console.log("No match on GSTN, InvNo, Date");
   }
 
   // 2. Match - GSTN, Invoice No.
-  if (targetCriterion === 'Match - GSTN, Invoice No.') {
-    for (let i = 0; i < compareData.length; i++) {
-      if (isUnmatchedCompare(i)) {
-        const compareRow = compareData[i];
-        const compareGstn = String(compareRow[compareGstnIdx]).toLowerCase().trim();
-        const compareInvNum = normalizeInvoiceNumber(String(compareRow[compareHeaders.indexOf('Invoice Number')]).toLowerCase().trim());
-        if (gstn === compareGstn && invNum === compareInvNum) {
-          const sourceTotals = calculateRowTotals(row, is3b);
-          const compareTotals = calculateRowTotals(compareRow, !is3b);
-          if (checkTotals(sourceTotals, compareTotals, diffAllowed)) {
-            return {
-              criteria: detailedReconciliationCheckbox.checked ? 'Match - GSTN, Invoice No.' : 'Match',
-              matchedIndex: i
-            };
-          }
-        }
-      }
+  console.log("Checking Match - GSTN, Invoice No....");
+  const invTotals = calculateTotalsByInv(sourceData, gstn, invNum, is3b);
+  const compareInvTotals = calculateTotalsByInv(compareData, gstn, invNum, !is3b);
+  if (invTotals.count > 0 && compareInvTotals.count > 0) {
+    console.log(`Found match on GSTN, InvNo. InvTotals:`, invTotals, `CompareInvTotals:`, compareInvTotals);
+    if (checkTotals(invTotals, compareInvTotals, diffAllowed)) {
+      console.log("Totals match within diffAllowed. Returning Match - GSTN, Invoice No.");
+      return detailedReconciliationCheckbox.checked ? 'Match - GSTN, Invoice No.' : 'Match';
     }
+    console.log("Totals differ, moving to next check");
+  } else {
+    console.log("No match on GSTN, InvNo");
   }
 
   // 3. Match - GSTN, Date
-  if (targetCriterion === 'Match - GSTN, Date') {
-    for (let i = 0; i < compareData.length; i++) {
-      if (isUnmatchedCompare(i)) {
-        const compareRow = compareData[i];
-        const compareInvDate = String(compareRow[compareHeaders.indexOf('Invoice Date')]).toLowerCase().trim();
-        const compareGstn = String(compareRow[compareGstnIdx]).toLowerCase().trim();
-        if (gstn === compareGstn && invDate === compareInvDate) {
-          const sourceTotals = calculateRowTotals(row, is3b);
-          const compareTotals = calculateRowTotals(compareRow, !is3b);
-          if (checkTotals(sourceTotals, compareTotals, diffAllowed)) {
-            return {
-              criteria: detailedReconciliationCheckbox.checked ? 'Match - GSTN, Date' : 'Match',
-              matchedIndex: i
-            };
-          }
-        }
-      }
+  console.log("Checking Match - GSTN, Date...");
+  const gstnDateTotals = calculateTotalsByGstnDate(sourceData, invDate, gstn, is3b);
+  const compareGstnDateTotals = calculateTotalsByGstnDate(compareData, invDate, gstn, !is3b);
+  if (gstnDateTotals.count > 0 && compareGstnDateTotals.count > 0) {
+    console.log(`Found match on GSTN, Date. GstnDateTotals:`, gstnDateTotals, `CompareGstnDateTotals:`, compareGstnDateTotals);
+    if (checkTotals(gstnDateTotals, compareGstnDateTotals, diffAllowed)) {
+      console.log("Totals match within diffAllowed. Returning Match - GSTN, Date");
+      return detailedReconciliationCheckbox.checked ? 'Match - GSTN, Date' : 'Match';
     }
+    console.log("Totals differ, moving to next check");
+  } else {
+    console.log("No match on GSTN, Date");
   }
 
   // 4. Match - GSTN
-  if (targetCriterion === 'Match - GSTN') {
-    for (let i = 0; i < compareData.length; i++) {
-      if (isUnmatchedCompare(i)) {
-        const compareRow = compareData[i];
-        const compareGstn = String(compareRow[compareGstnIdx]).toLowerCase().trim();
-        if (gstn === compareGstn) {
-          const sourceTotals = calculateRowTotals(row, is3b);
-          const compareTotals = calculateRowTotals(compareRow, !is3b);
-          if (checkTotals(sourceTotals, compareTotals, diffAllowed)) {
-            return {
-              criteria: detailedReconciliationCheckbox.checked ? 'Match - GSTN' : 'Match',
-              matchedIndex: i
-            };
-          }
-        }
-      }
+  console.log("Checking Match - GSTN...");
+  const gstnTotals = calculateTotalsByGstn(sourceData, gstn, is3b);
+  const compareGstnTotals = calculateTotalsByGstn(compareData, gstn, !is3b);
+  if (gstnTotals.count > 0 && compareGstnTotals.count > 0) {
+    console.log(`Found match on GSTN. GstnTotals:`, gstnTotals, `CompareGstnTotals:`, compareGstnTotals);
+    if (checkTotals(gstnTotals, compareGstnTotals, diffAllowed)) {
+      console.log("Totals match within diffAllowed. Returning Match - GSTN");
+      return detailedReconciliationCheckbox.checked ? 'Match - GSTN' : 'Match';
     }
+    console.log("Totals differ, moving to next check");
+  } else {
+    console.log("No match on GSTN");
   }
 
   // 5. Unmatch - GSTN Not Exist
-  if (targetCriterion === 'Unmatch - GSTN Not Exist') {
-    const gstnExists = compareData.some((r, i) => isUnmatchedCompare(i) && String(r[compareGstnIdx]).toLowerCase().trim() === gstn);
-    if (!gstnExists) {
-      return {
-        criteria: 'Unmatch - GSTN Not Exist',
-        matchedIndex: null
-      };
-    }
+  console.log("Checking Unmatch - GSTN Not Exist...");
+  const gstnExistsInCompare = compareData.some(r => String(r[compareGstnIdx]).toLowerCase().trim() === gstn);
+  if (!gstnExistsInCompare) {
+    console.log("GSTN not found in compare data. Returning Unmatch - GSTN Not Exist");
+    return 'Unmatch - GSTN Not Exist';
   }
+  console.log("GSTN exists in compare data");
 
-  // 6. Unmatch - Amt Diff
-  if (targetCriterion === 'Unmatch - Amt Diff') {
-    for (let i = 0; i < compareData.length; i++) {
-      if (isUnmatchedCompare(i)) {
-        const compareRow = compareData[i];
-        const compareGstn = String(compareRow[compareGstnIdx]).toLowerCase().trim();
-        const compareInvNum = normalizeInvoiceNumber(String(compareRow[compareHeaders.indexOf('Invoice Number')]).toLowerCase().trim());
-        if (gstn === compareGstn && invNum === compareInvNum) {
-          const sourceTotals = calculateRowTotals(row, is3b);
-          const compareTotals = calculateRowTotals(compareRow, !is3b);
-          if (!checkTotals(sourceTotals, compareTotals, diffAllowed)) {
-            return {
-              criteria: 'Unmatch - Amt Diff',
-              matchedIndex: i
-            };
-          }
-        }
-      }
+  // 6. Unmatch - Amt Diff (Check after GSTN Not Exist)
+  console.log("Checking Unmatch - Amt Diff...");
+  const amtDiffTotals = calculateTotalsByInv(sourceData, gstn, invNum, is3b);
+  const compareAmtDiffTotals = calculateTotalsByInv(compareData, gstn, invNum, !is3b);
+  if (amtDiffTotals.count > 0 && compareAmtDiffTotals.count > 0) {
+    console.log(`Found GSTN, InvNo match for Amt Diff check. Totals:`, amtDiffTotals, `CompareTotals:`, compareAmtDiffTotals);
+    if (!checkTotals(amtDiffTotals, compareAmtDiffTotals, diffAllowed)) {
+      console.log("Amounts differ beyond diffAllowed. Returning Unmatch - Amt Diff");
+      return 'Unmatch - Amt Diff';
     }
+    console.log("Amounts match within diffAllowed, moving to Unmatch");
+  } else {
+    console.log("No GSTN, InvNo match for Amt Diff");
   }
 
   // 7. Unmatch
-  if (targetCriterion === 'Unmatch') {
-    return {
-      criteria: 'Unmatch',
-      matchedIndex: null
-    };
-  }
-
-  return {
-    criteria: null,
-    matchedIndex: null
-  };
+  console.log("No match found. Returning Unmatch");
+  return 'Unmatch';
 }
 
-function calculateRowTotals(row, is3b) {
-  const headers = is3b ? gstr3bHeaders() : gstr2bHeaders();
-  const taxableIdx = headers.indexOf('Taxable Value');
-  const igstIdx = headers.indexOf('IGST');
-  const cgstIdx = headers.indexOf('CGST');
-  const sgstIdx = headers.indexOf('SGST');
-  return {
-    count: 1,
-    taxable: Number(row[taxableIdx]) || 0,
-    igst: Number(row[igstIdx]) || 0,
-    cgst: Number(row[cgstIdx]) || 0,
-    sgst: Number(row[sgstIdx]) || 0
-  };
-}
   
 
       function calculateTotals(data, invDate, gstn, invNum, is3b) {
