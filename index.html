@@ -874,7 +874,7 @@ function restrictFreeServiceFeatures() {
     ['Unmatch - GSTN Not Exist', '99NOTEXIST1234Z', 'Supplier X', 'INV007', 'Regular', '07-Mar-2025', 11800, 'Delhi', 'N', 18, 10000, 1800, 0, 0, 0, 'Mar-2025', '19-Mar-2025', 'Yes', 'N/A', 0, 'GSTR-1', 'IRN009', '08-Mar-2025'],
     ['Unmatch - GSTN Not Exist', '99NOTEXIST5678Z', 'Supplier Y', 'INV008', 'Regular', '08-Mar-2025', 5900, 'Delhi', 'N', 18, 5000, 900, 0, 0, 0, 'Mar-2025', '19-Mar-2025', 'Yes', 'N/A', 0, 'GSTR-1', 'IRN010', '09-Mar-2025'],
     // Unmatch - Amt Diff (2 entries, same invoice number, different amounts)
-    ['Unmatch - Amt Diff', '27AABCU9603R1ZM', 'Supplier A', 'INV009', 'Regular', '09-Mar-2025', 11800, 'Maharashtra', 'N', 18, 10000, 1800, 0, 0, 0, 'Mar-2025', '20-Mar-2025', 'Yes', 'N/A', 0, 'GSTR-1', 'IRN011', '10-Mar-2025'],
+    ['Unmatch - Amt Diff', '27AABCU9603R1ZM', 'Supplier A', 'INV009', 'Regular', '09-Mar-2025', 11802, 'Maharashtra', 'N', 18, 10000, 1802, 0, 0, 0, 'Mar-2025', '20-Mar-2025', 'Yes', 'N/A', 0, 'GSTR-1', 'IRN011', '10-Mar-2025'],
     ['Unmatch - Amt Diff', '27AABCU9603R1ZM', 'Supplier A', 'INV009', 'Regular', '09-Mar-2025', 5900, 'Maharashtra', 'N', 5, 5000, 250, 0, 0, 0, 'Mar-2025', '20-Mar-2025', 'Yes', 'N/A', 0, 'GSTR-1', 'IRN012', '10-Mar-2025'],
     // Unmatch (2 entries, extra invoices)
     ['Unmatch', '27AABCU9603R1ZM', 'Supplier A', 'INV010', 'Regular', '10-Mar-2025', 7080, 'Maharashtra', 'N', 18, 6000, 1080, 0, 0, 0, 'Mar-2025', '21-Mar-2025', 'Yes', 'N/A', 0, 'GSTR-1', 'IRN013', '11-Mar-2025'],
@@ -906,8 +906,8 @@ function restrictFreeServiceFeatures() {
     // Unmatch - GSTN Not Exist (1 entry, GSTN not in GSTR-2B)
     ['Unmatch - GSTN Not Exist', '07-Mar-2025', '88UNIQUE1234Z', 'Supplier Z', 'INV015', 10000, 1800, 0, 0, 11800],
     // Unmatch - Amt Diff (2 entries, same invoice number, different amounts)
-    ['Unmatch - Amt Diff', '09-Mar-2025', '27AABCU9603R1ZM', 'Supplier A', 'INV009', 12000, 2160, 0, 0, 14160], // Differs from GSTR-2B
-    ['Unmatch - Amt Diff', '09-Mar-2025', '27AABCU9603R1ZM', 'Supplier A', 'INV009', 6000, 300, 0, 0, 6300],  // Differs from GSTR-2B
+    ['Unmatch - Amt Diff', '09-Mar-2025', '27AABCU9603R1ZM', 'Supplier A', 'INV009', 10000, 1800, 0, 0, 11800], // Differs from GSTR-2B
+    ['Unmatch - Amt Diff', '09-Mar-2025', '27AABCU9603R1ZM', 'Supplier A', 'INV009', 5000, 250, 0, 0, 5250],  // Differs from GSTR-2B
     // Unmatch (2 entries, extra invoices)
     ['Unmatch', '12-Mar-2025', '33ABCDE5678F1Z5', 'Supplier C', 'INV013', 7000, 1260, 0, 0, 8260], // Extra invoice
     ['Unmatch', '13-Mar-2025', '29XYZ1234P1ZQ', 'Supplier B', 'INV014', 9000, 0, 810, 810, 10620], // Extra invoice
