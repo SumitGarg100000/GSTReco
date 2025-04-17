@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -36,7 +35,7 @@ When Detailed Reconciliation is enabled, the tool uses the following criteria:
 Match - GSTN, Invoice No., Date: Exact match on GSTN, invoice number, and date.
 Match - GSTN, Invoice No.: Match on GSTN and invoice number, with possible date differences.
 Match - GSTN, Date: Match on GSTN and date, with possible invoice number differences.
-Match - GSTN: Match only on GSTN, with difference number and date.
+Match - GSTN: Match only on GSTN, with differences in invoice number and date.
 Unmatch - GSTN Not Exist: GSTN from one sheet is not found in the other.
 Unmatch - Amt Diff: Showing unmatch invoices due to amt difference
 Unmatch: Data does not meet any match criteria, generally due to extra invoices in either GSTR-2B or GSTR-3B/Books
@@ -60,260 +59,307 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
     <style>
 
 
-      /* Reset and Base Styles */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Segoe UI', Arial, sans-serif;
-}
 
-body {
-  font-family: 'Segoe UI', Arial, sans-serif;
-  margin: 0;
-  padding: 30px;
-  background: #F8F9FA;
-  color: #333;
-}
-
-/* Container */
-.container {
-  max-width: 1300px;
-  margin: 0 auto;
-  background: #fff;
-  padding: 30px;
-  border-radius: 15px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-}
-
-/* Headings */
-h1 {
-  text-align: center;
-  color: #00796b;
-  font-size: 2.5em;
-  margin-bottom: 20px;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-h2 {
-  text-align: center;
-  color: #004d40;
-  font-size: 1.8em;
-  margin: 20px 0;
-}
-
-/* Login Section */
 #login-section {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100%; /* Login section ko pura height do */
 }
 
-.input-section {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 20px 0;
-  gap: 20px;
-}
-
-.input-section div {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-label {
-  font-weight: bold;
-  color: #00695c;
-}
-
-input[type="file"],
-input[type="number"],
-input[type="checkbox"],
-input[type="text"],
-input[type="password"] {
-  padding: 10px;
-  border: 2px solid #26a69a;
-  border-radius: 5px;
-  background: #f1f8e9;
-  transition: border-color 0.3s;
-  font-size: 1em;
-}
-
-input[type="file"]:hover,
-input[type="number"]:hover,
-input[type="text"]:hover,
-input[type="password"]:hover {
-  border-color: #00796b;
-}
-
-/* Explanation Section */
 .explanation {
   margin-top: 20px;
   padding: 20px;
   background-color: #f9f9f9;
   border: 1px solid #ddd;
   border-radius: 5px;
-  overflow-y: auto;
-  max-height: calc(100vh - 300px);
-  flex-grow: 1;
+  overflow-y: auto; /* Scrollable banao agar content zyada ho */
+  max-height: calc(100vh - 300px); /* Screen height se login form aur padding subtract karo */
+  flex-grow: 1; /* Baki space ko fill kare */
 }
 
-.explanation h2,
-.explanation h3 {
+.explanation h2, .explanation h3 {
   color: #00796b;
 }
 
-.explanation ul,
-.explanation ol {
+.explanation ul, .explanation ol {
   margin-left: 20px;
 }
 
-/* Tool Section */
-#tool-section {
-  position: relative;
-}
 
-/* Logout Button */
-#tool-section button[onclick="logout()"] {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: linear-gradient(45deg, #ff4444, #cc0000);
-  color: white;
-  padding: 8px 20px;
-  border-radius: 20px;
-  font-size: 1em;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s;
-}
 
-#tool-section button[onclick="logout()"]:hover {
-  background: linear-gradient(45deg, #cc0000, #ff4444);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-}
+      
+      .whatsapp-btn {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: #25d366;
+        color: white;
+        border-radius: 50%;
+        padding: 25px;
+        text-align: center;
+        box-shadow: 0 0 20px 10px rgba(37, 211, 102, 0.1);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        width: 100px;
+        height: 100px;
+        animation: glow 3s infinite;
+        transition: all 0.3s ease;
+      }
+      .whatsapp-btn:hover {
+        background-color: #128C7E;
+        transform: scale(1.1);
+        animation-play-state: paused;
+      }
+      .whatsapp-btn i {
+        font-size: 60px;
+        transition: transform 0.3s ease;
+      }
+      @keyframes glow {
+        0% { box-shadow: 0 0 20px 0px rgba(37, 211, 102, 0.2); transform: scale(1); }
+        50% { box-shadow: 0 0 40px 20px rgba(37, 211, 102, 0.1); transform: scale(1.05); }
+        100% { box-shadow: 0 0 20px 0px rgba(37, 211, 102, 0.2); transform: scale(1); }
+      }
+      .whatsapp-btn::after {
+        content: '';
+        position: absolute;
+        top: -10px;
+        left: -10px;
+        right: -10px;
+        bottom: -10px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(37, 211, 102, 0.15) 0%, rgba(37, 211, 102, 0) 70%);
+        animation: sparkle 3s infinite;
+      }
+      @keyframes sparkle {
+        0% { opacity: 0.3; transform: scale(0.8); }
+        50% { opacity: 0; transform: scale(1.5); }
+        100% { opacity: 0.3; transform: scale(0.8); }
+      }
+      .instructions-btn {
+        position: fixed;
+        bottom: 130px;
+        right: 20px;
+        background-color: #007bff;
+        color: white;
+        border-radius: 50%;
+        padding: 25px;
+        text-align: center;
+        box-shadow: 0 0 20px 10px rgba(0, 123, 255, 0.1);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100px;
+        height: 100px;
+        animation: glow 3s infinite;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+      }
+      .instructions-btn:hover {
+        background-color: #0056b3;
+        transform: scale(1.1);
+        animation-play-state: paused;
+      }
+      .instructions-btn i {
+        font-size: 60px;
+        transition: transform 0.3s ease;
+      }
+      .instructions-btn::after {
+        content: '';
+        position: absolute;
+        top: -10px;
+        left: -10px;
+        right: -10px;
+        bottom: -10px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(0, 123, 255, 0.15) 0%, rgba(0, 123, 255, 0) 70%);
+        animation: sparkle 3s infinite;
+      }
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 2000;
+      }
+      .modal-content {
+        background-color: #fff;
+        margin: 5% auto;
+        padding: 20px;
+        border-radius: 10px;
+        width: 80%;
+        max-width: 500px;
+        max-height: 80vh;
+        overflow-y: auto;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        position: relative;
+      }
+      .close-btn {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 24px;
+        color: #333;
+        cursor: pointer;
+        border: none;
+        background: none;
+      }
+      .close-btn:hover {
+        color: #ff0000;
+      }
+      .modal-content h2 {
+        color: #00796b;
+        margin-bottom: 15px;
+      }
+      .modal-content p {
+        line-height: 1.6;
+        color: #333;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-size: 100%;
+        font-family: inherit;
+      }
+      body {
+        font-family: 'Segoe UI', Arial, sans-serif;
+        margin: 0;
+        padding: 30px;
+        background: #F8F9FA;
+        color: #333;
+      }
+      .container {
+        max-width: 1300px;
+        margin: 0 auto;
+        background: #fff;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        text-align: center;
+        color: #00796b;
+        font-size: 2.5em;
+        margin-bottom: 20px;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+      }
+      h2 {
+        text-align: center;
+        color: #004d40;
+        font-size: 1.8em;
+        margin: 20px 0;
+      }
+      .upload-section, .input-section {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 20px 0;
+        gap: 20px;
+      }
+      .upload-section div, .input-section div {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      label {
+        font-weight: bold;
+        color: #00695c;
+      }
+      input[type="file"], input[type="number"], input[type="checkbox"], input[type="text"], input[type="password"] {
+        padding: 10px;
+        border: 2px solid #26a69a;
+        border-radius: 5px;
+        background: #f1f8e9;
+        transition: border-color 0.3s;
+        font-size: 1em;
+      }
+      input[type="file"]:hover, input[type="number"]:hover, input[type="text"]:hover, input[type="password"]:hover {
+        border-color: #00796b;
+      }
+      .data-container {
+        margin: 30px 0;
+      }
+      .table-container {
+    overflow-x: auto;
+    overflow-y: auto;
+    max-height: 1200px; /* Adjusted for ~50 rows */
+    margin: 10px 0;
+    border: 1px solid #b0bec5;
+    border-radius: 8px;
+    padding: 15px;
+    background: #fafafa;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    position: relative;
+  }
 
-/* Button Container */
-.button-container {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin: 20px 0;
-  flex-wrap: wrap;
-}
+  table thead th {
+    position: sticky;
+    top: 0;
+    background: #e0ffff;
+    z-index: 10;
+    border-bottom: 1px solid #cfd8dc;
+  }
 
-.button-container button {
-  padding: 12px 30px;
-  border: none;
-  border-radius: 25px;
-  color: white;
-  font-size: 1.1em;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-#download-sample-btn {
-  background: linear-gradient(45deg, #0288d1, #0277bd);
-}
-
-#download-sample-btn:hover {
-  background: linear-gradient(45deg, #0277bd, #0288d1);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
-}
-
-#reconcile-btn {
-  background: linear-gradient(45deg, #26a69a, #00796b);
-}
-
-#reconcile-btn:hover {
-  background: linear-gradient(45deg, #00796b, #26a69a);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
-}
-
-#reset-btn {
-  background: linear-gradient(45deg, #ff4444, #cc0000);
-}
-
-#reset-btn:hover {
-  background: linear-gradient(45deg, #cc0000, #ff4444);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
-}
-
-/* Options Tab */
-.options-tab {
-  background: #e0f7fa;
-  padding: 20px;
-  border-radius: 8px;
-  margin: 20px 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  justify-content: center;
-  align-items: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.options-tab div {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.options-tab label {
-  font-size: 1em;
-  color: #004d40;
-}
-
-.options-tab input[type="checkbox"] {
-  transform: scale(1.2);
-}
-
-/* Table Styles */
-.data-container {
-  margin: 30px 0;
-}
-
-.table-container {
-  overflow-x: auto;
-  overflow-y: auto;
-  max-height: 1200px;
-  margin: 10px 0;
-  border: 1px solid #b0bec5;
-  border-radius: 8px;
-  padding: 15px;
-  background: #fafafa;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-}
-
-th, td {
-  border: 1px solid #cfd8dc;
-  padding: 12px;
-  text-align: left;
-}
-
-th {
-  background: #e0ffff;
-  color: #004d40;
-  font-weight: bold;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
-/* Color Coding */
-.match-gstn-inv-date { background-color: #00ced1 !important; color: white !important; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin-top: 0;
+  }
+      th, td {
+        border: 1px solid #cfd8dc;
+        padding: 12px;
+        text-align: left;
+        font-size: 14px;
+      }
+      th {
+        background: #e0ffff;
+        color: #004d40;
+        font-weight: bold;
+      }
+      button {
+        display: inline-block;
+        margin: 10px;
+        padding: 12px 30px;
+        background: linear-gradient(45deg, #26a69a, #00796b);
+        color: white;
+        border: none;
+        border-radius: 25px;
+        cursor: pointer;
+        font-size: 1.1em;
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+      button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+      }
+      #reset-btn {
+        background: linear-gradient(45deg, #ff4444, #cc0000);
+      }
+      #reset-btn:hover {
+        background: linear-gradient(45deg, #cc0000, #ff4444);
+      }
+      a#download-sample, a#download-output {
+        display: block;
+        text-align: center;
+        margin: 20px auto;
+        color: #00796b;
+        text-decoration: none;
+        font-weight: bold;
+        transition: color 0.3s;
+      }
+      a#download-sample:hover, a#download-output:hover {
+        color: #004d40;
+      }
+      .match-gstn-inv-date { background-color: #00ced1 !important; color: white !important; }
 .match-inv { background-color: #4b0082 !important; color: white !important; }
 .match-gstn-date { background-color: #32cd32 !important; color: white !important; }
 .match-gstn { background-color: #ffbf00 !important; }
@@ -321,8 +367,73 @@ th {
 .amt-diff { background-color: #ff4500 !important; color: white !important; }
 .no-match { background-color: #ff00ff !important; color: white !important; }
 .match { background-color: #00ced1 !important; color: white !important; }
-
-/* Filter Dropdown */
+      [contenteditable="true"], [contenteditable="true"] * {
+        font-size: 9px !important;
+      }
+      #summary-container table th, #summary-container table td,
+      #summary-container table th *, #summary-container table td * {
+        font-size: 9px !important;
+      }
+      footer {
+        background: #2C3E50;
+        color: #FFFFFF;
+        padding: 1rem;
+        width: 100%;
+      }
+      .footer-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        text-align: center;
+      }
+      .footer-links {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin: 1rem 0;
+        flex-wrap: wrap;
+      }
+      .footer-links a {
+        color: #FFFFFF;
+        text-decoration: none;
+        opacity: 0.9;
+        transition: opacity 0.3s ease;
+      }
+      .footer-links a:hover {
+        opacity: 1;
+        text-decoration: underline;
+      }
+      #login-section, #tool-section {
+        transition: opacity 0.5s;
+      }
+      #login-section.hidden, #tool-section.hidden {
+        display: none;
+      }
+      #error {
+        color: red;
+        text-align: center;
+        margin-top: 10px;
+      }
+      .button-container {
+        text-align: center;
+        margin: 30px 0;
+      }
+      @media (max-width: 768px) {
+        .upload-section, .input-section { flex-direction: column; }
+        .container { padding: 20px; }
+        h1 { font-size: 2em; }
+        [contenteditable="true"], [contenteditable="true"] * { font-size: 14px !important; }
+        #summary-container table th, #summary-container table td,
+        #summary-container table th *, #summary-container table td * { font-size: 14px !important; }
+        footer { padding: 0.75rem; }
+        .footer-links { gap: 1.5rem; }
+      }
+      @media (max-width: 480px) {
+        .footer-links { flex-direction: column; gap: 0.5rem; }
+      }
+    </style>
+   
+   <style>
+/* Existing Filter Dropdown Styles */
 .filter-dropdown {
   position: relative;
   display: inline-block;
@@ -355,6 +466,7 @@ th {
   display: block;
 }
 
+/* Sort Actions Styling */
 .sort-actions {
   padding: 5px;
   border-top: 1px solid #b0bec5;
@@ -368,150 +480,14 @@ th {
   border: none;
   padding: 5px 10px;
   margin: 0 2px;
-  radial-gradient(circle, rgba(0, 123, 255, 0.15) 0%, rgba(0, 123, 255, 0) 70%);
-  animation: sparkle 3s infinite;
-}
-
-.modal {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 2000;
-}
-
-.modal-content {
-  background-color: #fff;
-  margin: 5% auto;
-  padding: 20px;
-  border-radius: 10px;
-  width: 80%;
-  max-width: 500px;
-  max-height: 80vh;
-  overflow-y: auto;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  position: relative;
-}
-
-.close-btn {
-  position: absolute;
-  top: 10px;
-  right: 15px;
-  font-size: 24px;
-  color: #333;
+  border-radius: 4px;
   cursor: pointer;
-  border: none;
-  background: none;
+  font-size: 12px;
 }
 
-.close-btn:hover {
-  color: #ff0000;
+.sort-actions button:hover {
+  background: #004d40;
 }
-
-.modal-content h2 {
-  color: #00796b;
-  margin-bottom: 15px;
-}
-
-.modal-content p {
-  line-height: 1.6;
-  color: #333;
-}
-
-/* Footer */
-footer {
-  background: #2C3E50;
-  color: #FFFFFF;
-  padding: 1rem;
-  width: 100%;
-}
-
-.footer-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  text-align: center;
-}
-
-.footer-links {
-  display: flex;
-  justify-content: center;
-  gap: 2rem;
-  margin: 1rem 0;
-  flex-wrap: wrap;
-}
-
-.footer-links a {
-  color: #FFFFFF;
-  text-decoration: none;
-  opacity: 0.9;
-  transition: opacity 0.3s ease;
-}
-
-.footer-links a:hover {
-  opacity: 1;
-  text-decoration: underline;
-}
-
-/* Error Message */
-#error {
-  color: red;
-  text-align: center;
-  margin-top: 10px;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .button-container {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .options-tab {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .container {
-    padding: 20px;
-  }
-
-  h1 {
-    font-size: 2em;
-  }
-
-  [contenteditable="true"],
-  [contenteditable="true"] * {
-    font-size: 14px !important;
-  }
-
-  #summary-container table th,
-  #summary-container table td,
-  #summary-container table th *,
-  #summary-container table td * {
-    font-size: 14px !important;
-  }
-
-  footer {
-    padding: 0.75rem;
-  }
-
-  .footer-links {
-    gap: 1.5rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .footer-links {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-}
-
-
-
 </style>
 
    
@@ -593,46 +569,54 @@ footer {
         
       </div>
 
-<!-- Tool Section -->
-<div id="tool-section" class="hidden">
-  <h1>GST Reconciliation Tool</h1>
-  <button onclick="logout()">Logout</button>
-  <div class="button-container">
-    <button id="download-sample-btn" onclick="generateSampleFile(event)">Download Sample Excel File</button>
-    <button id="reconcile-btn">Reconcile</button>
-    <button id="reset-btn">Reset Data</button>
-  </div>
-  <div class="options-tab">
-    <div>
-      <label for="gst-file">Upload GST Data File (GSTR-2B & GSTR-3B):</label>
-      <input type="file" id="gst-file" accept=".xlsx">
-    </div>
-    <div>
-      <label for="diff-allowed">Difference Allowed (Default: 1):</label>
-      <input type="number" id="diff-allowed" value="1" min="0" placeholder="0 if blank">
-    </div>
-    <div>
-      <input type="checkbox" id="detailed-reconciliation" name="detailed-reconciliation">
-      <label for="detailed-reconciliation">Detailed Reconciliation</label>
-    </div>
-    <div>
-      <input type="checkbox" id="enable-filter" name="enable-filter">
-      <label for="enable-filter">Enable Filters</label>
-    </div>
-  </div>
-  <div class="data-container">
-    <h2>GSTR-2B Data</h2>
-    <div id="gstr2b-container" class="table-container"></div>
-    <h2>Client Data</h2>
-    <div id="gstr3b-container" class="table-container"></div>
-    <h2>Summary</h2>
-    <div id="summary-container" class="table-container"></div>
-  </div>
-  <div id="output-link" style="display: none;">
-    <h3>Reconciled Output:</h3>
-    <a id="download-output" href="#">Download Reconciled Data</a>
-  </div>
+      <!-- Tool Section -->
+      <div id="tool-section" class="hidden">
+        <h1>GST Reconciliation Tool</h1>
+        <button onclick="logout()">Logout</button>
+        <div class="button-style" style="display: flex; justify-content: center; gap: 10px; margin: 20px 0;">
+  <button id="download-sample" onclick="generateSampleFile(event)">Download Sample Excel File</button>
+  <button id="reconcile-btn">Reconcile</button>
+  <button id="reset-btn">Reset Data</button>
 </div>
+        <div class="input-section">
+          <div>
+            <label for="diff-allowed">Difference Allowed (Default: 1):</label>
+            <input type="number" id="diff-allowed" value="1" min="0" placeholder="0 if blank">
+          </div>
+        </div>
+        <div class="upload-section">
+          <div>
+            <label for="gst-file">Upload GST Data File (GSTR-2B & GSTR-3B):</label>
+            <input type="file" id="gst-file" accept=".xlsx">
+          </div>
+        </div>
+        <div style="text-align: center; margin: 10px 0;">
+          <input type="checkbox" id="detailed-reconciliation" name="detailed-reconciliation">
+          <label for="detailed-reconciliation">Detailed Reconciliation</label>
+        </div>
+
+        <div style="text-align: center; margin: 10px 0;">
+  <input type="checkbox" id="enable-filter" name="enable-filter">
+  <label for="enable-filter">Enable Filters</label>
+        </div>
+        <div class="data-container">
+          <h2>GSTR-2B Data</h2>
+          <div id="gstr2b-container" class="table-container"></div>
+          <h2>Client Data</h2>
+          <div id="gstr3b-container" class="table-container"></div>
+          <h2>Summary</h2>
+          <div id="summary-container" class="table-container"></div>
+        </div>
+        <div class="button-container">
+
+
+          
+        </div>
+        <div id="output-link" style="display: none;">
+          <h3>Reconciled Output:</h3>
+          <a id="download-output" href="#">Download Reconciled Data</a>
+        </div>
+      </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -856,28 +840,14 @@ function restrictFreeServiceFeatures() {
         document.getElementById('diff-allowed').value = '1';
       }
 
-      function formatDate(dateInput) {
-  if (!dateInput) return '';
-  
-  let date;
-  // Handle Excel serial number
-  if (typeof dateInput === 'number' && dateInput > 40000 && dateInput < 50000) {
-    date = new Date((dateInput - 25569) * 86400 * 1000);
-  } else {
-    // Handle string date (e.g., "01-Mar-2025", "2025-03-01", or other formats)
-    date = new Date(String(dateInput).replace(/(\d{2})-(\w{3})-(\d{4})/, '$2 $1 $3')); // Convert dd-mmm-yyyy to parsable format
-    if (isNaN(date.getTime())) {
-      date = new Date(dateInput); // Try parsing other formats
-    }
-  }
-  
-  if (isNaN(date.getTime())) return String(dateInput); // Return original if invalid
-  
-  const day = String(date.getUTCDate()).padStart(2, '0');
-  const month = date.toLocaleString('en-US', { month: 'short' }); // e.g., "Mar"
-  const year = date.getUTCFullYear();
-  return `${day}-${month}-${year}`;
-}
+      function formatDate(excelDate) {
+        if (!excelDate) return '';
+        const date = new Date((excelDate - 25569) * 86400 * 1000);
+        const day = String(date.getUTCDate()).padStart(2, '0');
+        const month = date.toUTCString().slice(8, 11);
+        const year = date.getUTCFullYear();
+        return `${day}-${month}-${year}`;
+      }
 
       const baseGstr2bHeaders = ['Match Criteria', 'GSTN', 'Name of Supplier', 'Invoice Number', 'Invoice type', 'Invoice Date', 'Invoice Value', 'Place of supply', 'Reverse Charge', 'Rate (%)', 'Taxable Value', 'IGST', 'CGST', 'SGST'];
       const extendedGstr2bHeaders = ['Cess', 'GSTR-1/5 Period', 'GSTR-1/5 Filing Date', 'ITC Availability', 'Reason', 'Applicable % of Tax Rate', 'Source', 'IRN', 'IRN Date'];
@@ -1007,12 +977,10 @@ function restrictFreeServiceFeatures() {
   html += '</tr></thead><tbody>';
   data.forEach((row, rowIndex) => {
     html += `<tr data-row="${rowIndex}" data-sheet="${sheetType}">`;
-    headers.forEach((header, colIndex) => {
+    headers.forEach((_, colIndex) => {
       const cell = row[colIndex];
-      // Apply formatDate for Invoice Date column
-      const isDateColumn = header === 'Invoice Date';
-      const value = isDateColumn ? formatDate(cell) : (cell === undefined || cell === null ? '' : cell);
-      const isEditable = colIndex > 0 && !isFreeService;
+      const value = typeof cell === 'number' && (cell > 40000 && cell < 50000) ? formatDate(cell) : (cell === undefined || cell === null ? '' : cell);
+      const isEditable = colIndex > 0 && !isFreeService; // Only editable for normal users
       html += `<td contenteditable="${isEditable}" data-col="${colIndex}">${value}</td>`;
     });
     html += '</tr>';
@@ -1029,7 +997,7 @@ function restrictFreeServiceFeatures() {
     cells.forEach(cell => {
       cell.setAttribute("contenteditable", "false");
     });
-    applyFreeServiceColors();
+    applyFreeServiceColors(); // Colors apply karo
   }
 }
 
@@ -1119,6 +1087,7 @@ function refreshFilters(containerId) {
     return invNum.replace(/[\s\/\\.,"?\']/g, '');
 }
       
+
 function findMatch(row, sourceData, compareData, is3b, diffAllowed) {
   const sourceHeaders = is3b ? gstr3bHeaders() : gstr2bHeaders();
   const compareHeaders = is3b ? gstr2bHeaders() : gstr3bHeaders();
@@ -1126,10 +1095,9 @@ function findMatch(row, sourceData, compareData, is3b, diffAllowed) {
   const gstnIdx = sourceHeaders.indexOf('GSTN');
   const invNumIdx = sourceHeaders.indexOf('Invoice Number');
   const compareGstnIdx = compareHeaders.indexOf('GSTN');
-  const invDate = formatDate(row[invDateIdx]).toLowerCase().trim(); // Normalize date
+  const invDate = String(row[invDateIdx]).toLowerCase().trim();
   const gstn = String(row[gstnIdx]).toLowerCase().trim();
   const invNum = normalizeInvoiceNumber(String(row[invNumIdx]).toLowerCase().trim());
-
 
   // Debugging: Log input values
   console.log(`Processing row: GSTN=${gstn}, InvNo=${invNum}, Date=${invDate}, is3b=${is3b}`);
