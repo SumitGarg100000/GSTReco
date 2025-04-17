@@ -347,7 +347,7 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
       #reset-btn:hover {
         background: linear-gradient(45deg, #cc0000, #ff4444);
       }
-      #download-sample-btn {
+      #download-sample, #download-output{
     padding: 12px 30px;
     border: none;
     border-radius: 25px;
@@ -357,7 +357,7 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
     background: linear-gradient(45deg, #0288d1, #0277bd);
     transition: all 0.2s;
 }
-#download-sample-btn:hover {
+#download-sample, #download-output :hover {
     background: linear-gradient(45deg, #0277bd, #0288d1);
     transform: translateY(-2px);
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
@@ -578,6 +578,9 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
         <button onclick="logout()">Logout</button>
         <div>
     <button id="download-sample" onclick="generateSampleFile(event)">Download Sample Excel File</button>
+          <button id="reconcile-btn">Reconcile</button>
+          <button id="reset-btn">Reset Data</button>
+          <button id="download-output" onclick="downloadOutput(event)">Download Reconciled Data</button>
     
   </div>
         <div class="input-section">
@@ -610,8 +613,7 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
           <div id="summary-container" class="table-container"></div>
         </div>
         <div class="button-container">
-          <button id="reconcile-btn">Reconcile</button>
-          <button id="reset-btn">Reset Data</button>
+          
         </div>
         <div id="output-link" style="display: none;">
           <h3>Reconciled Output:</h3>
