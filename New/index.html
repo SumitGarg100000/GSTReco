@@ -574,7 +574,7 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
         <h1>GST Reconciliation Tool</h1>
         <button onclick="logout()">Logout</button>
         <div class="button-style" style="display: flex; justify-content: center; gap: 10px; margin: 20px 0;">
-  <button id="download-sample" onclick="generateSampleFile(event)">Download Sample Excel File</button>
+  <button id="download-sample">Download Sample Excel File</button>
   <button id="reconcile-btn">Reconcile</button>
   <button id="reset-btn">Reset Data</button>
 </div>
@@ -614,7 +614,7 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
         </div>
         <div id="output-link" style="display: none;">
           <h3>Reconciled Output:</h3>
-          <a id="download-output" href="#">Download Reconciled Data</a>
+          <button id="download-output" href="#">Download Reconciled Data</button>
         </div>
       </div>
     </div>
