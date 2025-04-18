@@ -563,6 +563,9 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
     <li><strong>Unmatch - Amt Diff</strong>: GSTN and Invoice Number match, but amounts (Taxable Value, IGST, CGST, SGST) differ by more than the allowed difference.</li>
     <li><strong>Unmatch</strong>: Data does not meet any match criteria, generally due to extra invoices in either GSTR-2B or GSTR-3B/Books</li>
   </ul>
+<h3>Watch Tutorial Video</h3>
+  <p>Check out our step-by-step tutorial video on YouTube to learn how to use the GST Reconciliation Tool effectively:</p>
+  <p><a href="https://www.youtube.com/watch?v=your-video-id" class="youtube-link" target="_blank" rel="noopener noreferrer">Watch the GST Reconciliation Tutorial on YouTube</a></p>
 </div>
 
 
@@ -573,11 +576,7 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
       <div id="tool-section" class="hidden">
         <h1>GST Reconciliation Tool</h1>
         <button onclick="logout()">Logout</button>
-        <div class="button-style" style="display: flex; justify-content: center; gap: 10px; margin: 20px 0;">
-  <button id="download-sample">Download Sample Excel File</button>
-  <button id="reconcile-btn">Reconcile</button>
-  <button id="reset-btn">Reset Data</button>
-</div>
+        <a href="#" id="download-sample">Download Sample Excel File</a>
         <div class="input-section">
           <div>
             <label for="diff-allowed">Difference Allowed (Default: 1):</label>
@@ -608,9 +607,8 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
           <div id="summary-container" class="table-container"></div>
         </div>
         <div class="button-container">
-
-
-          
+          <button id="reconcile-btn">Reconcile</button>
+          <button id="reset-btn">Reset Data</button>
         </div>
         <div id="output-link" style="display: none;">
           <h3>Reconciled Output:</h3>
@@ -641,13 +639,22 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
 
   // ***Change 1: Page Load Check ko Improve Karna***
   document.addEventListener("DOMContentLoaded", function() {
-    const loggedInUser = localStorage.getItem("loggedInUser");
-    if (loggedInUser && checkSubscription(loggedInUser)) { // <--- Highlight: Condition Simplified
-      showTool(); // Agar user logged in hai aur subscription valid hai, to tool dikhao
+  const loggedInUser = localStorage.getItem("loggedInUser");
+  const isFreeService = localStorage.getItem("isFreeService") === "true";
+  
+  if (loggedInUser) {
+    if (isFreeService) {
+      showTool(); // Free service user, show tool directly
+      restrictFreeServiceFeatures(); // Apply free service restrictions
+    } else if (checkSubscription(loggedInUser)) {
+      showTool(); // Normal user with valid subscription
     } else {
-      showLogin(); // Warna login page dikhao
+      showLogin(); // Subscription expired, show login
     }
-  });
+  } else {
+    showLogin(); // No user logged in, show login
+  }
+});
 
   // Login Function (No Change Needed)
   function login() {
@@ -683,16 +690,12 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
   document.getElementById("error").textContent = ""; // Clear error message if any
 }
 
-  
-  // Check Subscription Expiry
-function checkSubscription(username) {
-  if (username === "freeServiceUser") {
-    return true; // Free service users ke liye hamesha valid subscription
+  // Check Subscription Expiry (No Change Needed)
+  function checkSubscription(username) {
+    const expiryDate = new Date(users[username].expiry);
+    const today = new Date();
+    return today <= expiryDate;
   }
-  const expiryDate = new Date(users[username]?.expiry);
-  const today = new Date();
-  return today <= expiryDate;
-}
 
   // Logout Function (No Change Needed)
   function logout() {
