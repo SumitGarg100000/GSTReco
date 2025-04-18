@@ -835,27 +835,19 @@ function restrictFreeServiceFeatures() {
         document.getElementById('diff-allowed').value = '1';
       }
 
-      // ***Change: Enhanced formatDate to handle numeric and string inputs***
-function formatDate(dateInput) {
-  if (!dateInput) return '';
+      function formatDate(excelDate) {
+  if (!excelDate) return '';
   
-  let date;
-  // Handle Excel serial number
-  if (typeof dateInput === 'number' && dateInput > 40000 && dateInput < 50000) {
-    date = new Date((dateInput - 25569) * 86400 * 1000);
-  } else {
-    // Handle string date (e.g., "01-Mar-2025", "2025-03-01", or other formats)
-    date = new Date(String(dateInput).replace(/(\d{2})-(\w{3})-(\d{4})/, '$2 $1 $3')); // Convert dd-mmm-yyyy to parsable format
-    if (isNaN(date.getTime())) {
-      date = new Date(dateInput); // Try parsing other formats
-    }
-  }
+  // Handle both Excel serial dates and string dates
+  const date = typeof excelDate === 'number' ? 
+    new Date((excelDate - 25569) * 86400 * 1000) :
+    new Date(excelDate);
   
-  if (isNaN(date.getTime())) return String(dateInput); // Return original if invalid
+  const day = String(date.getDate()).padStart(2, '0');
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const month = monthNames[date.getMonth()];
+  const year = date.getFullYear();
   
-  const day = String(date.getUTCDate()).padStart(2, '0');
-  const month = date.toLocaleString('en-US', { month: 'short' }); // e.g., "Mar"
-  const year = date.getUTCFullYear();
   return `${day}-${month}-${year}`;
 }
 
@@ -959,7 +951,7 @@ function formatDate(dateInput) {
         const reader = new FileReader();
         reader.onload = function(e) {
           const data = new Uint8Array(e.target.result);
-          const workbook = XLSX.read(data, { type: 'array', dateNF: 'dd-mmm-yyyy' });
+          const workbook = XLSX.read(data, { type: 'array', cellDates:true, dateNF: 'dd-mmm-yyyy' });
           const gstr2bSheet = workbook.Sheets['GST Portal'];
           if (gstr2bSheet) {
             const rawData = XLSX.utils.sheet_to_json(gstr2bSheet, { header: 1, raw: true, defval: '' });
@@ -1098,7 +1090,6 @@ function refreshFilters(containerId) {
 }
       
 
-// ***Change: Normalize Invoice Date to dd-mmm-yyyy for consistent comparison***
 function findMatch(row, sourceData, compareData, is3b, diffAllowed) {
   const sourceHeaders = is3b ? gstr3bHeaders() : gstr2bHeaders();
   const compareHeaders = is3b ? gstr2bHeaders() : gstr3bHeaders();
@@ -1106,10 +1097,10 @@ function findMatch(row, sourceData, compareData, is3b, diffAllowed) {
   const gstnIdx = sourceHeaders.indexOf('GSTN');
   const invNumIdx = sourceHeaders.indexOf('Invoice Number');
   const compareGstnIdx = compareHeaders.indexOf('GSTN');
-  const invDate = formatDate(row[invDateIdx]).toLowerCase().trim(); // Normalize date
+  const invDate = String(row[invDateIdx]).toLowerCase().trim();
   const gstn = String(row[gstnIdx]).toLowerCase().trim();
   const invNum = normalizeInvoiceNumber(String(row[invNumIdx]).toLowerCase().trim());
-  
+
   // Debugging: Log input values
   console.log(`Processing row: GSTN=${gstn}, InvNo=${invNum}, Date=${invDate}, is3b=${is3b}`);
 
@@ -1480,21 +1471,29 @@ function findMatch(row, sourceData, compareData, is3b, diffAllowed) {
         headerRow1.eachCell(cell => {
           cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0FFFF' } };
         });
-        reconciled2bData.forEach(row => {
-          const excelRow = row.map(cell => cell === undefined || cell === null ? '' : cell);
-          const addedRow = ws1.addRow(excelRow);
-          applyExcelRowColor(addedRow, row[0], gstr2bHeaders().length);
-        });
-        const ws2 = workbook.addWorksheet('Client Data');
-        const headerRow2 = ws2.addRow(gstr3bHeaders());
-        headerRow2.eachCell(cell => {
-          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0FFFF' } };
-        });
-        reconciled3bData.forEach(row => {
-          const excelRow = row.map(cell => cell === undefined || cell === null ? '' : cell);
-          const addedRow = ws2.addRow(excelRow);
-          applyExcelRowColor(addedRow, row[0], gstr3bHeaders().length);
-        });
+        
+reconciled2bData.forEach(row => {
+  const excelRow = row.map((cell, index) => {
+    if (index === 5) { // Assuming date is at index 5 in GSTR-2B
+      return formatDate(cell); // Format the date before writing to Excel
+    }
+    return cell === undefined || cell === null ? '' : cell;
+  });
+  const addedRow = ws1.addRow(excelRow);
+  applyExcelRowColor(addedRow, row[0], gstr2bHeaders().length);
+});
+
+reconciled3bData.forEach(row => {
+  const excelRow = row.map((cell, index) => {
+    if (index === 1) { // Assuming date is at index 1 in GSTR-3B
+      return formatDate(cell); // Format the date before writing to Excel
+    }
+    return cell === undefined || cell === null ? '' : cell;
+  });
+  const addedRow = ws2.addRow(excelRow);
+  applyExcelRowColor(addedRow, row[0], gstr3bHeaders().length);
+});
+        
         const ws3 = workbook.addWorksheet('Summary');
         const summaryHeader1 = ws3.addRow(['Particulars', 'GST Portal', '', '', '', 'Client Data', '', '', '']);
         const summaryHeader2 = ws3.addRow(['', 'Taxable Value', 'IGST', 'CGST', 'SGST', 'Taxable Value', 'IGST', 'CGST', 'SGST']);
@@ -1852,21 +1851,17 @@ document.addEventListener('click', function (event) {
 });
 
 // Update displayData to Reapply Filters
-// ***Change: Apply formatDate to Invoice Date column for consistent dd-mmm-yyyy format***
 function displayData(data, containerId, headers, sheetType) {
   const container = document.getElementById(containerId);
-  const isFreeService = localStorage.getItem("isFreeService") === "true";
   let html = '<table><thead><tr>';
   headers.forEach(header => html += `<th>${header}</th>`);
   html += '</tr></thead><tbody>';
   data.forEach((row, rowIndex) => {
     html += `<tr data-row="${rowIndex}" data-sheet="${sheetType}">`;
-    headers.forEach((header, colIndex) => {
+    headers.forEach((_, colIndex) => {
       const cell = row[colIndex];
-      // Apply formatDate for Invoice Date column
-      const isDateColumn = header === 'Invoice Date';
-      const value = isDateColumn ? formatDate(cell) : (cell === undefined || cell === null ? '' : cell);
-      const isEditable = colIndex > 0 && !isFreeService;
+      const value = typeof cell === 'number' && (cell > 40000 && cell < 50000) ? formatDate(cell) : (cell === undefined || cell === null ? '' : cell);
+      const isEditable = colIndex > 0;
       html += `<td contenteditable="${isEditable}" data-col="${colIndex}">${value}</td>`;
     });
     html += '</tr>';
@@ -1876,15 +1871,6 @@ function displayData(data, containerId, headers, sheetType) {
   const table = container.querySelector('table');
   table.addEventListener('input', handleCellEdit);
   if (filterEnabled) toggleFilters(); // Reapply filters if enabled
-  
-  // Apply free service restrictions and colors
-  if (isFreeService) {
-    const cells = table.querySelectorAll("td");
-    cells.forEach(cell => {
-      cell.setAttribute("contenteditable", "false");
-    });
-    applyFreeServiceColors();
-  }
 }
 </script>
 
