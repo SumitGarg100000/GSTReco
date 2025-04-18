@@ -347,7 +347,7 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
       #reset-btn:hover {
         background: linear-gradient(45deg, #cc0000, #ff4444);
       }
-      a#download-sample, a#download-output {
+      #download-sample, a#download-output {
         display: block;
         text-align: center;
         margin: 20px auto;
@@ -566,6 +566,7 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
     <li><strong>Unmatch - Amt Diff</strong>: GSTN and Invoice Number match, but amounts (Taxable Value, IGST, CGST, SGST) differ by more than the allowed difference.</li>
     <li><strong>Unmatch</strong>: Data does not meet any match criteria, generally due to extra invoices in either GSTR-2B or GSTR-3B/Books</li>
   </ul>
+<h3> Associated with www.ajaydkumar.com</h3>
 </div>
 
 
@@ -576,7 +577,9 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
       <div id="tool-section" class="hidden">
         <h1>GST Reconciliation Tool</h1>
         <button onclick="logout()">Logout</button>
-        <a href="#" id="download-sample">Download Sample Excel File</a>
+        <div class="button-style" style="display: flex; justify-content: center; gap: 10px; margin: 20px 0;">
+  <button id="download-sample">Download Sample Excel File</button>
+</div>
         <div class="input-section">
           <div>
             <label for="diff-allowed">Difference Allowed (Default: 1):</label>
@@ -626,13 +629,9 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
         "user1": { password: "pass123", expiry: "2025-04-30" },
         "user2": { password: "pass456", expiry: "2025-05-15" }
       };
-    </script>
     
   
-    
-
-<script>
-        //   if (window.location.href.toLowerCase(). includes("https://sumitgarg100000.github.io/GSTReconciliation/")) {
+          if (window.location.href.toLowerCase(). includes("https://sumitgarg100000.github.io/gstreconciliation/")) {
        let gstr2bData = localStorage.getItem('gstr2bData') ? JSON.parse(localStorage.getItem('gstr2bData')) : [];
   let gstr3bData = localStorage.getItem('gstr3bData') ? JSON.parse(localStorage.getItem('gstr3bData')) : [];
   const detailedReconciliationCheckbox = document.getElementById('detailed-reconciliation');
@@ -1574,11 +1573,9 @@ function findMatch(row, sourceData, compareData, is3b, diffAllowed) {
   }
 }
 
-//      }   else      {       alert("Don't waste your time for copying. This file is fully secured by Sumit Garg. If any query, Contact - Sumit Garg, Ph. No. - 9716804520, Email - SumitGarg100000@Gmail.com ");     }
+      }   else      {       alert("This GST Reconciliation Tool is fully secured by Sumit Garg. If not working then Contact - Sumit Garg, Ph. No. - 9716804520, Email - SumitGarg100000@Gmail.com ");     }
       
-    </script>
-
-<script>
+    
 
   // Filter State
 let filterEnabled = false;
