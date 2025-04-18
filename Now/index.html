@@ -1,4 +1,5 @@
-q<!DOCTYPE html>
+
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8">
@@ -659,7 +660,8 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
       document.getElementById("username").value = "";
       document.getElementById("password").value = "";
       error.textContent = ""; // Clear error message if any
-    } else {
+
+          } else {
       error.textContent = "Your subscription has expired!";
     }
   } else {
@@ -835,13 +837,77 @@ function restrictFreeServiceFeatures() {
         document.getElementById('diff-allowed').value = '1';
       }
 
-      function formatDate(excelDate) {
-        if (!excelDate) return '';
-        const date = new Date((excelDate - 25569) * 86400 * 1000);
-        const day = String(date.getUTCDate()).padStart(2, '0');
-        const month = date.toUTCString().slice(8, 11);
-        const year = date.getUTCFullYear();
+      // New improved formatDate function
+      function formatDate(dateValue) {
+        if (!dateValue) return '';
+        
+        let date;
+        // Handle Excel date numbers
+        if (typeof dateValue === 'number' && dateValue > 0) {
+          date = new Date((dateValue - 25569) * 86400 * 1000);
+        } 
+        // Handle date strings in various formats
+        else if (typeof dateValue === 'string') {
+          // Try to parse the date string
+          const parts = dateValue.split(/[-\/\.]/);
+          if (parts.length === 3) {
+            // Check if the first part is day (1-31)
+            if (parseInt(parts[0]) >= 1 && parseInt(parts[0]) <= 31) {
+              // Try to create a valid date object
+              date = new Date(parts[2], getMonthIndex(parts[1]), parts[0]);
+            } else {
+              // Otherwise, use standard date parsing
+              date = new Date(dateValue);
+            }
+          } else {
+            // For other formats, use standard date parsing
+            date = new Date(dateValue);
+          }
+        } else {
+          return dateValue;
+        }
+        
+        // Check if date is valid
+        if (isNaN(date.getTime())) return dateValue;
+        
+        // Format as dd-mmm-yyyy
+        const day = String(date.getDate()).padStart(2, '0');
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const month = monthNames[date.getMonth()];
+        const year = date.getFullYear();
+        
         return `${day}-${month}-${year}`;
+      }
+
+      // Helper function to convert month name or number to index
+      function getMonthIndex(month) {
+        const monthNames = {
+          'jan': 0, 'january': 0, '01': 0, '1': 0,
+          'feb': 1, 'february': 1, '02': 1, '2': 1,
+          'mar': 2, 'march': 2, '03': 2, '3': 2,
+          'apr': 3, 'april': 3, '04': 3, '4': 3,
+          'may': 4, '05': 4, '5': 4,
+          'jun': 5, 'june': 5, '06': 5, '6': 5,
+          'jul': 6, 'july': 6, '07': 6, '7': 6,
+          'aug': 7, 'august': 7, '08': 7, '8': 7,
+          'sep': 8, 'september': 8, '09': 8, '9': 8,
+          'oct': 9, 'october': 9, '10': 9,
+          'nov': 10, 'november': 10, '11': 10,
+          'dec': 11, 'december': 11, '12': 11
+        };
+        
+        const normalizedMonth = String(month).toLowerCase();
+        return monthNames[normalizedMonth] !== undefined ? monthNames[normalizedMonth] : parseInt(normalizedMonth) - 1;
+      }
+
+      // Helper function to process dates for storage
+      function formatDateForStorage(dateStr) {
+        // Try to parse and standardize the date format
+        try {
+          return formatDate(dateStr);
+        } catch (e) {
+          return dateStr;
+        }
       }
 
       const baseGstr2bHeaders = ['Match Criteria', 'GSTN', 'Name of Supplier', 'Invoice Number', 'Invoice type', 'Invoice Date', 'Invoice Value', 'Place of supply', 'Reverse Charge', 'Rate (%)', 'Taxable Value', 'IGST', 'CGST', 'SGST'];
@@ -964,973 +1030,105 @@ function restrictFreeServiceFeatures() {
         reader.readAsArrayBuffer(file);
       }
 
-  
+      // Updated displayData function to properly format dates
       function displayData(data, containerId, headers, sheetType) {
-  const container = document.getElementById(containerId);
-  const isFreeService = localStorage.getItem("isFreeService") === "true";
-  let html = '<table><thead><tr>';
-  headers.forEach(header => html += `<th>${header}</th>`);
-  html += '</tr></thead><tbody>';
-  data.forEach((row, rowIndex) => {
-    html += `<tr data-row="${rowIndex}" data-sheet="${sheetType}">`;
-    headers.forEach((_, colIndex) => {
-      const cell = row[colIndex];
-      const value = typeof cell === 'number' && (cell > 40000 && cell < 50000) ? new Date((cell - 25569) * 86400 * 1000).toLocaleDateString('en-IN', {day: '2-digit', month: 'short', year: 'numeric'}).replace(/\//g, '-') : (cell === undefined || cell === null ? '' : cell);
-      const isEditable = colIndex > 0 && !isFreeService; // Only editable for normal users
-      html += `<td contenteditable="${isEditable}" data-col="${colIndex}">${value}</td>`;
-    });
-    html += '</tr>';
-  });
-  html += '</tbody></table>';
-  container.innerHTML = html;
-  const table = container.querySelector('table');
-  table.addEventListener('input', handleCellEdit);
-  if (filterEnabled) toggleFilters(); // Reapply filters if enabled
-  
-  // Apply free service restrictions and colors
-  if (isFreeService) {
-    const cells = table.querySelectorAll("td");
-    cells.forEach(cell => {
-      cell.setAttribute("contenteditable", "false");
-    });
-    applyFreeServiceColors(); // Colors apply karo
-  }
-}
-
-      function handleCellEdit(event) {
-  const target = event.target;
-  const isFreeService = localStorage.getItem("isFreeService") === "true";
-  
-  if (isFreeService) {
-    event.preventDefault(); // Prevent editing in free service mode
-    target.blur(); // Remove focus from cell
-    return;
-  }
-
-  if (target.tagName === 'TD' && target.hasAttribute('contenteditable') && target.getAttribute('contenteditable') === 'true') {
-    const rowIndex = parseInt(target.parentElement.getAttribute('data-row'), 10);
-    const colIndex = parseInt(target.getAttribute('data-col'), 10);
-    const sheetType = target.parentElement.getAttribute('data-sheet');
-    const newValue = target.textContent.trim();
-    if (sheetType === 'gstr2b') {
-      gstr2bData[rowIndex][colIndex] = newValue;
-      localStorage.setItem('gstr2bData', JSON.stringify(gstr2bData));
-    } else if (sheetType === 'gstr3b') {
-      gstr3bData[rowIndex][colIndex] = newValue;
-      localStorage.setItem('gstr3bData', JSON.stringify(gstr3bData));
-    }
-    reconcileData();
-    // Filter refresh karna jab filter enabled ho
-    if (filterEnabled) {
-      refreshFilters(sheetType === 'gstr2b' ? 'gstr2b-container' : 'gstr3b-container');
-    }
-  }
-}
-
-// Naya function filter refresh ke liye
-function refreshFilters(containerId) {
-  const table = document.getElementById(containerId).querySelector('table');
-  if (table) {
-    const headers = table.querySelectorAll('thead th');
-    headers.forEach((th, colIndex) => {
-      const dropdown = th.querySelector('.filter-dropdown');
-      if (dropdown) {
-        const optionsDiv = dropdown.querySelector('.filter-options');
-        populateFilterOptions(optionsDiv, containerId, colIndex); // Options refresh karna
-        applyFilters(containerId); // Filters reapply karna
+        const container = document.getElementById(containerId);
+        const isFreeService = localStorage.getItem("isFreeService") === "true";
+        let html = '<table><thead><tr>';
+        headers.forEach(header => html += `<th>${header}</th>`);
+        html += '</tr></thead><tbody>';
+        
+        // Find date column indices
+        const dateColumnIndexes = [];
+        headers.forEach((header, index) => {
+          if (header.toLowerCase().includes('date')) {
+            dateColumnIndexes.push(index);
+          }
+        });
+        
+        data.forEach((row, rowIndex) => {
+          html += `<tr data-row="${rowIndex}" data-sheet="${sheetType}">`;
+          headers.forEach((header, colIndex) => {
+            const cell = row[colIndex];
+            
+            // Format date columns
+            let value;
+            if (dateColumnIndexes.includes(colIndex)) {
+              value = formatDate(cell);
+            } else {
+              value = cell === undefined || cell === null ? '' : cell;
+            }
+            
+            const isEditable = colIndex > 0 && !isFreeService; // Only editable for normal users
+            html += `<td contenteditable="${isEditable}" data-col="${colIndex}">${value}</td>`;
+          });
+          html += '</tr>';
+        });
+        html += '</tbody></table>';
+        container.innerHTML = html;
+        const table = container.querySelector('table');
+        table.addEventListener('input', handleCellEdit);
+        if (filterEnabled) toggleFilters(); // Reapply filters if enabled
+        
+        // Apply free service restrictions and colors
+        if (isFreeService) {
+          const cells = table.querySelectorAll("td");
+          cells.forEach(cell => {
+            cell.setAttribute("contenteditable", "false");
+          });
+          applyFreeServiceColors(); // Colors apply karo
+        }
       }
-    });
-  }
-}
 
-      function reconcileData() {
-  const diffInput = document.getElementById('diff-allowed').value;
-  const diffAllowed = diffInput === '' ? 0 : Number(diffInput) || 1;
-  const gstr2bTable = document.querySelector('#gstr2b-container table tbody');
-  const gstr3bTable = document.querySelector('#gstr3b-container table tbody');
-  const reconciled2bData = [];
-  const reconciled3bData = [];
-  
-  gstr2bData.forEach((row, index) => {
-    const match = findMatch(row, gstr2bData, gstr3bData, false, diffAllowed);
-    const newRow = [match, ...row.slice(1)];
-    reconciled2bData.push(newRow);
-    if (gstr2bTable && gstr2bTable.rows[index]) updateRow(gstr2bTable.rows[index], newRow);
-  });
-  
-  gstr3bData.forEach((row, index) => {
-    const match = findMatch(row, gstr3bData, gstr2bData, true, diffAllowed);
-    const newRow = [match, ...row.slice(1)];
-    reconciled3bData.push(newRow);
-    if (gstr3bTable && gstr3bTable.rows[index]) updateRow(gstr3bTable.rows[index], newRow);
-  });
-  
-  displaySummary(reconciled2bData, reconciled3bData);
-  generateOutput(reconciled2bData, reconciled3bData);
-  
-  // Re-apply free service restrictions and ensure colors
-  restrictFreeServiceFeatures();
-}
-      function updateRow(rowElement, newRow) {
-  const match = newRow[0];
-  Array.from(rowElement.cells).forEach((cell, index) => {
-    cell.textContent = newRow[index];
-  });
-  colorRow(rowElement, match); // Color apply karo
-}
+      // Updated handleCellEdit function to handle date formatting
+      function handleCellEdit(event) {
+        const target = event.target;
+        const isFreeService = localStorage.getItem("isFreeService") === "true";
+        
+        if (isFreeService) {
+          event.preventDefault(); // Prevent editing in free service mode
+          target.blur(); // Remove focus from cell
+          return;
+        }
+
+        if (target.tagName === 'TD' && target.hasAttribute('contenteditable') && target.getAttribute('contenteditable') === 'true') {
+          const rowIndex = parseInt(target.parentElement.getAttribute('data-row'), 10);
+          const colIndex = parseInt(target.getAttribute('data-col'), 10);
+          const sheetType = target.parentElement.getAttribute('data-sheet');
+          const newValue = target.textContent.trim();
+          
+          // Check if this is a date column
+          const headers = sheetType === 'gstr2b' ? gstr2bHeaders() : gstr3bHeaders();
+          const isDateColumn = headers[colIndex].toLowerCase().includes('date');
+          
+          // Format date if needed
+          const valueToStore = isDateColumn ? formatDateForStorage(newValue) : newValue;
+          
+          if (sheetType === 'gstr2b') {
+            gstr2bData[rowIndex][colIndex] = valueToStore;
+            localStorage.setItem('gstr2bData', JSON.stringify(gstr2bData));
+          } else if (sheetType === 'gstr3b') {
+            gstr3bData[rowIndex][colIndex] = valueToStore;
+            localStorage.setItem('gstr3bData', JSON.stringify(gstr3bData));
+          }
+          
+          // If it's a date column, display the formatted date
+          if (isDateColumn) {
+            target.textContent = formatDate(valueToStore);
+          }
+          
+          reconcileData();
+          // Filter refresh karna jab filter enabled ho
+          if (filterEnabled) {
+            refreshFilters(sheetType === 'gstr2b' ? 'gstr2b-container' : 'gstr3b-container');
+          }
+        }
+      }
 
      function normalizeInvoiceNumber(invNum) {
-    return invNum.replace(/[\s\/\\.,"?\']/g, '');
-}
+       return invNum.replace(/[\s\/\\.,"?\']/g, '');
+     }
       
-
-function findMatch(row, sourceData, compareData, is3b, diffAllowed) {
-  const sourceHeaders = is3b ? gstr3bHeaders() : gstr2bHeaders();
-  const compareHeaders = is3b ? gstr2bHeaders() : gstr3bHeaders();
-  const invDateIdx = sourceHeaders.indexOf('Invoice Date');
-  const gstnIdx = sourceHeaders.indexOf('GSTN');
-  const invNumIdx = sourceHeaders.indexOf('Invoice Number');
-  const compareGstnIdx = compareHeaders.indexOf('GSTN');
-  const invDate = String(row[invDateIdx]).toLowerCase().trim();
-  const gstn = String(row[gstnIdx]).toLowerCase().trim();
-  const invNum = normalizeInvoiceNumber(String(row[invNumIdx]).toLowerCase().trim());
-
-  // Debugging: Log input values
-  console.log(`Processing row: GSTN=${gstn}, InvNo=${invNum}, Date=${invDate}, is3b=${is3b}`);
-
-  // 1. Match - GSTN, Invoice No., Date
-  console.log("Checking Match - GSTN, Invoice No., Date...");
-  const sourceTotals = calculateTotals(sourceData, invDate, gstn, invNum, is3b);
-  const compareTotals = calculateTotals(compareData, invDate, gstn, invNum, !is3b);
-  if (sourceTotals.count > 0 && compareTotals.count > 0) {
-    console.log(`Found match on GSTN, InvNo, Date. SourceTotals:`, sourceTotals, `CompareTotals:`, compareTotals);
-    if (checkTotals(sourceTotals, compareTotals, diffAllowed)) {
-      console.log("Totals match within diffAllowed. Returning Match - GSTN, Invoice No., Date");
-      return detailedReconciliationCheckbox.checked ? 'Match - GSTN, Invoice No., Date' : 'Match';
-    }
-    console.log("Totals differ, moving to next check");
-  } else {
-    console.log("No match on GSTN, InvNo, Date");
-  }
-
-  // 2. Match - GSTN, Invoice No.
-  console.log("Checking Match - GSTN, Invoice No....");
-  const invTotals = calculateTotalsByInv(sourceData, gstn, invNum, is3b);
-  const compareInvTotals = calculateTotalsByInv(compareData, gstn, invNum, !is3b);
-  if (invTotals.count > 0 && compareInvTotals.count > 0) {
-    console.log(`Found match on GSTN, InvNo. InvTotals:`, invTotals, `CompareInvTotals:`, compareInvTotals);
-    if (checkTotals(invTotals, compareInvTotals, diffAllowed)) {
-      console.log("Totals match within diffAllowed. Returning Match - GSTN, Invoice No.");
-      return detailedReconciliationCheckbox.checked ? 'Match - GSTN, Invoice No.' : 'Match';
-    }
-    console.log("Totals differ, moving to next check");
-  } else {
-    console.log("No match on GSTN, InvNo");
-  }
-
-  // 3. Match - GSTN, Date
-  console.log("Checking Match - GSTN, Date...");
-  const gstnDateTotals = calculateTotalsByGstnDate(sourceData, invDate, gstn, is3b);
-  const compareGstnDateTotals = calculateTotalsByGstnDate(compareData, invDate, gstn, !is3b);
-  if (gstnDateTotals.count > 0 && compareGstnDateTotals.count > 0) {
-    console.log(`Found match on GSTN, Date. GstnDateTotals:`, gstnDateTotals, `CompareGstnDateTotals:`, compareGstnDateTotals);
-    if (checkTotals(gstnDateTotals, compareGstnDateTotals, diffAllowed)) {
-      console.log("Totals match within diffAllowed. Returning Match - GSTN, Date");
-      return detailedReconciliationCheckbox.checked ? 'Match - GSTN, Date' : 'Match';
-    }
-    console.log("Totals differ, moving to next check");
-  } else {
-    console.log("No match on GSTN, Date");
-  }
-
-  // 4. Match - GSTN
-  console.log("Checking Match - GSTN...");
-  const gstnTotals = calculateTotalsByGstn(sourceData, gstn, is3b);
-  const compareGstnTotals = calculateTotalsByGstn(compareData, gstn, !is3b);
-  if (gstnTotals.count > 0 && compareGstnTotals.count > 0) {
-    console.log(`Found match on GSTN. GstnTotals:`, gstnTotals, `CompareGstnTotals:`, compareGstnTotals);
-    if (checkTotals(gstnTotals, compareGstnTotals, diffAllowed)) {
-      console.log("Totals match within diffAllowed. Returning Match - GSTN");
-      return detailedReconciliationCheckbox.checked ? 'Match - GSTN' : 'Match';
-    }
-    console.log("Totals differ, moving to next check");
-  } else {
-    console.log("No match on GSTN");
-  }
-
-  // 5. Unmatch - GSTN Not Exist
-  console.log("Checking Unmatch - GSTN Not Exist...");
-  const gstnExistsInCompare = compareData.some(r => String(r[compareGstnIdx]).toLowerCase().trim() === gstn);
-  if (!gstnExistsInCompare) {
-    console.log("GSTN not found in compare data. Returning Unmatch - GSTN Not Exist");
-    return 'Unmatch - GSTN Not Exist';
-  }
-  console.log("GSTN exists in compare data");
-
-  // 6. Unmatch - Amt Diff (Check after GSTN Not Exist)
-  console.log("Checking Unmatch - Amt Diff...");
-  const amtDiffTotals = calculateTotalsByInv(sourceData, gstn, invNum, is3b);
-  const compareAmtDiffTotals = calculateTotalsByInv(compareData, gstn, invNum, !is3b);
-  if (amtDiffTotals.count > 0 && compareAmtDiffTotals.count > 0) {
-    console.log(`Found GSTN, InvNo match for Amt Diff check. Totals:`, amtDiffTotals, `CompareTotals:`, compareAmtDiffTotals);
-    if (!checkTotals(amtDiffTotals, compareAmtDiffTotals, diffAllowed)) {
-      console.log("Amounts differ beyond diffAllowed. Returning Unmatch - Amt Diff");
-      return 'Unmatch - Amt Diff';
-    }
-    console.log("Amounts match within diffAllowed, moving to Unmatch");
-  } else {
-    console.log("No GSTN, InvNo match for Amt Diff");
-  }
-
-  // 7. Unmatch
-  console.log("No match found. Returning Unmatch");
-  return 'Unmatch';
-}
-
-  
-
-      function calculateTotals(data, invDate, gstn, invNum, is3b) {
-    const headers = is3b ? gstr3bHeaders() : gstr2bHeaders();
-    const invDateIdx = headers.indexOf('Invoice Date');
-    const gstnIdx = headers.indexOf('GSTN');
-    const invNumIdx = headers.indexOf('Invoice Number');
-    const taxableIdx = headers.indexOf('Taxable Value');
-    const igstIdx = headers.indexOf('IGST');
-    const cgstIdx = headers.indexOf('CGST');
-    const sgstIdx = headers.indexOf('SGST');
-    let count = 0, taxable = 0, igst = 0, cgst = 0, sgst = 0;
-    data.forEach(row => {
-        if (String(row[invDateIdx]).toLowerCase() === invDate && 
-            String(row[gstnIdx]).toLowerCase() === gstn && 
-            normalizeInvoiceNumber(String(row[invNumIdx]).toLowerCase()) === invNum) { // Updated line
-            count++;
-            taxable += Number(row[taxableIdx]) || 0;
-            igst += Number(row[igstIdx]) || 0;
-            cgst += Number(row[cgstIdx]) || 0;
-            sgst += Number(row[sgstIdx]) || 0;
-        }
-    });
-    return { count, taxable, igst, cgst, sgst };
-}
-
-      function calculateTotalsByInv(data, gstn, invNum, is3b) {
-    const headers = is3b ? gstr3bHeaders() : gstr2bHeaders();
-    const gstnIdx = headers.indexOf('GSTN');
-    const invNumIdx = headers.indexOf('Invoice Number');
-    const taxableIdx = headers.indexOf('Taxable Value');
-    const igstIdx = headers.indexOf('IGST');
-    const cgstIdx = headers.indexOf('CGST');
-    const sgstIdx = headers.indexOf('SGST');
-    let count = 0, taxable = 0, igst = 0, cgst = 0, sgst = 0;
-    data.forEach(row => {
-        if (String(row[gstnIdx]).toLowerCase() === gstn && 
-            normalizeInvoiceNumber(String(row[invNumIdx]).toLowerCase()) === invNum) {
-            count++;
-            taxable += Number(row[taxableIdx]) || 0;
-            igst += Number(row[igstIdx]) || 0;
-            cgst += Number(row[cgstIdx]) || 0;
-            sgst += Number(row[sgstIdx]) || 0;
-        }
-    });
-    return { count, taxable, igst, cgst, sgst };
-}
-
-      function calculateTotalsByGstnDate(data, invDate, gstn, is3b) {
-        const headers = is3b ? gstr3bHeaders() : gstr2bHeaders();
-        const invDateIdx = headers.indexOf('Invoice Date');
-        const gstnIdx = headers.indexOf('GSTN');
-        const taxableIdx = headers.indexOf('Taxable Value');
-        const igstIdx = headers.indexOf('IGST');
-        const cgstIdx = headers.indexOf('CGST');
-        const sgstIdx = headers.indexOf('SGST');
-        let count = 0, taxable = 0, igst = 0, cgst = 0, sgst = 0;
-        data.forEach(row => {
-          if (String(row[invDateIdx]).toLowerCase() === invDate && 
-              String(row[gstnIdx]).toLowerCase() === gstn) {
-            count++;
-            taxable += Number(row[taxableIdx]) || 0;
-            igst += Number(row[igstIdx]) || 0;
-            cgst += Number(row[cgstIdx]) || 0;
-            sgst += Number(row[sgstIdx]) || 0;
-          }
-        });
-        return { count, taxable, igst, cgst, sgst };
-      }
-
-      function calculateTotalsByGstn(data, gstn, is3b) {
-        const headers = is3b ? gstr3bHeaders() : gstr2bHeaders();
-        const gstnIdx = headers.indexOf('GSTN');
-        const taxableIdx = headers.indexOf('Taxable Value');
-        const igstIdx = headers.indexOf('IGST');
-        const cgstIdx = headers.indexOf('CGST');
-        const sgstIdx = headers.indexOf('SGST');
-        let count = 0, taxable = 0, igst = 0, cgst = 0, sgst = 0;
-        data.forEach(row => {
-          if (String(row[gstnIdx]).toLowerCase() === gstn) {
-            count++;
-            taxable += Number(row[taxableIdx]) || 0;
-            igst += Number(row[igstIdx]) || 0;
-            cgst += Number(row[cgstIdx]) || 0;
-            sgst += Number(row[sgstIdx]) || 0;
-          }
-        });
-        return { count, taxable, igst, cgst, sgst };
-      }
-
-      function checkTotals(source, compare, diffAllowed) {
-        return Math.abs(source.taxable - compare.taxable) <= diffAllowed &&
-               Math.abs(source.igst - compare.igst) <= diffAllowed &&
-               Math.abs(source.cgst - compare.cgst) <= diffAllowed &&
-               Math.abs(source.sgst - compare.sgst) <= diffAllowed;
-      }
-
-  function applyFreeServiceColors() {
-  const isFreeService = localStorage.getItem("isFreeService") === "true";
-  if (!isFreeService) return; // Sirf free service mode mein kaam kare
-
-  const tables = document.querySelectorAll("#gstr2b-container table, #gstr3b-container table");
-  tables.forEach(table => {
-    const rows = table.querySelectorAll("tbody tr");
-    rows.forEach(row => {
-      const match = row.cells[0].textContent; // Match criteria from first cell
-      let backgroundColor = "#f0f0f0"; // Default locked color
-      let textColor = "black"; // Default text color
-
-      // Match criteria ke hisaab se colors set karo
-      if (detailedReconciliationCheckbox.checked) {
-        switch (match) {
-          case 'Match - GSTN, Invoice No., Date':
-            backgroundColor = "#00ced1"; // Turquoise
-            textColor = "white";
-            break;
-          case 'Match - GSTN, Invoice No.':
-            backgroundColor = "#4b0082"; // Indigo
-            textColor = "white";
-            break;
-          case 'Match - GSTN, Date':
-            backgroundColor = "#32cd32"; // Lime Green
-            textColor = "white";
-            break;
-          case 'Match - GSTN':
-            backgroundColor = "#ffbf00"; // Amber
-            textColor = "black";
-            break;
-          case 'Unmatch - GSTN Not Exist':
-            backgroundColor = "#dc143c"; // Crimson
-            textColor = "white";
-            break;
-          case 'Unmatch - Amt Diff':
-            backgroundColor = "#ff4500"; // Orange Red
-            textColor = "white";
-            break;
-          default:
-            backgroundColor = "#ff00ff"; // Magenta
-            textColor = "white";
-            break;
-        }
-      } else {
-        switch (match) {
-          case 'Match':
-            backgroundColor = "#00ced1"; // Turquoise
-            textColor = "white";
-            break;
-          case 'Unmatch - GSTN Not Exist':
-            backgroundColor = "#dc143c"; // Crimson
-            textColor = "white";
-            break;
-          case 'Unmatch - Amt Diff':
-            backgroundColor = "#ff4500"; // Orange Red
-            textColor = "white";
-            break;
-          default:
-            backgroundColor = "#ff00ff"; // Magenta
-            textColor = "white";
-            break;
-        }
-      }
-
-      // Har cell par color apply karo
-      const cells = row.querySelectorAll("td");
-      cells.forEach(cell => {
-        cell.style.backgroundColor = backgroundColor;
-        cell.style.color = textColor;
-      });
-    });
-  });
-}
-
-      function colorRow(rowElement, match) {
-  rowElement.className = '';
-  if (detailedReconciliationCheckbox.checked) {
-    switch (match) {
-      case 'Match - GSTN, Invoice No., Date': rowElement.classList.add('match-gstn-inv-date'); break;
-      case 'Match - GSTN, Invoice No.': rowElement.classList.add('match-inv'); break;
-      case 'Match - GSTN, Date': rowElement.classList.add('match-gstn-date'); break;
-      case 'Match - GSTN': rowElement.classList.add('match-gstn'); break;
-      case 'Unmatch - GSTN Not Exist': rowElement.classList.add('gstn-not-match'); break;
-      case 'Unmatch - Amt Diff': rowElement.classList.add('amt-diff'); break;
-      default: rowElement.classList.add('no-match'); break;
-    }
-  } else {
-    switch (match) {
-      case 'Match': rowElement.classList.add('match'); break;
-      case 'Unmatch - GSTN Not Exist': rowElement.classList.add('gstn-not-match'); break;
-      case 'Unmatch - Amt Diff': rowElement.classList.add('amt-diff'); break;
-      default: rowElement.classList.add('no-match'); break;
-    }
-  }
-}
-
-      function calculateSummary(data, is3b) {
-  const headers = is3b ? gstr3bHeaders() : gstr2bHeaders();
-  const taxableIdx = headers.indexOf('Taxable Value');
-  const igstIdx = headers.indexOf('IGST');
-  const cgstIdx = headers.indexOf('CGST');
-  const sgstIdx = headers.indexOf('SGST');
-  const criteria = detailedReconciliationCheckbox.checked ?
-    ['Match - GSTN, Invoice No., Date', 'Match - GSTN, Invoice No.', 'Match - GSTN, Date', 'Match - GSTN', 'Unmatch - GSTN Not Exist', 'Unmatch - Amt Diff', 'Unmatch'] :
-    ['Match', 'Unmatch - GSTN Not Exist', 'Unmatch - Amt Diff', 'Unmatch'];
-  const summary = {};
-  criteria.forEach(criterion => {
-    summary[criterion] = { taxable: 0, igst: 0, cgst: 0, sgst: 0 };
-  });
-  data.forEach(row => {
-    let match = row[0];
-    if (!detailedReconciliationCheckbox.checked && 
-        ['Match - GSTN, Invoice No., Date', 'Match - GSTN, Invoice No.', 'Match - GSTN, Date', 'Match - GSTN'].includes(match)) {
-      match = 'Match';
-    }
-    summary[match].taxable += Number(row[taxableIdx]) || 0;
-    summary[match].igst += Number(row[igstIdx]) || 0;
-    summary[match].cgst += Number(row[cgstIdx]) || 0;
-    summary[match].sgst += Number(row[sgstIdx]) || 0;
-  });
-  const total = { taxable: 0, igst: 0, cgst: 0, sgst: 0 };
-  criteria.forEach(criterion => {
-    total.taxable += summary[criterion].taxable;
-    total.igst += summary[criterion].igst;
-    total.cgst += summary[criterion].cgst;
-    total.sgst += summary[criterion].sgst;
-  });
-  return { summary, total };
-}
-
-      function displaySummary(reconciled2bData, reconciled3bData) {
-  const gstr2bSummary = calculateSummary(reconciled2bData, false);
-  const gstr3bSummary = calculateSummary(reconciled3bData, true);
-  const container = document.getElementById('summary-container');
-  let html = '<table><thead><tr>';
-  html += '<th rowspan="2">Particulars</th>';
-  html += '<th colspan="4">GST Portal</th>';
-  html += '<th colspan="4">Client Data</th>';
-  html += '</tr><tr>';
-  ['Taxable Value', 'IGST', 'CGST', 'SGST'].forEach(header => html += `<th>${header}</th>`);
-  ['Taxable Value', 'IGST', 'CGST', 'SGST'].forEach(header => html += `<th>${header}</th>`);
-  html += '</tr></thead><tbody>';
-  const criteria = detailedReconciliationCheckbox.checked ?
-    ['Match - GSTN, Invoice No., Date', 'Match - GSTN, Invoice No.', 'Match - GSTN, Date', 'Match - GSTN', 'Unmatch - GSTN Not Exist', 'Unmatch - Amt Diff', 'Unmatch'] :
-    ['Match', 'Unmatch - GSTN Not Exist', 'Unmatch - Amt Diff', 'Unmatch'];
-  criteria.forEach(criterion => {
-    html += '<tr>';
-    html += `<td>${criterion}</td>`;
-    html += `<td>${(gstr2bSummary.summary[criterion]?.taxable || 0).toFixed(2)}</td>`;
-    html += `<td>${(gstr2bSummary.summary[criterion]?.igst || 0).toFixed(2)}</td>`;
-    html += `<td>${(gstr2bSummary.summary[criterion]?.cgst || 0).toFixed(2)}</td>`;
-    html += `<td>${(gstr2bSummary.summary[criterion]?.sgst || 0).toFixed(2)}</td>`;
-    html += `<td>${(gstr3bSummary.summary[criterion]?.taxable || 0).toFixed(2)}</td>`;
-    html += `<td>${(gstr3bSummary.summary[criterion]?.igst || 0).toFixed(2)}</td>`;
-    html += `<td>${(gstr3bSummary.summary[criterion]?.cgst || 0).toFixed(2)}</td>`;
-    html += `<td>${(gstr3bSummary.summary[criterion]?.sgst || 0).toFixed(2)}</td>`;
-    html += '</tr>';
-  });
-  html += '<tr>';
-  html += '<td><strong>Total</strong></td>';
-  html += `<td><strong>${gstr2bSummary.total.taxable.toFixed(2)}</strong></td>`;
-  html += `<td><strong>${gstr2bSummary.total.igst.toFixed(2)}</strong></td>`;
-  html += `<td><strong>${gstr2bSummary.total.cgst.toFixed(2)}</strong></td>`;
-  html += `<td><strong>${gstr2bSummary.total.sgst.toFixed(2)}</strong></td>`;
-  html += `<td><strong>${gstr3bSummary.total.taxable.toFixed(2)}</strong></td>`;
-  html += `<td><strong>${gstr3bSummary.total.igst.toFixed(2)}</strong></td>`;
-  html += `<td><strong>${gstr3bSummary.total.cgst.toFixed(2)}</strong></td>`;
-  html += `<td><strong>${gstr3bSummary.total.sgst.toFixed(2)}</strong></td>`;
-  html += '</tr>';
-  html += '</tbody></table>';
-  container.innerHTML = html;
-}
-
-      async function generateOutput(reconciled2bData, reconciled3bData) {
-        const workbook = new ExcelJS.Workbook();
-        const ws1 = workbook.addWorksheet('GST Portal');
-        const headerRow1 = ws1.addRow(gstr2bHeaders());
-        headerRow1.eachCell(cell => {
-          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0FFFF' } };
-        });
-        reconciled2bData.forEach(row => {
-          const excelRow = row.map(cell => cell === undefined || cell === null ? '' : cell);
-          const addedRow = ws1.addRow(excelRow);
-          applyExcelRowColor(addedRow, row[0], gstr2bHeaders().length);
-        });
-        const ws2 = workbook.addWorksheet('Client Data');
-        const headerRow2 = ws2.addRow(gstr3bHeaders());
-        headerRow2.eachCell(cell => {
-          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0FFFF' } };
-        });
-        reconciled3bData.forEach(row => {
-          const excelRow = row.map(cell => cell === undefined || cell === null ? '' : cell);
-          const addedRow = ws2.addRow(excelRow);
-          applyExcelRowColor(addedRow, row[0], gstr3bHeaders().length);
-        });
-        const ws3 = workbook.addWorksheet('Summary');
-        const summaryHeader1 = ws3.addRow(['Particulars', 'GST Portal', '', '', '', 'Client Data', '', '', '']);
-        const summaryHeader2 = ws3.addRow(['', 'Taxable Value', 'IGST', 'CGST', 'SGST', 'Taxable Value', 'IGST', 'CGST', 'SGST']);
-        ws3.mergeCells('A1:A2');
-        ws3.mergeCells('B1:E1');
-        ws3.mergeCells('F1:I1');
-        [summaryHeader1, summaryHeader2].forEach(row => {
-          row.eachCell(cell => {
-            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0FFFF' } };
-          });
-        });
-        const gstr2bSummary = calculateSummary(reconciled2bData, false);
-        const gstr3bSummary = calculateSummary(reconciled3bData, true);
-        const criteria = detailedReconciliationCheckbox.checked ?
-          ['Match - GSTN, Invoice No., Date', 'Match - GSTN, Invoice No.', 'Match - GSTN, Date', 'Match - GSTN', 'Unmatch - GSTN Not Exist', 'Unmatch'] :
-          ['Match', 'Unmatch - GSTN Not Exist', 'Unmatch'];
-        criteria.forEach(criterion => {
-          ws3.addRow([
-            criterion,
-            gstr2bSummary.summary[criterion].taxable,
-            gstr2bSummary.summary[criterion].igst,
-            gstr2bSummary.summary[criterion].cgst,
-            gstr2bSummary.summary[criterion].sgst,
-            gstr3bSummary.summary[criterion].taxable,
-            gstr3bSummary.summary[criterion].igst,
-            gstr3bSummary.summary[criterion].cgst,
-            gstr3bSummary.summary[criterion].sgst
-          ]);
-        });
-       
-        const totalRow = ws3.addRow([
-          'Total',
-          gstr2bSummary.total.taxable,
-          gstr2bSummary.total.igst,
-          gstr2bSummary.total.cgst,
-          gstr2bSummary.total.sgst,
-          gstr3bSummary.total.taxable,
-          gstr3bSummary.total.igst,
-          gstr3bSummary.total.cgst,
-          gstr3bSummary.total.sgst
-        ]);
-        totalRow.eachCell(cell => { cell.font = { bold: true }; });
-        const buffer = await workbook.xlsx.writeBuffer();
-        const blob = new Blob([buffer], { type: 'application/octet-stream' });
-        const url = URL.createObjectURL(blob);
-        const link = document.getElementById('download-output');
-        link.href = url;
-        link.download = 'Reconciled_GST_Data.xlsx';
-        document.getElementById('output-link').style.display = 'block';
-      }
-
-      function applyExcelRowColor(row, match, columnCount) {
-  const colors = detailedReconciliationCheckbox.checked ? {
-    'Match - GSTN, Invoice No., Date': 'FF00CED1',
-    'Match - GSTN, Invoice No.': 'FF4B0082',
-    'Match - GSTN, Date': 'FF32CD32',
-    'Match - GSTN': 'FFFFBF00',
-    'Unmatch - GSTN Not Exist': 'FFDC143C',
-    'Unmatch - Amt Diff': 'FFFF4500', // OrangeRed
-    'Unmatch': 'FFFF00FF'
-  } : {
-    'Match': 'FF00CED1',
-    'Unmatch - GSTN Not Exist': 'FFDC143C',
-    'Unmatch - Amt Diff': 'FFFF4500', // OrangeRed
-    'Unmatch': 'FFFF00FF'
-  };
-  const color = colors[match] || 'FFFF00FF';
-  for (let i = 1; i <= columnCount; i++) {
-    const cell = row.getCell(i);
-    cell.fill = {
-      type: 'pattern',
-      pattern: 'solid',
-      fgColor: { argb: color }
-    };
-    if ((detailedReconciliationCheckbox.checked && 
-        ['Match - GSTN, Invoice No., Date', 'Match - GSTN, Invoice No.', 'Match - GSTN, Date', 'Match - GSTN', 'Unmatch - GSTN Not Exist', 'Unmatch - Amt Diff', 'Unmatch'].includes(match)) ||
-        (!detailedReconciliationCheckbox.checked && 
-        ['Match', 'Unmatch - GSTN Not Exist', 'Unmatch - Amt Diff', 'Unmatch'].includes(match))) {
-      cell.font = { color: { argb: 'FFFFFFFF' } };
-    }
-  }
-}
-
-//      }   else      {       alert("Don't waste your time for copying. This file is fully secured by Sumit Garg. If any query, Contact - Sumit Garg, Ph. No. - 9716804520, Email - SumitGarg100000@Gmail.com ");     }
-      
-    </script>
-
-<script>
-
-  // Filter State
-let filterEnabled = false;
-const filters = {};
-
-// Initialize Filter Checkbox
-document.getElementById('enable-filter').addEventListener('change', function () {
-  filterEnabled = this.checked;
-  toggleFilters();
-});
-
-// Toggle Filters On/Off
-function toggleFilters() {
-  const containers = ['gstr2b-container', 'gstr3b-container'];
-  containers.forEach(containerId => {
-    const table = document.getElementById(containerId).querySelector('table');
-    if (table) {
-      const headers = table.querySelectorAll('thead th');
-      headers.forEach((th, colIndex) => {
-        if (filterEnabled) {
-          addFilterDropdown(th, containerId, colIndex);
-        } else {
-          removeFilterDropdown(th);
-        }
-      });
-      if (!filterEnabled) {
-        resetFilters(containerId);
-      }
-    }
-  });
-}
-
-// Add Filter Dropdown to Header
-function addFilterDropdown(th, containerId, colIndex) {
-  if (th.querySelector('.filter-dropdown')) return; // Avoid duplicates
-  const headerText = th.textContent.trim();
-  const dropdown = document.createElement('div');
-  dropdown.className = 'filter-dropdown';
-
-  const filterBtn = document.createElement('button');
-  filterBtn.className = 'filter-btn';
-  filterBtn.innerHTML = '▼'; // Down arrow for dropdown
-  filterBtn.addEventListener('click', () => toggleDropdown(dropdown));
-
-  const dropdownContent = document.createElement('div');
-  dropdownContent.className = 'filter-dropdown-content';
-
-  const input = document.createElement('input');
-  input.type = 'text';
-  input.className = 'filter-input';
-  input.placeholder = `Filter ${headerText}`;
-  input.addEventListener('input', () => filterOptions(input, dropdownContent, containerId, colIndex));
-
-  const optionsDiv = document.createElement('div');
-  optionsDiv.className = 'filter-options';
-  populateFilterOptions(optionsDiv, containerId, colIndex);
-
-  const actionsDiv = document.createElement('div');
-  actionsDiv.className = 'filter-actions';
-  const selectAllBtn = document.createElement('button');
-  selectAllBtn.textContent = 'Select All';
-  selectAllBtn.addEventListener('click', () => selectAllOptions(optionsDiv, containerId, colIndex));
-  const uncheckAllBtn = document.createElement('button');
-  uncheckAllBtn.textContent = 'Uncheck All';
-  uncheckAllBtn.addEventListener('click', () => uncheckAllOptions(optionsDiv, containerId, colIndex));
-  actionsDiv.appendChild(selectAllBtn);
-  actionsDiv.appendChild(uncheckAllBtn);
-
-  // Sort Buttons
-  const sortDiv = document.createElement('div');
-  sortDiv.className = 'sort-actions';
-  const sortAscBtn = document.createElement('button');
-  sortAscBtn.textContent = 'Sort A-Z';
-  sortAscBtn.addEventListener('click', () => sortTable(containerId, colIndex, 'asc'));
-  const sortDescBtn = document.createElement('button');
-  sortDescBtn.textContent = 'Sort Z-A';
-  sortDescBtn.addEventListener('click', () => sortTable(containerId, colIndex, 'desc'));
-  sortDiv.appendChild(sortAscBtn);
-  sortDiv.appendChild(sortDescBtn);
-
-  // Assemble Dropdown Content
-  dropdownContent.appendChild(input);
-  dropdownContent.appendChild(optionsDiv);
-  dropdownContent.appendChild(actionsDiv);
-  dropdownContent.appendChild(sortDiv); // Sort buttons ko last mein add kiya
-  dropdown.appendChild(filterBtn);
-  dropdown.appendChild(dropdownContent);
-  th.appendChild(dropdown);
-}
-
-
-//Uncheck Filter
-function uncheckAllOptions(optionsDiv, containerId, colIndex) {
-  const checkboxes = optionsDiv.querySelectorAll('input[type="checkbox"]');
-  checkboxes.forEach(cb => cb.checked = false);
-  applyFilters(containerId);
-}
-
-// Remove Filter Dropdown
-function removeFilterDropdown(th) {
-  const dropdown = th.querySelector('.filter-dropdown');
-  if (dropdown) dropdown.remove();
-}
-
-// Toggle Dropdown Visibility
-function toggleDropdown(dropdown) {
-  const content = dropdown.querySelector('.filter-dropdown-content');
-  content.classList.toggle('show');
-}
-
-// Populate Filter Options
-function populateFilterOptions(optionsDiv, containerId, colIndex) {
-  const table = document.getElementById(containerId).querySelector('table');
-  const rows = Array.from(table.querySelectorAll('tbody tr'));
-  const uniqueValues = new Set(rows.map(row => row.cells[colIndex].textContent.trim()));
-  optionsDiv.innerHTML = '';
-  uniqueValues.forEach(value => {
-    const option = document.createElement('div');
-    option.className = 'filter-option';
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.value = value;
-    checkbox.checked = true; // Default all selected
-    checkbox.addEventListener('change', () => applyFilters(containerId));
-    const label = document.createElement('label');
-    label.textContent = value || '(Blank)';
-    option.appendChild(checkbox);
-    option.appendChild(label);
-    optionsDiv.appendChild(option);
-  });
-}
-
-//Filter Sort Function
-function sortTable(containerId, colIndex, direction) {
-  const table = document.getElementById(containerId).querySelector('table');
-  const rows = Array.from(table.querySelectorAll('tbody tr'));
-
-  rows.sort((a, b) => {
-    // ***Change 1: Values ko lowercase mein normalize karna***
-    const aValue = a.cells[colIndex].textContent.trim().toLowerCase(); // <--- Highlight: toLowerCase() added
-    const bValue = b.cells[colIndex].textContent.trim().toLowerCase(); // <--- Highlight: toLowerCase() added
-
-    // Check if this is the GSTN column (assuming GSTN is at index 1 in GSTR-2B and 2 in GSTR-3B)
-    const isGSTNColumn = (containerId === 'gstr2b-container' && colIndex === 1) || 
-                         (containerId === 'gstr3b-container' && colIndex === 2);
-
-    if (isGSTNColumn) {
-      // Custom GSTN sorting
-      // ***Change 2: State code aur rest ko bhi lowercase mein handle karna already hai, koi extra change nahi***
-      const aStateCode = parseInt(aValue.slice(0, 2), 10); // First 2 digits as number
-      const bStateCode = parseInt(bValue.slice(0, 2), 10);
-      const aRest = aValue.slice(2); // Rest of the GSTN
-      const bRest = bValue.slice(2);
-
-      // Compare state codes first (numeric)
-      if (aStateCode !== bStateCode) {
-        return direction === 'asc' ? aStateCode - bStateCode : bStateCode - aStateCode;
-      }
-
-      // If state codes are equal, compare the rest (alphanumeric)
-      return direction === 'asc' 
-        ? aRest.localeCompare(bRest, undefined, { numeric: true, sensitivity: 'base' })
-        : bRest.localeCompare(aRest, undefined, { numeric: true, sensitivity: 'base' });
-    }
-
-    // Existing logic for other columns
-    // ***Change 3: Numbers ke liye bhi case-insensitive nahi chahiye, koi change nahi yahan***
-    const aNum = parseFloat(aValue);
-    const bNum = parseFloat(bValue);
-    if (!isNaN(aNum) && !isNaN(bNum)) {
-      return direction === 'asc' ? aNum - bNum : bNum - aNum;
-    }
-
-    // ***Change 4: Dates ke liye bhi case-insensitive nahi chahiye, lekin format consistency ke liye toLowerCase() pehle hi hai***
-    const aDate = Date.parse(aValue);
-    const bDate = Date.parse(bValue);
-    if (!isNaN(aDate) && !isNaN(bDate)) {
-      return direction === 'asc' ? aDate - bDate : bDate - aDate;
-    }
-
-    // ***Change 5: Strings ke liye case-insensitive already sensitivity: 'base' se handle ho raha hai, bas toLowerCase() upar add kiya***
-    return direction === 'asc' 
-      ? aValue.localeCompare(bValue, undefined, { numeric: true, sensitivity: 'base' })
-      : bValue.localeCompare(aValue, undefined, { numeric: true, sensitivity: 'base' });
-  });
-
-  const tbody = table.querySelector('tbody');
-  tbody.innerHTML = '';
-  rows.forEach(row => tbody.appendChild(row));
-  applyFilters(containerId); // Filters reapply karna
-}
-
-// Filter Options Based on Input
-function filterOptions(input, dropdownContent, containerId, colIndex) {
-  const filterText = input.value.toLowerCase();
-  const optionsDiv = dropdownContent.querySelector('.filter-options');
-  const options = optionsDiv.querySelectorAll('.filter-option');
-  options.forEach(option => {
-    const label = option.querySelector('label').textContent.toLowerCase();
-    option.style.display = label.includes(filterText) ? 'flex' : 'none';
-  });
-  applyFilters(containerId);
-}
-
-// Apply Filters to Table
-function applyFilters(containerId) {
-  const table = document.getElementById(containerId).querySelector('table');
-  const rows = Array.from(table.querySelectorAll('tbody tr'));
-  const headers = table.querySelectorAll('thead th');
-
-  if (!filters[containerId]) filters[containerId] = {};
-
-  rows.forEach(row => {
-    let showRow = true;
-    headers.forEach((th, colIndex) => {
-      const dropdown = th.querySelector('.filter-dropdown-content');
-      if (dropdown) {
-        const selectedValues = Array.from(dropdown.querySelectorAll('input[type="checkbox"]:checked'))
-          .map(cb => cb.value);
-        const cellValue = row.cells[colIndex].textContent.trim();
-        if (selectedValues.length > 0 && !selectedValues.includes(cellValue)) {
-          showRow = false;
-        }
-      }
-    });
-    row.style.display = showRow ? '' : 'none';
-  });
-}
-
-// Select All Options
-function selectAllOptions(optionsDiv, containerId, colIndex) {
-  const checkboxes = optionsDiv.querySelectorAll('input[type="checkbox"]');
-  checkboxes.forEach(cb => cb.checked = true);
-  applyFilters(containerId);
-}
-
-// Clear Filter
-function clearFilter(containerId, colIndex) {
-  const table = document.getElementById(containerId).querySelector('table');
-  const th = table.querySelectorAll('thead th')[colIndex];
-  const dropdown = th.querySelector('.filter-dropdown-content');
-  const input = dropdown.querySelector('.filter-input');
-  const checkboxes = dropdown.querySelectorAll('input[type="checkbox"]');
-  input.value = '';
-  checkboxes.forEach(cb => cb.checked = true);
-  applyFilters(containerId);
-}
-
-// Reset All Filters
-function resetFilters(containerId) {
-  const table = document.getElementById(containerId).querySelector('table');
-  if (table) {
-    const rows = table.querySelectorAll('tbody tr');
-    rows.forEach(row => row.style.display = '');
-    delete filters[containerId];
-  }
-}
-
-// Close Dropdowns on Click Outside
-document.addEventListener('click', function (event) {
-  const dropdowns = document.querySelectorAll('.filter-dropdown-content');
-  dropdowns.forEach(dropdown => {
-    if (!dropdown.parentElement.contains(event.target)) {
-      dropdown.classList.remove('show');
-    }
-  });
-});
-
-// Update displayData to Reapply Filters
-function displayData(data, containerId, headers, sheetType) {
-  const container = document.getElementById(containerId);
-  let html = '<table><thead><tr>';
-  headers.forEach(header => html += `<th>${header}</th>`);
-  html += '</tr></thead><tbody>';
-  data.forEach((row, rowIndex) => {
-    html += `<tr data-row="${rowIndex}" data-sheet="${sheetType}">`;
-    headers.forEach((_, colIndex) => {
-      const cell = row[colIndex];
-      const value = typeof cell === 'number' && (cell > 40000 && cell < 50000) ? formatDate(cell) : (cell === undefined || cell === null ? '' : cell);
-      const isEditable = colIndex > 0;
-      html += `<td contenteditable="${isEditable}" data-col="${colIndex}">${value}</td>`;
-    });
-    html += '</tr>';
-  });
-  html += '</tbody></table>';
-  container.innerHTML = html;
-  const table = container.querySelector('table');
-  table.addEventListener('input', handleCellEdit);
-  if (filterEnabled) toggleFilters(); // Reapply filters if enabled
-}
-</script>
 
     
     
-    <script>
-      function showInstructions() {
-        document.getElementById("instructions-modal").style.display = "block";
-      }
-      function hideInstructions() {
-        document.getElementById("instructions-modal").style.display = "none";
-      }
-      window.onclick = function(event) {
-        var modal = document.getElementById("instructions-modal");
-        if (event.target == modal) {
-          modal.style.display = "none";
-        }
-      }
-        
-    </script>
-    <button class="instructions-btn" onclick="showInstructions()" aria-label="View Instructions">
-      <i class="fas fa-info-circle"></i>
-    </button>
-    <a href="https://wa.me/9716804520" class="whatsapp-btn" target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp">
-      <i class="fab fa-whatsapp"></i>
-    </a>
- <div id="instructions-modal" class="modal">
-  <div class="modal-content">
-    <span class="close-btn" onclick="hideInstructions()"></span>
-    <h2>GST Reconciliation Tool</h2>
-    <h3>How to Use the Tool</h3>
-    <ol>
-      <li>Download the sample Excel file from the link to understand the format.</li>
-      <li>Copy and paste your GSTR-2B data into the "GST Portal" sheet from column B.</li>
-      <li>Copy and paste your GSTR-3B or books data into the "Client Data" sheet from column B.</li>
-      <li>Upload your Excel file on the GST Reconciliation Tool website.</li>
-      <li>Set the "Difference Allowed" value (default is 1) to adjust matching tolerance.</li>
-      <li>Check "Detailed Reconciliation" for specific match criteria, or leave unchecked for simple Match/Unmatch view.</li>
-      <li>Review the tables (GSTR-2B, GSTR-3B, and Summary) for results.</li>
-      <li>User can edit values directly on website if needed.</li>
-      <li>Download the reconciled output file by clicking "Download Reconciled Data".</li>
-      <li>For support, contact Sumit Garg via WhatsApp 9716804520 (click on WhatsApp icon).</li>
-    </ol><br>
-    <h3>Matching Heading Criteria</h3><br>
-    <p><strong>When Detailed Reconciliation is checked:</strong></p>
-    <ol>
-      <li><strong>Match - GSTN, Invoice No., Date</strong> - Matches based on GSTN, Invoice No., and Date.</li>
-      <li><strong>Match - GSTN, Invoice No.</strong> - Matches based on GSTN and Invoice No.</li>
-      <li><strong>Match - GSTN, Date</strong> - Matches based on GSTN and Date.</li>
-      <li><strong>Match - GSTN</strong> - Matches based on GSTN only.</li>
-      <li><strong>Unmatch - GSTN Not Exist</strong> - GSTN not found in other sheet.</li>
-      <li><strong>Unmatch - Amt Diff</strong> - GSTN and Invoice Number match, but amounts (Taxable Value, IGST, CGST, SGST) differ by more than the allowed difference.</li>
-      <li><strong>Unmatch</strong> - Other reasons, generally due to extra invoices in either GST-2B or GSTR-3B/Books</li>
-    </ol>
-    <p><strong>When Detailed Reconciliation is unchecked:</strong></p>
-    <ol>
-      <li><strong>Match</strong> - Any of the above match conditions met.</li>
-      <li><strong>Unmatch - GSTN Not Exist</strong> - GSTN not found in other sheet.</li>
-      <li><strong>Unmatch - Amt Diff</strong> - GSTN and Invoice Number match, but amounts (Taxable Value, IGST, CGST, SGST) differ by more than the allowed difference.</li>
-      <li><strong>Unmatch</strong> - Other reasons, generally due to extra invoices in either GST-2B or GSTR-3B/Books</li>
-    </ol>
-  </div>
-</div>
-  </body>
-  <footer>
-<div class="footer-links">
-      <a href="#">📞 Ph : 9716804520</a>
-      <a href="#">✉️ Email: Sumitgarg100000@gmail.com</a>
-      <a href="#">📍 Address: Rohini, Delhi-110086</a>
-    </div>
-    <div class="footer-links">
-      <a href="#">Privacy Policy</a>
-      <a href="#">Terms of Service</a>
-      <a href="#"></a>
-    </div>
-  </footer>
-</html>
