@@ -835,43 +835,50 @@ function restrictFreeServiceFeatures() {
         document.getElementById('diff-allowed').value = '1';
       }
 
-      function formatDate(dateInput) {
-  if (!dateInput) return '';
-  
+      function formatDate(excelDate) {
+  if (!excelDate) return ''; // Handle empty or null values
+
   let date;
-  
-  // Handle Excel serial dates (numbers between 40000-50000)
-  if (typeof dateInput === 'number' && dateInput > 40000 && dateInput < 50000) {
-    date = new Date((dateInput - 25569) * 86400 * 1000);
+  // Handle Excel serial dates (numbers like 44197)
+  if (typeof excelDate === 'number' && excelDate > 25569) {
+    date = new Date((excelDate - 25569) * 86400 * 1000);
   }
-  // Handle JavaScript Date objects
-  else if (dateInput instanceof Date) {
-    date = dateInput;
-  }
-  // Handle date strings
-  else if (typeof dateInput === 'string') {
-    // Try parsing different date string formats
-    date = new Date(dateInput);
+  // Handle string dates (e.g., "2025-03-01", "01-Mar-2025", or full date-time)
+  else if (typeof excelDate === 'string') {
+    // Replace common separators and normalize
+    const normalizedDate = excelDate.replace(/[/\\.,]/g, '-').trim();
+    date = new Date(normalizedDate);
+    // If invalid, try parsing common formats
     if (isNaN(date.getTime())) {
-      // If standard parsing fails, try manual parsing
-      const parts = dateInput.match(/(\d+)/g);
-      if (parts && parts.length >= 3) {
-        date = new Date(parts[2], parts[1]-1, parts[0]);
+      const parts = normalizedDate.split('-');
+      if (parts.length === 3) {
+        // Assume dd-mmm-yyyy or dd-mm-yyyy
+        const day = parseInt(parts[0], 10);
+        const month = parts[1].length === 3 ? 
+          ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
+            .indexOf(parts[1].toLowerCase()) : parseInt(parts[1], 10) - 1;
+        const year = parseInt(parts[2], 10);
+        date = new Date(year, month, day);
       }
     }
   }
-  else {
-    return ''; // Return empty string for unparseable dates
+  // Handle Date objects
+  else if (excelDate instanceof Date) {
+    date = excelDate;
   }
-  
-  if (isNaN(date.getTime())) return ''; // Check for invalid dates
-  
+  else {
+    return excelDate; // Return as-is if not a recognizable date
+  }
+
+  // If date is invalid, return empty string
+  if (isNaN(date.getTime())) return '';
+
+  // Format as dd-mmm-yyyy
   const day = String(date.getDate()).padStart(2, '0');
-  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
-                     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const month = monthNames[date.getMonth()];
   const year = date.getFullYear();
-  
+
   return `${day}-${month}-${year}`;
 }
 
@@ -971,19 +978,11 @@ function restrictFreeServiceFeatures() {
       }
 
       function handleFileUpload(event) {
-  const file = event.target.files[0];
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const data = new Uint8Array(e.target.result);
-    const workbook = XLSX.read(data, { 
-      type: 'array',
-      cellDates: true,  // Important for proper date parsing
-      dateNF: 'dd-mmm-yyyy'  // Preferred date format
-    });
-  
-
-
-  
+        const file = event.target.files[0];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array', cellDates:true, dateNF: 'dd-mmm-yyyy' });
           const gstr2bSheet = workbook.Sheets['GST Portal'];
           if (gstr2bSheet) {
             const rawData = XLSX.utils.sheet_to_json(gstr2bSheet, { header: 1, raw: true, defval: '' });
@@ -1005,49 +1004,36 @@ function restrictFreeServiceFeatures() {
 
       function displayData(data, containerId, headers, sheetType) {
   const container = document.getElementById(containerId);
+  const isFreeService = localStorage.getItem("isFreeService") === "true";
   let html = '<table><thead><tr>';
   headers.forEach(header => html += `<th>${header}</th>`);
   html += '</tr></thead><tbody>';
-  
   data.forEach((row, rowIndex) => {
     html += `<tr data-row="${rowIndex}" data-sheet="${sheetType}">`;
     headers.forEach((_, colIndex) => {
-      const cell = row[colIndex];
-      let value = '';
-      
-      // Special handling for dates in client data (column index 1)
+      let value = row[colIndex];
+      // Format Invoice Date specifically for Client Data (gstr3b) at index 1
       if (sheetType === 'gstr3b' && colIndex === 1) {
-        value = formatDate(cell); // Force format for client data date column
-      } 
-      // Handle Excel serial dates
-      else if (typeof cell === 'number' && (cell > 40000 && cell < 50000)) {
-        value = formatDate(cell);
+        value = formatDate(value); // Apply dd-mmm-yyyy format
       }
-      // Handle JavaScript Date objects
-      else if (cell instanceof Date) {
-        value = formatDate(cell);
+      // Format Invoice Date for GSTR-2B (index 5)
+      else if (sheetType === 'gstr2b' && colIndex === 5) {
+        value = formatDate(value); // Apply dd-mmm-yyyy format
       }
-      // Default handling
       else {
-        value = cell === undefined || cell === null ? '' : cell;
+        value = (value === undefined || value === null ? '' : value);
       }
-      
-      const isEditable = colIndex > 0;
+      const isEditable = colIndex > 0 && !isFreeService; // Only editable for normal users
       html += `<td contenteditable="${isEditable}" data-col="${colIndex}">${value}</td>`;
     });
     html += '</tr>';
   });
-  
   html += '</tbody></table>';
   container.innerHTML = html;
-  
-
-
-        
   const table = container.querySelector('table');
   table.addEventListener('input', handleCellEdit);
   if (filterEnabled) toggleFilters(); // Reapply filters if enabled
-  
+
   // Apply free service restrictions and colors
   if (isFreeService) {
     const cells = table.querySelectorAll("td");
@@ -1520,85 +1506,91 @@ function findMatch(row, sourceData, compareData, is3b, diffAllowed) {
 }
 
       async function generateOutput(reconciled2bData, reconciled3bData) {
-        const workbook = new ExcelJS.Workbook();
-        const ws1 = workbook.addWorksheet('GST Portal');
-        const headerRow1 = ws1.addRow(gstr2bHeaders());
-        headerRow1.eachCell(cell => {
-          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0FFFF' } };
-        });
-        
-reconciled2bData.forEach(row => {
-  const excelRow = row.map((cell, index) => {
-    if (index === 5) { // Assuming date is at index 5 in GSTR-2B
-      return formatDate(cell); // Format the date before writing to Excel
-    }
-    return cell === undefined || cell === null ? '' : cell;
+  const workbook = new ExcelJS.Workbook();
+  const ws1 = workbook.addWorksheet('GST Portal');
+  const headerRow1 = ws1.addRow(gstr2bHeaders());
+  headerRow1.eachCell(cell => {
+    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0FFFF' } };
   });
-  const addedRow = ws1.addRow(excelRow);
-  applyExcelRowColor(addedRow, row[0], gstr2bHeaders().length);
-});
 
-reconciled3bData.forEach(row => {
-  const excelRow = row.map((cell, index) => {
-    if (index === 1) { // Assuming date is at index 1 in GSTR-3B
-      return formatDate(cell); // Format the date before writing to Excel
-    }
-    return cell === undefined || cell === null ? '' : cell;
-  });
-  const addedRow = ws2.addRow(excelRow);
-  applyExcelRowColor(addedRow, row[0], gstr3bHeaders().length);
-});
-        
-        const ws3 = workbook.addWorksheet('Summary');
-        const summaryHeader1 = ws3.addRow(['Particulars', 'GST Portal', '', '', '', 'Client Data', '', '', '']);
-        const summaryHeader2 = ws3.addRow(['', 'Taxable Value', 'IGST', 'CGST', 'SGST', 'Taxable Value', 'IGST', 'CGST', 'SGST']);
-        ws3.mergeCells('A1:A2');
-        ws3.mergeCells('B1:E1');
-        ws3.mergeCells('F1:I1');
-        [summaryHeader1, summaryHeader2].forEach(row => {
-          row.eachCell(cell => {
-            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0FFFF' } };
-          });
-        });
-        const gstr2bSummary = calculateSummary(reconciled2bData, false);
-        const gstr3bSummary = calculateSummary(reconciled3bData, true);
-        const criteria = detailedReconciliationCheckbox.checked ?
-          ['Match - GSTN, Invoice No., Date', 'Match - GSTN, Invoice No.', 'Match - GSTN, Date', 'Match - GSTN', 'Unmatch - GSTN Not Exist', 'Unmatch'] :
-          ['Match', 'Unmatch - GSTN Not Exist', 'Unmatch'];
-        criteria.forEach(criterion => {
-          ws3.addRow([
-            criterion,
-            gstr2bSummary.summary[criterion].taxable,
-            gstr2bSummary.summary[criterion].igst,
-            gstr2bSummary.summary[criterion].cgst,
-            gstr2bSummary.summary[criterion].sgst,
-            gstr3bSummary.summary[criterion].taxable,
-            gstr3bSummary.summary[criterion].igst,
-            gstr3bSummary.summary[criterion].cgst,
-            gstr3bSummary.summary[criterion].sgst
-          ]);
-        });
-       
-        const totalRow = ws3.addRow([
-          'Total',
-          gstr2bSummary.total.taxable,
-          gstr2bSummary.total.igst,
-          gstr2bSummary.total.cgst,
-          gstr2bSummary.total.sgst,
-          gstr3bSummary.total.taxable,
-          gstr3bSummary.total.igst,
-          gstr3bSummary.total.cgst,
-          gstr3bSummary.total.sgst
-        ]);
-        totalRow.eachCell(cell => { cell.font = { bold: true }; });
-        const buffer = await workbook.xlsx.writeBuffer();
-        const blob = new Blob([buffer], { type: 'application/octet-stream' });
-        const url = URL.createObjectURL(blob);
-        const link = document.getElementById('download-output');
-        link.href = url;
-        link.download = 'Reconciled_GST_Data.xlsx';
-        document.getElementById('output-link').style.display = 'block';
+  reconciled2bData.forEach(row => {
+    const excelRow = row.map((cell, index) => {
+      if (index === 5) { // Invoice Date in GSTR-2B
+        return formatDate(cell); // Format as dd-mmm-yyyy
       }
+      return cell === undefined || cell === null ? '' : cell;
+    });
+    const addedRow = ws1.addRow(excelRow);
+    applyExcelRowColor(addedRow, row[0], gstr2bHeaders().length);
+  });
+
+  const ws2 = workbook.addWorksheet('Client Data');
+  const headerRow2 = ws2.addRow(gstr3bHeaders());
+  headerRow2.eachCell(cell => {
+    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0FFFF' } };
+  });
+
+  reconciled3bData.forEach(row => {
+    const excelRow = row.map((cell, index) => {
+      if (index === 1) { // Invoice Date in GSTR-3B
+        return formatDate(cell); // Format as dd-mmm-yyyy
+      }
+      return cell === undefined || cell === null ? '' : cell;
+    });
+    const addedRow = ws2.addRow(excelRow);
+    applyExcelRowColor(addedRow, row[0], gstr3bHeaders().length);
+  });
+
+  const ws3 = workbook.addWorksheet('Summary');
+  const summaryHeader1 = ws3.addRow(['Particulars', 'GST Portal', '', '', '', 'Client Data', '', '', '']);
+  const summaryHeader2 = ws3.addRow(['', 'Taxable Value', 'IGST', 'CGST', 'SGST', 'Taxable Value', 'IGST', 'CGST', 'SGST']);
+  ws3.mergeCells('A1:A2');
+  ws3.mergeCells('B1:E1');
+  ws3.mergeCells('F1:I1');
+  [summaryHeader1, summaryHeader2].forEach(row => {
+    row.eachCell(cell => {
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0FFFF' } };
+    });
+  });
+  const gstr2bSummary = calculateSummary(reconciled2bData, false);
+  const gstr3bSummary = calculateSummary(reconciled3bData, true);
+  const criteria = detailedReconciliationCheckbox.checked ?
+    ['Match - GSTN, Invoice No., Date', 'Match - GSTN, Invoice No.', 'Match - GSTN, Date', 'Match - GSTN', 'Unmatch - GSTN Not Exist', 'Unmatch - Amt Diff', 'Unmatch'] :
+    ['Match', 'Unmatch - GSTN Not Exist', 'Unmatch - Amt Diff', 'Unmatch'];
+  criteria.forEach(criterion => {
+    ws3.addRow([
+      criterion,
+      gstr2bSummary.summary[criterion].taxable,
+      gstr2bSummary.summary[criterion].igst,
+      gstr2bSummary.summary[criterion].cgst,
+      gstr2bSummary.summary[criterion].sgst,
+      gstr3bSummary.summary[criterion].taxable,
+      gstr3bSummary.summary[criterion].igst,
+      gstr3bSummary.summary[criterion].cgst,
+      gstr3bSummary.summary[criterion].sgst
+    ]);
+  });
+
+  const totalRow = ws3.addRow([
+    'Total',
+    gstr2bSummary.total.taxable,
+    gstr2bSummary.total.igst,
+    gstr2bSummary.total.cgst,
+    gstr2bSummary.total.sgst,
+    gstr3bSummary.total.taxable,
+    gstr3bSummary.total.igst,
+    gstr3bSummary.total.cgst,
+    gstr3bSummary.total.sgst
+  ]);
+  totalRow.eachCell(cell => { cell.font = { bold: true }; });
+  const buffer = await workbook.xlsx.writeBuffer();
+  const blob = new Blob([buffer], { type: 'application/octet-stream' });
+  const url = URL.createObjectURL(blob);
+  const link = document.getElementById('download-output');
+  link.href = url;
+  link.download = 'Reconciled_GST_Data.xlsx';
+  document.getElementById('output-link').style.display = 'block';
+}
 
       function applyExcelRowColor(row, match, columnCount) {
   const colors = detailedReconciliationCheckbox.checked ? {
