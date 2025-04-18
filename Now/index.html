@@ -835,16 +835,40 @@ function restrictFreeServiceFeatures() {
         document.getElementById('diff-allowed').value = '1';
       }
 
-      function formatDate(excelDate) {
-  if (!excelDate) return '';
+      function formatDate(dateInput) {
+  if (!dateInput) return '';
   
-  // Handle both Excel serial dates and string dates
-  const date = typeof excelDate === 'number' ? 
-    new Date((excelDate - 25569) * 86400 * 1000) :
-    new Date(excelDate);
+  let date;
+  
+  // Handle Excel serial dates (numbers between 40000-50000)
+  if (typeof dateInput === 'number' && dateInput > 40000 && dateInput < 50000) {
+    date = new Date((dateInput - 25569) * 86400 * 1000);
+  }
+  // Handle JavaScript Date objects
+  else if (dateInput instanceof Date) {
+    date = dateInput;
+  }
+  // Handle date strings
+  else if (typeof dateInput === 'string') {
+    // Try parsing different date string formats
+    date = new Date(dateInput);
+    if (isNaN(date.getTime())) {
+      // If standard parsing fails, try manual parsing
+      const parts = dateInput.match(/(\d+)/g);
+      if (parts && parts.length >= 3) {
+        date = new Date(parts[2], parts[1]-1, parts[0]);
+      }
+    }
+  }
+  else {
+    return ''; // Return empty string for unparseable dates
+  }
+  
+  if (isNaN(date.getTime())) return ''; // Check for invalid dates
   
   const day = String(date.getDate()).padStart(2, '0');
-  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const month = monthNames[date.getMonth()];
   const year = date.getFullYear();
   
@@ -947,11 +971,19 @@ function restrictFreeServiceFeatures() {
       }
 
       function handleFileUpload(event) {
-        const file = event.target.files[0];
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          const data = new Uint8Array(e.target.result);
-          const workbook = XLSX.read(data, { type: 'array', cellDates:true, dateNF: 'dd-mmm-yyyy' });
+  const file = event.target.files[0];
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const data = new Uint8Array(e.target.result);
+    const workbook = XLSX.read(data, { 
+      type: 'array',
+      cellDates: true,  // Important for proper date parsing
+      dateNF: 'dd-mmm-yyyy'  // Preferred date format
+    });
+  
+
+
+  
           const gstr2bSheet = workbook.Sheets['GST Portal'];
           if (gstr2bSheet) {
             const rawData = XLSX.utils.sheet_to_json(gstr2bSheet, { header: 1, raw: true, defval: '' });
@@ -973,22 +1005,45 @@ function restrictFreeServiceFeatures() {
 
       function displayData(data, containerId, headers, sheetType) {
   const container = document.getElementById(containerId);
-  const isFreeService = localStorage.getItem("isFreeService") === "true";
   let html = '<table><thead><tr>';
   headers.forEach(header => html += `<th>${header}</th>`);
   html += '</tr></thead><tbody>';
+  
   data.forEach((row, rowIndex) => {
     html += `<tr data-row="${rowIndex}" data-sheet="${sheetType}">`;
     headers.forEach((_, colIndex) => {
       const cell = row[colIndex];
-      const value = typeof cell === 'number' && (cell > 40000 && cell < 50000) ? formatDate(cell) : (cell === undefined || cell === null ? '' : cell);
-      const isEditable = colIndex > 0 && !isFreeService; // Only editable for normal users
+      let value = '';
+      
+      // Special handling for dates in client data (column index 1)
+      if (sheetType === 'gstr3b' && colIndex === 1) {
+        value = formatDate(cell); // Force format for client data date column
+      } 
+      // Handle Excel serial dates
+      else if (typeof cell === 'number' && (cell > 40000 && cell < 50000)) {
+        value = formatDate(cell);
+      }
+      // Handle JavaScript Date objects
+      else if (cell instanceof Date) {
+        value = formatDate(cell);
+      }
+      // Default handling
+      else {
+        value = cell === undefined || cell === null ? '' : cell;
+      }
+      
+      const isEditable = colIndex > 0;
       html += `<td contenteditable="${isEditable}" data-col="${colIndex}">${value}</td>`;
     });
     html += '</tr>';
   });
+  
   html += '</tbody></table>';
   container.innerHTML = html;
+  
+
+
+        
   const table = container.querySelector('table');
   table.addEventListener('input', handleCellEdit);
   if (filterEnabled) toggleFilters(); // Reapply filters if enabled
