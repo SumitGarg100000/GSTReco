@@ -964,13 +964,7 @@ function restrictFreeServiceFeatures() {
         reader.readAsArrayBuffer(file);
       }
 
-  function convertToSerial(dateInput) {
-  if (!dateInput) return '';
-  if (typeof dateInput === 'number') return dateInput;
-  const date = new Date(String(dateInput).replace(/[-\/.]/g, ' '));
-  if (isNaN(date)) return dateInput;
-  return Math.floor((date.getTime() / (1000 * 60 * 60 * 24)) + 25569);
-  }
+  
       function displayData(data, containerId, headers, sheetType) {
   const container = document.getElementById(containerId);
   const isFreeService = localStorage.getItem("isFreeService") === "true";
@@ -981,7 +975,7 @@ function restrictFreeServiceFeatures() {
     html += `<tr data-row="${rowIndex}" data-sheet="${sheetType}">`;
     headers.forEach((_, colIndex) => {
       const cell = row[colIndex];
-      const value = (sheetType === 'gstr3b' && colIndex === 1) ? formatDate(convertToSerial(cell)) : (typeof cell === 'number' && cell > 40000 && cell < 50000 ? formatDate(cell) : (cell === undefined || cell === null ? '' : cell));   
+      const value = typeof cell === 'number' && (cell > 40000 && cell < 50000) ? new Date((cell - 25569) * 86400 * 1000).toLocaleDateString('en-IN', {day: '2-digit', month: 'short', year: 'numeric'}).replace(/\//g, '-') : (cell === undefined || cell === null ? '' : cell);
       const isEditable = colIndex > 0 && !isFreeService; // Only editable for normal users
       html += `<td contenteditable="${isEditable}" data-col="${colIndex}">${value}</td>`;
     });
