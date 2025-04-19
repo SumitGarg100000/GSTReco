@@ -348,20 +348,25 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
         background: linear-gradient(45deg, #cc0000, #ff4444);
       }
       #download-sample{
-    padding: 12px 30px;
-    border: none;
-    border-radius: 25px;
-    color: white;
-    font-size: 1.1em;
-    cursor: pointer;
-    background: linear-gradient(45deg, #0288d1, #0277bd);
-    transition: all 0.2s;
-}
-#download-sample:hover {
-    background: linear-gradient(45deg, #0277bd, #0288d1);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
-}
+        color:white;
+      }
+      a#download-output {
+        display: block;
+        text-align: center;
+        margin: 20px auto;
+        color: #00796b;
+        text-decoration: none;
+        font-weight: bold;
+        transition: color 0.3s;
+      }
+      a#download-output:hover {
+        color: #004d40;
+      }
+      #expiry-message {
+  font-size: 1.2em;
+  margin: 10px 0;
+  transition: opacity 0.5s ease;
+      }
       .match-gstn-inv-date { background-color: #00ced1 !important; color: white !important; }
 .match-inv { background-color: #4b0082 !important; color: white !important; }
 .match-gstn-date { background-color: #32cd32 !important; color: white !important; }
@@ -518,6 +523,9 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
 <div class="explanation" id="explanation-container">
   <h2>How to Use the GST Reconciliation Tool</h2>
   <p>The GST Reconciliation Tool is designed to help you easily compare and match your GST data from GSTR-2B and GSTR-3B. This guide will walk you through the process step by step.</p>
+  <h3>Watch Tutorial Video</h3>
+  <p>Check out our step-by-step tutorial video on YouTube to learn how to use the GST Reconciliation Tool effectively:</p>
+  <p><a href="https://youtu.be/pTR1yrEHlrU" class="youtube-link" target="_blank" rel="noopener noreferrer">Click Here</a></p>
   
   <h3>Step-by-Step Guide</h3>
   <ol>
@@ -575,13 +583,11 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
       <!-- Tool Section -->
       <div id="tool-section" class="hidden">
         <h1>GST Reconciliation Tool</h1>
+        <p id="expiry-message">
         <button onclick="logout()">Logout</button>
-        <div>
-    <button id="download-sample" onclick="generateSampleFile(event)">Download Sample Excel File</button>
-          <button id="reconcile-btn">Reconcile</button>
-          <button id="reset-btn">Reset Data</button>
-          
-  </div>
+        <div class="button-style" style="display: flex; justify-content: center; gap: 10px; margin: 20px 0;">
+  <button id="download-sample">Download Sample Excel File</button>
+</div>
         <div class="input-section">
           <div>
             <label for="diff-allowed">Difference Allowed (Default: 1):</label>
@@ -612,12 +618,12 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
           <div id="summary-container" class="table-container"></div>
         </div>
         <div class="button-container">
-          <h3>Reconciled Output:</h3>
-          <a id="download-output" href="#">Download Reconciled Data</a>
+          <button id="reconcile-btn">Reconcile</button>
+          <button id="reset-btn">Reset Data</button>
         </div>
         <div id="output-link" style="display: none;">
-          
-        
+          <h3>Reconciled Output:</h3>
+          <a id="download-output" href="#">Download Reconciled Data</a>
         </div>
       </div>
     </div>
@@ -637,41 +643,74 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
     
 
 <script>
-        //   if (window.location.href.toLowerCase(). includes("https://sumitgarg100000.github.io/GSTReconciliation/")) {
+        //   if (window.location.href.toLowerCase(). includes("https://sumitgarg100000.github.io")) {
        let gstr2bData = localStorage.getItem('gstr2bData') ? JSON.parse(localStorage.getItem('gstr2bData')) : [];
   let gstr3bData = localStorage.getItem('gstr3bData') ? JSON.parse(localStorage.getItem('gstr3bData')) : [];
   const detailedReconciliationCheckbox = document.getElementById('detailed-reconciliation');
 
   // ***Change 1: Page Load Check ko Improve Karna***
   document.addEventListener("DOMContentLoaded", function() {
-    const loggedInUser = localStorage.getItem("loggedInUser");
-    if (loggedInUser && checkSubscription(loggedInUser)) { // <--- Highlight: Condition Simplified
-      showTool(); // Agar user logged in hai aur subscription valid hai, to tool dikhao
+  const loggedInUser = localStorage.getItem("loggedInUser");
+  const isFreeService = localStorage.getItem("isFreeService") === "true";
+  
+  if (loggedInUser) {
+    if (isFreeService) {
+      showTool(); // Free service user, show tool directly
+      restrictFreeServiceFeatures(); // Apply free service restrictions
+    } else if (checkSubscription(loggedInUser)) {
+      showTool(); // Normal user with valid subscription
     } else {
-      showLogin(); // Warna login page dikhao
+      showLogin(); // Subscription expired, show login
     }
-  });
+  } else {
+    showLogin(); // No user logged in, show login
+  }
+});
 
-  // Login Function (No Change Needed)
   function login() {
   const username = document.getElementById("username").value;
   const password = document.getElementById("password").value;
   const error = document.getElementById("error");
 
+  console.log("Login attempt with username:", username);
   if (users[username] && users[username].password === password) {
+    console.log("User found, checking subscription...");
     if (checkSubscription(username)) {
+      console.log("Subscription valid, setting localStorage and showing tool");
       localStorage.setItem("loggedInUser", username);
-      localStorage.setItem("isFreeService", "false"); // Normal login
+      localStorage.setItem("isFreeService", "false");
       showTool();
-      // Clear input fields after successful login
+
+      const expiryMessage = document.getElementById("expiry-message");
+      if (expiryMessage) {
+        console.log("Expiry message element found, setting text:", users[username].expiry);
+        expiryMessage.textContent = `Subscription Expiry: ${users[username].expiry}`;
+        expiryMessage.style.display = "block";
+        expiryMessage.style.opacity = "1";
+
+        setTimeout(() => {
+          console.log("Hiding expiry message after 10 seconds");
+          expiryMessage.style.opacity = "0";
+          setTimeout(() => {
+            expiryMessage.style.display = "none";
+            expiryMessage.style.opacity = "1";
+            console.log("Expiry message hidden and reset");
+          }, 500);
+        }, 10000);
+      } else {
+        console.error("Expiry message element not found!");
+      }
+
       document.getElementById("username").value = "";
       document.getElementById("password").value = "";
-      error.textContent = ""; // Clear error message if any
+      error.textContent = "";
     } else {
       error.textContent = "Your subscription has expired!";
+      console.log("Subscription expired for user:", username);
     }
   } else {
     error.textContent = "Invalid username or password!";
+    console.log("Invalid username or password for:", username);
   }
 }
 
@@ -1570,11 +1609,8 @@ function findMatch(row, sourceData, compareData, is3b, diffAllowed) {
   }
 }
 
-//      }   else      {       alert("Don't waste your time for copying. This file is fully secured by Sumit Garg. If any query, Contact - Sumit Garg, Ph. No. - 9716804520, Email - SumitGarg100000@Gmail.com ");     }
-      
-    </script>
 
-<script>
+  
 
   // Filter State
 let filterEnabled = false;
@@ -1865,6 +1901,11 @@ function displayData(data, containerId, headers, sheetType) {
   table.addEventListener('input', handleCellEdit);
   if (filterEnabled) toggleFilters(); // Reapply filters if enabled
 }
+
+  //      }   else      {       alert("This GST Reconciliation tool is fully secured by Sumit Garg. If not working or face any problem in accessing then contact to me. Name - Sumit Garg, Ph. No. - 9716804520, Email - SumitGarg100000@Gmail.com ");     }
+      
+
+  
 </script>
 
     
