@@ -366,6 +366,7 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
   font-size: 1.2em;
   margin: 10px 0;
   transition: opacity 0.5s ease;
+        color : Red;
       }
       .match-gstn-inv-date { background-color: #00ced1 !important; color: white !important; }
 .match-inv { background-color: #4b0082 !important; color: white !important; }
@@ -583,9 +584,9 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
       <!-- Tool Section -->
       <div id="tool-section" class="hidden">
         <h1>GST Reconciliation Tool</h1>
-        <p id="expiry-message">
-        <button onclick="logout()">Logout</button>
-        <div class="button-style" style="display: flex; justify-content: center; gap: 10px; margin: 20px 0;">
+        <p id="expiry-message" style="display: none; text-align: center;"></p>
+  <div style="text-align: center; margin: 10px 0;"><button onclick="logout()">Logout</button></div>
+<div class="button-style" style="display: flex; justify-content: center; gap: 10px; margin: 20px 0;">
   <button id="download-sample">Download Sample Excel File</button>
 </div>
         <div class="input-section">
