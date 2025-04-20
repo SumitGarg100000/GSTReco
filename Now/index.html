@@ -72,13 +72,35 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
       }
       
       .container {
-        max-width: 1300px;
-        margin: 0 auto;
-        background: #fff;
-        padding: 30px;
-        border-radius: 15px;
-        box-shadow: 0 8px 20px rgba(0, 61, 115, 0.1);
-      }
+  max-width: 100%; /* Changed from 1300px to full width */
+  width: 100%;
+  margin: 0;
+  background: #fff;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0, 61, 115, 0.1);
+  min-height: calc(100vh - 60px); /* Adjust height to fit viewport minus body padding */
+  display: flex;
+  flex-direction: column;
+}
+
+.login-card {
+  max-width: 90%; /* Responsive width */
+  width: 600px; /* Slightly wider for better appearance */
+  margin: 20px auto;
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0, 61, 115, 0.1);
+  flex-grow: 1; /* Allow login card to expand */
+  overflow-y: auto; /* Scroll only within login card if content overflows */
+}
+
+#login-section {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
       
       h1 {
         text-align: center;
@@ -291,18 +313,9 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
       tr:nth-child(even) td {
         background-color: #f5f9ff;
       }
+
       
-      /* Match Criteria Colors */
-      .match-gstn-inv-date { background-color: #00ced1 !important; color: white !important; }
-      .match-inv { background-color: #4b0082 !important; color: white !important; }
-      .match-gstn-date { background-color: #32cd32 !important; color: white !important; }
-      .match-gstn { background-color: #ffbf00 !important; }
-      .gstn-not-match { background-color: #dc143c !important; color: white !important; }
-      .amt-diff { background-color: #ff4500 !important; color: white !important; }
-      .no-match { background-color: #ff00ff !important; color: white !important; }
-      .match { background-color: #00ced1 !important; color: white !important; }
-      
-      #login-section, #tool-section {
+       #tool-section {
         transition: all 0.5s ease;
       }
       
@@ -310,14 +323,7 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
         display: none;
       }
       
-      .login-card {
-        max-width: 500px;
-        margin: 20px auto;
-        background: white;
-        padding: 30px;
-        border-radius: 10px;
-        box-shadow: 0 8px 20px rgba(0, 61, 115, 0.1);
-      }
+      
       
       #error {
         color: #e53935;
@@ -1577,101 +1583,133 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
       }
 
       function applyFreeServiceColors() {
-        const isFreeService = localStorage.getItem("isFreeService") === "true";
-        if (!isFreeService) return; // Sirf free service mode mein kaam kare
+  const isFreeService = localStorage.getItem("isFreeService") === "true";
+  if (!isFreeService) return;
 
-        const tables = document.querySelectorAll("#gstr2b-container table, #gstr3b-container table");
-        tables.forEach(table => {
-          const rows = table.querySelectorAll("tbody tr");
-          rows.forEach(row => {
-            const match = row.cells[0].textContent; // Match criteria from first cell
-            let backgroundColor = "#f0f0f0"; // Default locked color
-            let textColor = "black"; // Default text color
+  const tables = document.querySelectorAll("#gstr2b-container table, #gstr3b-container table");
+  tables.forEach(table => {
+    const rows = table.querySelectorAll("tbody tr");
+    rows.forEach(row => {
+      const match = row.cells[0].textContent;
+      let backgroundColor = '#f0f0f0'; // Default locked color
+      let textColor = 'black';
 
-            // Match criteria ke hisaab se colors set karo
-            if (detailedReconciliationCheckbox.checked) {
-              switch (match) {
-                case 'Match - GSTN, Invoice No., Date':
-                  backgroundColor = "#00ced1"; // Turquoise
-                  textColor = "white";
-                  break;
-                case 'Match - GSTN, Invoice No.':
-                  backgroundColor = "#4b0082"; // Indigo
-                  textColor = "white";
-                  break;
-                case 'Match - GSTN, Date':
-                  backgroundColor = "#32cd32"; // Lime Green
-                  textColor = "white";
-                  break;
-                case 'Match - GSTN':
-                  backgroundColor = "#ffbf00"; // Amber
-                  textColor = "black";
-                  break;
-                case 'Unmatch - GSTN Not Exist':
-                  backgroundColor = "#dc143c"; // Crimson
-                  textColor = "white";
-                  break;
-                case 'Unmatch - Amt Diff':
-                  backgroundColor = "#ff4500"; // Orange Red
-                  textColor = "white";
-                  break;
-                default:
-                  backgroundColor = "#ff00ff"; // Magenta
-                  textColor = "white";
-                  break;
-              }
-            } else {
-              switch (match) {
-                case 'Match':
-                  backgroundColor = "#00ced1"; // Turquoise
-                  textColor = "white";
-                  break;
-                case 'Unmatch - GSTN Not Exist':
-                  backgroundColor = "#dc143c"; // Crimson
-                  textColor = "white";
-                  break;
-                case 'Unmatch - Amt Diff':
-                  backgroundColor = "#ff4500"; // Orange Red
-                  textColor = "white";
-                  break;
-                default:
-                  backgroundColor = "#ff00ff"; // Magenta
-                  textColor = "white";
-                  break;
-              }
-            }
-
-            // Har cell par color apply karo
-            const cells = row.querySelectorAll("td");
-            cells.forEach(cell => {
-              cell.style.backgroundColor = backgroundColor;
-              cell.style.color = textColor;
-            });
-          });
-        });
-      }
-
-      function colorRow(rowElement, match) {
-        rowElement.className = '';
-        if (detailedReconciliationCheckbox.checked) {
-          switch (match) {
-            case 'Match - GSTN, Invoice No., Date': rowElement.classList.add('match-gstn-inv-date'); break;
-            case 'Match - GSTN, Invoice No.': rowElement.classList.add('match-inv'); break;
-            case 'Match - GSTN, Date': rowElement.classList.add('match-gstn-date'); break;
-            case 'Match - GSTN': rowElement.classList.add('match-gstn'); break;
-            case 'Unmatch - GSTN Not Exist': rowElement.classList.add('gstn-not-match'); break;
-            case 'Unmatch - Amt Diff': rowElement.classList.add('amt-diff'); break;
-            default: rowElement.classList.add('no-match'); break;
-          }
-        } else {
-          switch (match) {
-            case 'Match': rowElement.classList.add('match'); break;
-            case 'Unmatch - GSTN Not Exist': rowElement.classList.add('gstn-not-match'); break;
-            case 'Unmatch - Amt Diff': rowElement.classList.add('amt-diff'); break;
-            default: rowElement.classList.add('no-match'); break;
-          }
+      if (detailedReconciliationCheckbox.checked) {
+        switch (match) {
+          case 'Match - GSTN, Invoice No., Date':
+            backgroundColor = '#00ced1';
+            textColor = 'white';
+            break;
+          case 'Match - GSTN, Invoice No.':
+            backgroundColor = '#4b0082';
+            textColor = 'white';
+            break;
+          case 'Match - GSTN, Date':
+            backgroundColor = '#32cd32';
+            textColor = 'white';
+            break;
+          case 'Match - GSTN':
+            backgroundColor = '#ffbf00';
+            textColor = 'black';
+            break;
+          case 'Unmatch - GSTN Not Exist':
+            backgroundColor = '#dc143c';
+            textColor = 'white';
+            break;
+          case 'Unmatch - Amt Diff':
+            backgroundColor = '#ff4500';
+            textColor = 'white';
+            break;
+          default:
+            backgroundColor = '#ff00ff';
+            textColor = 'white';
+            break;
+        }
+      } else {
+        switch (match) {
+          case 'Match':
+            backgroundColor = '#00ced1';
+            textColor = 'white';
+            break;
+          case 'Unmatch - GSTN Not Exist':
+            backgroundColor = '#dc143c';
+            textColor = 'white';
+            break;
+          case 'Unmatch - Amt Diff':
+            backgroundColor = '#ff4500';
+            textColor = 'white';
+            break;
+          default:
+            backgroundColor = '#ff00ff';
+            textColor = 'white';
+            break;
         }
       }
+
+      const cells = row.querySelectorAll("td");
+      cells.forEach(cell => {
+        cell.style.backgroundColor = backgroundColor;
+        cell.style.color = textColor;
+        cell.style.fontWeight = 'normal';
+      });
+    });
+  });
+}
+
+      function colorRow(rowElement, match) {
+  rowElement.className = ''; // Clear existing classes
+  let backgroundColor = '';
+  let textColor = 'white'; // Default to white for visibility
+
+  if (detailedReconciliationCheckbox.checked) {
+    switch (match) {
+      case 'Match - GSTN, Invoice No., Date':
+        backgroundColor = '#00ced1'; // Turquoise
+        break;
+      case 'Match - GSTN, Invoice No.':
+        backgroundColor = '#4b0082'; // Indigo
+        break;
+      case 'Match - GSTN, Date':
+        backgroundColor = '#32cd32'; // Lime Green
+        break;
+      case 'Match - GSTN':
+        backgroundColor = '#ffbf00'; // Amber
+        textColor = 'black'; // Black text for better contrast
+        break;
+      case 'Unmatch - GSTN Not Exist':
+        backgroundColor = '#dc143c'; // Crimson
+        break;
+      case 'Unmatch - Amt Diff':
+        backgroundColor = '#ff4500'; // Orange Red
+        break;
+      default:
+        backgroundColor = '#ff00ff'; // Magenta
+        break;
+    }
+  } else {
+    switch (match) {
+      case 'Match':
+        backgroundColor = '#00ced1'; // Turquoise
+        break;
+      case 'Unmatch - GSTN Not Exist':
+        backgroundColor = '#dc143c'; // Crimson
+        break;
+      case 'Unmatch - Amt Diff':
+        backgroundColor = '#ff4500'; // Orange Red
+        break;
+      default:
+        backgroundColor = '#ff00ff'; // Magenta
+        break;
+    }
+  }
+
+  // Apply styles to all cells in the row
+  Array.from(rowElement.cells).forEach(cell => {
+    cell.style.backgroundColor = backgroundColor;
+    cell.style.color = textColor;
+    cell.style.fontWeight = 'normal'; // Ensure font is visible
+  });
+}
 
       function calculateSummary(data, is3b) {
         const headers = is3b ? gstr3bHeaders() : gstr2bHeaders();
@@ -1708,47 +1746,90 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
       }
 
       function displaySummary(reconciled2bData, reconciled3bData) {
-        const gstr2bSummary = calculateSummary(reconciled2bData, false);
-        const gstr3bSummary = calculateSummary(reconciled3bData, true);
-        const container = document.getElementById('summary-container');
-        let html = '<table><thead><tr>';
-        html += '<th rowspan="2">Particulars</th>';
-        html += '<th colspan="4">GST Portal</th>';
-        html += '<th colspan="4">Client Data</th>';
-        html += '</tr><tr>';
-        ['Taxable Value', 'IGST', 'CGST', 'SGST'].forEach(header => html += `<th>${header}</th>`);
-        ['Taxable Value', 'IGST', 'CGST', 'SGST'].forEach(header => html += `<th>${header}</th>`);
-        html += '</tr></thead><tbody>';
-        const criteria = detailedReconciliationCheckbox.checked ?
-          ['Match - GSTN, Invoice No., Date', 'Match - GSTN, Invoice No.', 'Match - GSTN, Date', 'Match - GSTN', 'Unmatch - GSTN Not Exist', 'Unmatch - Amt Diff', 'Unmatch'] :
-          ['Match', 'Unmatch - GSTN Not Exist', 'Unmatch - Amt Diff', 'Unmatch'];
-        criteria.forEach(criterion => {
-          html += '<tr>';
-          html += `<td>${criterion}</td>`;
-          html += `<td>${(gstr2bSummary.summary[criterion]?.taxable || 0).toFixed(2)}</td>`;
-          html += `<td>${(gstr2bSummary.summary[criterion]?.igst || 0).toFixed(2)}</td>`;
-          html += `<td>${(gstr2bSummary.summary[criterion]?.cgst || 0).toFixed(2)}</td>`;
-          html += `<td>${(gstr2bSummary.summary[criterion]?.sgst || 0).toFixed(2)}</td>`;
-          html += `<td>${(gstr3bSummary.summary[criterion]?.taxable || 0).toFixed(2)}</td>`;
-          html += `<td>${(gstr3bSummary.summary[criterion]?.igst || 0).toFixed(2)}</td>`;
-          html += `<td>${(gstr3bSummary.summary[criterion]?.cgst || 0).toFixed(2)}</td>`;
-          html += `<td>${(gstr3bSummary.summary[criterion]?.sgst || 0).toFixed(2)}</td>`;
-          html += '</tr>';
-        });
-        html += '<tr>';
-        html += '<td><strong>Total</strong></td>';
-        html += `<td><strong>${gstr2bSummary.total.taxable.toFixed(2)}</strong></td>`;
-        html += `<td><strong>${gstr2bSummary.total.igst.toFixed(2)}</strong></td>`;
-        html += `<td><strong>${gstr2bSummary.total.cgst.toFixed(2)}</strong></td>`;
-        html += `<td><strong>${gstr2bSummary.total.sgst.toFixed(2)}</strong></td>`;
-        html += `<td><strong>${gstr3bSummary.total.taxable.toFixed(2)}</strong></td>`;
-        html += `<td><strong>${gstr3bSummary.total.igst.toFixed(2)}</strong></td>`;
-        html += `<td><strong>${gstr3bSummary.total.cgst.toFixed(2)}</strong></td>`;
-        html += `<td><strong>${gstr3bSummary.total.sgst.toFixed(2)}</strong></td>`;
-        html += '</tr>';
-        html += '</tbody></table>';
-        container.innerHTML = html;
+  const gstr2bSummary = calculateSummary(reconciled2bData, false);
+  const gstr3bSummary = calculateSummary(reconciled3bData, true);
+  const container = document.getElementById('summary-container');
+  let html = '<table><thead><tr>';
+  html += '<th rowspan="2">Particulars</th>';
+  html += '<th colspan="4">GST Portal</th>';
+  html += '<th colspan="4">Client Data</th>';
+  html += '</tr><tr>';
+  ['Taxable Value', 'IGST', 'CGST', 'SGST'].forEach(header => html += `<th>${header}</th>`);
+  ['Taxable Value', 'IGST', 'CGST', 'SGST'].forEach(header => html += `<th>${header}</th>`);
+  html += '</tr></thead><tbody>';
+  const criteria = detailedReconciliationCheckbox.checked ?
+    ['Match - GSTN, Invoice No., Date', 'Match - GSTN, Invoice No.', 'Match - GSTN, Date', 'Match - GSTN', 'Unmatch - GSTN Not Exist', 'Unmatch - Amt Diff', 'Unmatch'] :
+    ['Match', 'Unmatch - GSTN Not Exist', 'Unmatch - Amt Diff', 'Unmatch'];
+  criteria.forEach(criterion => {
+    let backgroundColor = '';
+    let textColor = 'white';
+    if (detailedReconciliationCheckbox.checked) {
+      switch (criterion) {
+        case 'Match - GSTN, Invoice No., Date':
+          backgroundColor = '#00ced1';
+          break;
+        case 'Match - GSTN, Invoice No.':
+          backgroundColor = '#4b0082';
+          break;
+        case 'Match - GSTN, Date':
+          backgroundColor = '#32cd32';
+          break;
+        case 'Match - GSTN':
+          backgroundColor = '#ffbf00';
+          textColor = 'black';
+          break;
+        case 'Unmatch - GSTN Not Exist':
+          backgroundColor = '#dc143c';
+          break;
+        case 'Unmatch - Amt Diff':
+          backgroundColor = '#ff4500';
+          break;
+        default:
+          backgroundColor = '#ff00ff';
+          break;
       }
+    } else {
+      switch (criterion) {
+        case 'Match':
+          backgroundColor = '#00ced1';
+          break;
+        case 'Unmatch - GSTN Not Exist':
+          backgroundColor = '#dc143c';
+          break;
+        case 'Unmatch - Amt Diff':
+          backgroundColor = '#ff4500';
+          break;
+        default:
+          backgroundColor = '#ff00ff';
+          break;
+      }
+    }
+    html += `<tr style="background-color: ${backgroundColor}; color: ${textColor};">`;
+    html += `<td>${criterion}</td>`;
+    html += `<td>${(gstr2bSummary.summary[criterion]?.taxable || 0).toFixed(2)}</td>`;
+    html += `<td>${(gstr2bSummary.summary[criterion]?.igst || 0).toFixed(2)}</td>`;
+    html += `<td>${(gstr2bSummary.summary[criterion]?.cgst || 0).toFixed(2)}</td>`;
+    html += `<td>${(gstr2bSummary.summary[criterion]?.sgst || 0).toFixed(2)}</td>`;
+    html += `<td>${(gstr3bSummary.summary[criterion]?.taxable || 0).toFixed(2)}</td>`;
+    html += `<td>${(gstr3bSummary.summary[criterion]?.igst || 0).toFixed(2)}</td>`;
+    html += `<td>${(gstr3bSummary.summary[criterion]?.cgst || 0).toFixed(2)}</td>`;
+    html += `<td>${(gstr3bSummary.summary[criterion]?.sgst || 0).toFixed(2)}</td>`;
+    html += '</tr>';
+  });
+  html += '<tr style="font-weight: bold;">';
+  html += '<td><strong>Total</strong></td>';
+  html += `<td><strong>${gstr2bSummary.total.taxable.toFixed(2)}</strong></td>`;
+  html += `<td><strong>${gstr2bSummary.total.igst.toFixed(2)}</strong></td>`;
+  html += `<td><strong>${gstr2bSummary.total.cgst.toFixed(2)}</strong></td>`;
+  html += `<td><strong>${gstr2bSummary.total.sgst.toFixed(2)}</strong></td>`;
+  html += `<td><strong>${gstr3bSummary.total.taxable.toFixed(2)}</strong></td>`;
+  html += `<td><strong>${gstr3bSummary.total.igst.toFixed(2)}</strong></td>`;
+  html += `<td><strong>${gstr3bSummary.total.cgst.toFixed(2)}</strong></td>`;
+  html += `<td><strong>${gstr3bSummary.total.sgst.toFixed(2)}</strong></td>`;
+  html += '</tr>';
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
 
       async function generateOutput(reconciled2bData, reconciled3bData) {
         const workbook = new ExcelJS.Workbook();
