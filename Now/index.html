@@ -305,15 +305,15 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
       }
       
       td {
-        border: 1px solid #cce0ff;
-        padding: 10px;
-        text-align: left;
-        background-color: white;
-      }
-      
-      tr:nth-child(even) td {
-        background-color: #f5f9ff;
-      }
+  border: 1px solid #cce0ff;
+  padding: 10px;
+  text-align: left;
+  /* Remove background-color to allow tr inline styles */
+}
+
+tr:nth-child(even) td {
+  /* Remove background-color to allow tr inline styles */
+}
 
       
        #tool-section {
@@ -552,6 +552,9 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   z-index: 20;
   font-family: 'Segoe UI', Arial, sans-serif; /* Consistent font */
+}
+      .filter-dropdown-content.show {
+  display: block;
 }
 
 .filter-input {
@@ -1319,36 +1322,36 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
       }
 
       function displayData(data, containerId, headers, sheetType) {
-        const container = document.getElementById(containerId);
-        const isFreeService = localStorage.getItem("isFreeService") === "true";
-        let html = '<table><thead><tr>';
-        headers.forEach(header => html += `<th>${header}</th>`);
-        html += '</tr></thead><tbody>';
-        data.forEach((row, rowIndex) => {
-          html += `<tr data-row="${rowIndex}" data-sheet="${sheetType}">`;
-          headers.forEach((_, colIndex) => {
-            const cell = row[colIndex];
-            const value = typeof cell === 'number' && (cell > 40000 && cell < 50000) ? formatDate(cell) : (cell === undefined || cell === null ? '' : cell);
-            const isEditable = colIndex > 0 && !isFreeService; // Only editable for normal users
-            html += `<td contenteditable="${isEditable}" data-col="${colIndex}">${value}</td>`;
-          });
-          html += '</tr>';
-        });
-        html += '</tbody></table>';
-        container.innerHTML = html;
-        const table = container.querySelector('table');
-        table.addEventListener('input', handleCellEdit);
-        if (filterEnabled) toggleFilters(); // Reapply filters if enabled
+  const container = document.getElementById(containerId);
+  const isFreeService = localStorage.getItem("isFreeService") === "true";
+  let html = '<table><thead><tr>';
+  headers.forEach(header => html += `<th>${header}</th>`);
+  html += '</tr></thead><tbody>';
+  data.forEach((row, rowIndex) => {
+    html += `<tr data-row="${rowIndex}" data-sheet="${sheetType}">`;
+    headers.forEach((_, colIndex) => {
+      const cell = row[colIndex];
+      const value = typeof cell === 'number' && (cell > 40000 && cell < 50000) ? formatDate(cell) : (cell === undefined || cell === null ? '' : cell);
+      const isEditable = colIndex > 0 && !isFreeService; // Editable only for normal users
+      html += `<td contenteditable="${isEditable}" data-col="${colIndex}">${value}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  container.innerHTML = html;
+  const table = container.querySelector('table');
+  table.addEventListener('input', handleCellEdit);
+  if (filterEnabled) toggleFilters(); // Reapply filters if enabled
 
-        // Apply free service restrictions and colors
-        if (isFreeService) {
-          const cells = table.querySelectorAll("td");
-          cells.forEach(cell => {
-            cell.setAttribute("contenteditable", "false");
-          });
-          applyFreeServiceColors(); // Colors apply karo
-        }
-      }
+  // Apply free service restrictions and colors
+  if (isFreeService) {
+    const cells = table.querySelectorAll("td");
+    cells.forEach(cell => {
+      cell.setAttribute("contenteditable", "false");
+    });
+    applyFreeServiceColors(); // Apply colors for free service mode
+  }
+}
 
       function handleCellEdit(event) {
         const target = event.target;
@@ -1638,7 +1641,8 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
   const isFreeService = localStorage.getItem("isFreeService") === "true";
   if (!isFreeService) return;
 
-  const tables = document.querySelectorAll("#gstr2b-container table, #gstr3b-container table");
+  // Apply to GSTR-2B and GSTR-3B tables
+  const tables = document.querySelectorAll("#gstr2b-container table, #gstr3b-container table, #summary-container table");
   tables.forEach(table => {
     const rows = table.querySelectorAll("tbody tr");
     rows.forEach(row => {
@@ -1672,6 +1676,10 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
             backgroundColor = '#ff4500';
             textColor = 'white';
             break;
+          case 'Unmatch':
+            backgroundColor = '#ff00ff';
+            textColor = 'white';
+            break;
           default:
             backgroundColor = '#ff00ff';
             textColor = 'white';
@@ -1691,6 +1699,10 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
             backgroundColor = '#ff4500';
             textColor = 'white';
             break;
+          case 'Unmatch':
+            backgroundColor = '#ff00ff';
+            textColor = 'white';
+            break;
           default:
             backgroundColor = '#ff00ff';
             textColor = 'white';
@@ -1707,7 +1719,6 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
     });
   });
 }
-
       function colorRow(rowElement, match) {
   rowElement.className = ''; // Clear existing classes
   let backgroundColor = '';
@@ -1856,16 +1867,16 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
           break;
       }
     }
-    html += `<tr style="background-color: ${backgroundColor}; color: ${textColor};">`;
-    html += `<td>${criterion}</td>`;
-    html += `<td>${(gstr2bSummary.summary[criterion]?.taxable || 0).toFixed(2)}</td>`;
-    html += `<td>${(gstr2bSummary.summary[criterion]?.igst || 0).toFixed(2)}</td>`;
-    html += `<td>${(gstr2bSummary.summary[criterion]?.cgst || 0).toFixed(2)}</td>`;
-    html += `<td>${(gstr2bSummary.summary[criterion]?.sgst || 0).toFixed(2)}</td>`;
-    html += `<td>${(gstr3bSummary.summary[criterion]?.taxable || 0).toFixed(2)}</td>`;
-    html += `<td>${(gstr3bSummary.summary[criterion]?.igst || 0).toFixed(2)}</td>`;
-    html += `<td>${(gstr3bSummary.summary[criterion]?.cgst || 0).toFixed(2)}</td>`;
-    html += `<td>${(gstr3bSummary.summary[criterion]?.sgst || 0).toFixed(2)}</td>`;
+    html += '<tr>';
+    html += `<td style="background-color: ${backgroundColor}; color: ${textColor};">${criterion}</td>`;
+    html += `<td style="background-color: ${backgroundColor}; color: ${textColor};">${(gstr2bSummary.summary[criterion]?.taxable || 0).toFixed(2)}</td>`;
+    html += `<td style="background-color: ${backgroundColor}; color: ${textColor};">${(gstr2bSummary.summary[criterion]?.igst || 0).toFixed(2)}</td>`;
+    html += `<td style="background-color: ${backgroundColor}; color: ${textColor};">${(gstr2bSummary.summary[criterion]?.cgst || 0).toFixed(2)}</td>`;
+    html += `<td style="background-color: ${backgroundColor}; color: ${textColor};">${(gstr2bSummary.summary[criterion]?.sgst || 0).toFixed(2)}</td>`;
+    html += `<td style="background-color: ${backgroundColor}; color: ${textColor};">${(gstr3bSummary.summary[criterion]?.taxable || 0).toFixed(2)}</td>`;
+    html += `<td style="background-color: ${backgroundColor}; color: ${textColor};">${(gstr3bSummary.summary[criterion]?.igst || 0).toFixed(2)}</td>`;
+    html += `<td style="background-color: ${backgroundColor}; color: ${textColor};">${(gstr3bSummary.summary[criterion]?.cgst || 0).toFixed(2)}</td>`;
+    html += `<td style="background-color: ${backgroundColor}; color: ${textColor};">${(gstr3bSummary.summary[criterion]?.sgst || 0).toFixed(2)}</td>`;
     html += '</tr>';
   });
   html += '<tr style="font-weight: bold;">';
@@ -1881,6 +1892,11 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
   html += '</tr>';
   html += '</tbody></table>';
   container.innerHTML = html;
+
+  // Apply free service colors if needed
+  if (localStorage.getItem("isFreeService") === "true") {
+    applyFreeServiceColors();
+  }
 }
       async function generateOutput(reconciled2bData, reconciled3bData) {
         const workbook = new ExcelJS.Workbook();
@@ -2091,9 +2107,16 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
 
       // Toggle Dropdown Visibility
       function toggleDropdown(dropdown) {
-        const content = dropdown.querySelector('.filter-dropdown-content');
-        content.classList.toggle('show');
-      }
+  const content = dropdown.querySelector('.filter-dropdown-content');
+  // Close all other dropdowns
+  document.querySelectorAll('.filter-dropdown-content.show').forEach(otherDropdown => {
+    if (otherDropdown !== content) {
+      otherDropdown.classList.remove('show');
+    }
+  });
+  // Toggle the clicked dropdown
+  content.classList.toggle('show');
+}
 
       // Populate Filter Options
       function populateFilterOptions(optionsDiv, containerId, colIndex) {
