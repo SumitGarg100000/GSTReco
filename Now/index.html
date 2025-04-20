@@ -71,30 +71,31 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
         padding: 30px;
       }
       
-      .container {
-  max-width: 100%; /* Changed from 1300px to full width */
-  width: 100%;
-  margin: 0;
+ .container {
+  max-width: 100%; /* Full width */
+  width: 98%; /* Slightly less than 100% to avoid edge-to-edge */
+  margin: 0 auto;
   background: #fff;
-  padding: 30px;
+  padding: 20px; /* Reduced padding for compact look */
   border-radius: 15px;
   box-shadow: 0 8px 20px rgba(0, 61, 115, 0.1);
-  min-height: calc(100vh - 60px); /* Adjust height to fit viewport minus body padding */
+  min-height: calc(80vh - 40px); /* Reduced height (80% of viewport) */
   display: flex;
   flex-direction: column;
 }
 
 .login-card {
-  max-width: 90%; /* Responsive width */
-  width: 600px; /* Slightly wider for better appearance */
-  margin: 20px auto;
+  max-width: 95%; /* Increased width for desktop */
+  width: 800px; /* Wider for desktop */
+  margin: 10px auto; /* Reduced margin for compact look */
   background: white;
-  padding: 30px;
+  padding: 20px; /* Reduced padding */
   border-radius: 10px;
   box-shadow: 0 8px 20px rgba(0, 61, 115, 0.1);
-  flex-grow: 1; /* Allow login card to expand */
-  overflow-y: auto; /* Scroll only within login card if content overflows */
+  flex-grow: 1;
+  overflow-y: auto; /* Scroll within login card */
 }
+
 
 #login-section {
   display: flex;
@@ -169,9 +170,9 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
       }
       
       button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-      }
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
       
       button:active {
         transform: translateY(1px);
@@ -540,65 +541,105 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
       }
       
       .filter-dropdown-content {
-        display: none;
-        position: absolute;
-        background-color: #fff;
-        min-width: 200px;
-        max-height: 300px;
-        overflow-y: auto;
-        border: 1px solid #cce0ff;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        z-index: 20;
-      }
-      
-      .filter-dropdown-content.show {
-        display: block;
-      }
-      
-      .filter-input {
-        width: 100%;
-        padding: 8px;
-        border: 1px solid #cce0ff;
-        border-radius: 4px;
-        margin-bottom: 5px;
-      }
-      
-      .filter-option {
-        padding: 8px 10px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-      
-      .filter-option:hover {
-        background-color: #f0f8ff;
-      }
-      
-      .sort-actions {
-        padding: 8px;
-        border-top: 1px solid #cce0ff;
-        display: flex;
-        justify-content: space-between;
-      }
-      
-      .sort-actions button {
-        background: #1a73e8;
-        color: white;
-        border: none;
-        padding: 5px 10px;
-        margin: 0 2px;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 12px;
-        box-shadow: none;
-      }
-      
-      .sort-actions button:hover {
-        background: #0d47a1;
-        transform: none;
-      }
-      
+  display: none;
+  position: absolute;
+  background-color: #fff;
+  min-width: 200px;
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #cce0ff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 20;
+  font-family: 'Segoe UI', Arial, sans-serif; /* Consistent font */
+}
+
+.filter-input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #cce0ff;
+  border-radius: 4px;
+  margin-bottom: 5px;
+  font-size: 14px; /* Match sorting button font size */
+  font-weight: 400; /* Normal weight for clarity */
+}
+
+.filter-option {
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px; /* Match sorting button font size */
+  font-weight: 400; /* Normal weight for readability */
+  color: #333; /* Darker color for visibility */
+}
+
+.filter-option:hover {
+  background-color: #f0f8ff;
+}
+
+.filter-option input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #1a73e8; /* Blue checkbox to match theme */
+}
+
+.filter-option label {
+  font-weight: 400; /* Normal weight */
+  color: #333; /* Darker for visibility */
+}
+
+.filter-actions {
+  padding: 8px;
+  border-top: 1px solid #cce0ff;
+  display: flex;
+  justify-content: space-between;
+}
+
+.filter-actions button {
+  background: #1a73e8; /* Match sorting button background */
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  margin: 0 2px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px; /* Match sorting button font size */
+  font-weight: 600; /* Match sorting button weight */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  transition: background 0.3s ease; /* Smooth hover transition */
+}
+
+.filter-actions button:hover {
+  background: #0d47a1; /* Match sorting button hover */
+  transform: none; /* Keep consistent with sorting buttons */
+}
+
+.sort-actions {
+  padding: 8px;
+  border-top: 1px solid #cce0ff;
+  display: flex;
+  justify-content: space-between;
+}
+
+.sort-actions button {
+  background: #1a73e8;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  margin: 0 2px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: background 0.3s ease;
+}
+
+.sort-actions button:hover {
+  background: #0d47a1;
+  transform: none;
+}
       /* Explanation Section */
       .explanation {
         margin-top: 20px;
@@ -650,9 +691,20 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
           width: 100%;
         }
         
-        .container {
-          padding: 15px;
-        }
+
+  
+  .container {
+    width: 100%; /* Full width on mobile */
+    min-height: calc(100vh - 60px); /* Full height on mobile */
+    padding: 15px;
+  }
+
+  .login-card {
+    max-width: 90%;
+    width: 100%; /* Responsive width on mobile */
+    padding: 15px;
+  }
+
         
         h1 {
           font-size: 2em;
@@ -685,7 +737,7 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
             <input type="password" id="password" value="" placeholder="Enter password" class="w-full">
           </div>
           <div class="flex flex-wrap justify-center gap-4">
-            <button onclick="login()" class="flex-1"><i class="fas fa-sign-in-alt"></i> Login</button>
+            <button onclick="login()" style="background: linear-gradient(145deg, #1a73e8, #0d47a1); color: white;" class="flex-1"><i class="fas fa-sign-in-alt"></i> Login</button>
             <button onclick="freeServiceLogin()" style="background: linear-gradient(145deg, #ff9800, #f57c00); color: white;" class="flex-1">
               <i class="fas fa-user-check"></i> Free Service Login
             </button>
@@ -1766,41 +1818,41 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
     if (detailedReconciliationCheckbox.checked) {
       switch (criterion) {
         case 'Match - GSTN, Invoice No., Date':
-          backgroundColor = '#00ced1';
+          backgroundColor = '#00ced1'; // Turquoise
           break;
         case 'Match - GSTN, Invoice No.':
-          backgroundColor = '#4b0082';
+          backgroundColor = '#4b0082'; // Indigo
           break;
         case 'Match - GSTN, Date':
-          backgroundColor = '#32cd32';
+          backgroundColor = '#32cd32'; // Lime Green
           break;
         case 'Match - GSTN':
-          backgroundColor = '#ffbf00';
+          backgroundColor = '#ffbf00'; // Amber
           textColor = 'black';
           break;
         case 'Unmatch - GSTN Not Exist':
-          backgroundColor = '#dc143c';
+          backgroundColor = '#dc143c'; // Crimson
           break;
         case 'Unmatch - Amt Diff':
-          backgroundColor = '#ff4500';
+          backgroundColor = '#ff4500'; // Orange Red
           break;
         default:
-          backgroundColor = '#ff00ff';
+          backgroundColor = '#ff00ff'; // Magenta
           break;
       }
     } else {
       switch (criterion) {
         case 'Match':
-          backgroundColor = '#00ced1';
+          backgroundColor = '#00ced1'; // Turquoise
           break;
         case 'Unmatch - GSTN Not Exist':
-          backgroundColor = '#dc143c';
+          backgroundColor = '#dc143c'; // Crimson
           break;
         case 'Unmatch - Amt Diff':
-          backgroundColor = '#ff4500';
+          backgroundColor = '#ff4500'; // Orange Red
           break;
         default:
-          backgroundColor = '#ff00ff';
+          backgroundColor = '#ff00ff'; // Magenta
           break;
       }
     }
@@ -1830,7 +1882,6 @@ Unmatch: Data does not meet any match criteria, generally due to extra invoices 
   html += '</tbody></table>';
   container.innerHTML = html;
 }
-
       async function generateOutput(reconciled2bData, reconciled3bData) {
         const workbook = new ExcelJS.Workbook();
         const ws1 = workbook.addWorksheet('GST Portal');
