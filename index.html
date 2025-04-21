@@ -2537,23 +2537,10 @@ document.getElementById('receiver-email').addEventListener('input', function() {
       });
     }
 
-    // Add summary
-    body += '\n=== Summary ===\n';
-    const summaryTable = document.getElementById('summary-container').querySelector('table');
-    if (summaryTable) {
-      const rows = summaryTable.querySelectorAll('tr');
-      rows.forEach(row => {
-        const cells = row.querySelectorAll('th, td');
-        let rowText = '';
-        cells.forEach(cell => {
-          rowText += cell.textContent.trim() + '\t';
-        });
-        body += rowText.trim() + '\n';
-      });
-    }
 
     return body;
   }
+
 
   // Add event listener for send email button
   document.getElementById('send-email-btn').addEventListener('click', () => {
