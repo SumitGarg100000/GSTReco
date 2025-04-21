@@ -1068,7 +1068,7 @@ tr:nth-child(even) td {
         "user2": { password: "pass456", expiry: "2025-05-15" }
       };
 
-       //  if (window.location.href.toLowerCase(). includes("https://sumitgarg100000.github.io")) {
+         if (window.location.href.toLowerCase(). includes("https://sumitgarg100000.github.io")) {
       let gstr2bData = localStorage.getItem('gstr2bData') ? JSON.parse(localStorage.getItem('gstr2bData')) : [];
       let gstr3bData = localStorage.getItem('gstr3bData') ? JSON.parse(localStorage.getItem('gstr3bData')) : [];
       const detailedReconciliationCheckbox = document.getElementById('detailed-reconciliation');
@@ -2448,6 +2448,165 @@ document.getElementById('receiver-email').addEventListener('input', function() {
         if (filterEnabled) toggleFilters(); // Reapply filters if enabled
       }
 
+
+
+  // ... existing code ...
+
+  /* ===== ADD THIS NEW CODE SECTION STARTING HERE ===== */
+  // Function to validate email addresses
+  function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
+  // Function to get filtered entries based on dropdown selection
+  function getFilteredEntries() {
+    const entryFilter = document.getElementById('entry-filter').value;
+    const filtered = {
+      gstr2b: [],
+      gstr3b: []
+    };
+
+    // Filter GSTR-2B entries
+    gstr2bData.forEach(row => {
+      const matchCriteria = row[0];
+      if (entryFilter === 'all' || 
+          (entryFilter === 'match' && matchCriteria.includes('Match')) ||
+          (entryFilter === 'unmatch' && (matchCriteria.includes('Unmatch') || matchCriteria === 'Unmatch'))) {
+        filtered.gstr2b.push(row);
+      }
+    });
+
+    // Filter GSTR-3B entries
+    gstr3bData.forEach(row => {
+      const matchCriteria = row[0];
+      if (entryFilter === 'all' || 
+          (entryFilter === 'match' && matchCriteria.includes('Match')) ||
+          (entryFilter === 'unmatch' && (matchCriteria.includes('Unmatch') || matchCriteria === 'Unmatch'))) {
+        filtered.gstr3b.push(row);
+      }
+    });
+
+    return filtered;
+  }
+
+  // Function to format entries as plain text
+  function formatEntriesAsText(filtered) {
+    let body = 'GST Reconciliation Report\n\n';
+    body += `Filter: ${document.getElementById('entry-filter').options[document.getElementById('entry-filter').selectedIndex].text}\n\n`;
+
+    // GSTR-2B Entries
+    body += '=== GSTR-2B Entries ===\n';
+    if (filtered.gstr2b.length === 0) {
+      body += 'No entries found.\n';
+    } else {
+      body += `Total Entries: ${filtered.gstr2b.length}\n\n`;
+      filtered.gstr2b.forEach((row, index) => {
+        body += `Entry ${index + 1}:\n`;
+        body += `Match Status: ${row[0]}\n`;
+        body += `GSTN: ${row[1] || ''}\n`;
+        body += `Supplier: ${row[2] || ''}\n`;
+        body += `Invoice No: ${row[3] || ''}\n`;
+        body += `Date: ${row[5] || ''}\n`;
+        body += `Taxable Value: ${row[10] || 0}\n`;
+        body += `IGST: ${row[11] || 0}\n`;
+        body += `CGST: ${row[12] || 0}\n`;
+        body += `SGST: ${row[13] || 0}\n\n`;
+      });
+    }
+
+    body += '\n';
+
+    // GSTR-3B Entries
+    body += '=== GSTR-3B Entries ===\n';
+    if (filtered.gstr3b.length === 0) {
+      body += 'No entries found.\n';
+    } else {
+      body += `Total Entries: ${filtered.gstr3b.length}\n\n`;
+      filtered.gstr3b.forEach((row, index) => {
+        body += `Entry ${index + 1}:\n`;
+        body += `Match Status: ${row[0]}\n`;
+        body += `Date: ${row[1] || ''}\n`;
+        body += `GSTN: ${row[2] || ''}\n`;
+        body += `Supplier: ${row[3] || ''}\n`;
+        body += `Invoice No: ${row[4] || ''}\n`;
+        body += `Taxable Value: ${row[5] || 0}\n`;
+        body += `IGST: ${row[6] || 0}\n`;
+        body += `CGST: ${row[7] || 0}\n`;
+        body += `SGST: ${row[8] || 0}\n\n`;
+      });
+    }
+
+    // Add summary
+    body += '\n=== Summary ===\n';
+    const summaryTable = document.getElementById('summary-container').querySelector('table');
+    if (summaryTable) {
+      const rows = summaryTable.querySelectorAll('tr');
+      rows.forEach(row => {
+        const cells = row.querySelectorAll('th, td');
+        let rowText = '';
+        cells.forEach(cell => {
+          rowText += cell.textContent.trim() + '\t';
+        });
+        body += rowText.trim() + '\n';
+      });
+    }
+
+    return body;
+  }
+
+  // Add event listener for send email button
+  document.getElementById('send-email-btn').addEventListener('click', () => {
+    const senderEmail = document.getElementById('sender-email').value.trim();
+    const receiverEmail = document.getElementById('receiver-email').value.trim();
+    const errorElement = document.getElementById('email-error');
+
+    // Validate email addresses
+    if (!senderEmail || !receiverEmail) {
+      errorElement.textContent = 'Please enter both sender and receiver email addresses.';
+      errorElement.classList.remove('hidden');
+      return;
+    }
+
+    if (!isValidEmail(senderEmail) || !isValidEmail(receiverEmail)) {
+      errorElement.textContent = 'Please enter valid email addresses.';
+      errorElement.classList.remove('hidden');
+      return;
+    }
+
+    // Clear error message
+    errorElement.textContent = '';
+    errorElement.classList.add('hidden');
+
+    // Get filtered entries based on dropdown selection
+    const filtered = getFilteredEntries();
+
+    // Format email body as plain text
+    const emailBody = formatEntriesAsText(filtered);
+    const subject = `GST Reconciliation Report - ${document.getElementById('entry-filter').options[document.getElementById('entry-filter').selectedIndex].text}`;
+
+    // Create mailto URL
+    const mailtoUrl = `mailto:${receiverEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
+
+    // Open email client
+    try {
+      window.open(mailtoUrl, '_blank');
+    } catch (e) {
+      errorElement.textContent = 'Failed to open email client. Please check your email client settings.';
+      errorElement.classList.remove('hidden');
+    }
+  });
+  /* ===== NEW CODE SECTION ENDS HERE ===== */
+
+
+
+
+
+      
+
+
+      
+      
       function showInstructions() {
         document.getElementById("instructions-modal").style.display = "block";
       }
@@ -2574,7 +2733,8 @@ document.getElementById('send-email-btn').addEventListener('click', () => {
   }
 });
 
-     //       }   else      {       alert("This GST Reconciliation tool is fully secured by Sumit Garg. If not working or face any problem in accessing then contact to me. Name - Sumit Garg, Ph. No. - 9716804520, Email - SumitGarg100000@Gmail.com ");     }
+           }   else      {       alert("This GST Reconciliation tool is fully secured by Sumit Garg. If not working or face any problem in accessing then contact to me. Name - Sumit Garg, Ph. No. - 9716804520, Email - SumitGarg100000@Gmail.com ");     }
+
 
 
       
