@@ -2360,6 +2360,25 @@ function isValidEmail(email) {
   return emailRegex.test(email);
 }
 
+// Define common columns for GSTR-2B and GSTR-3B
+const commonColumns = [
+  'Match Criteria',
+  'GSTN',
+  'Name of Supplier',
+  'Invoice Number',
+  'Invoice Date',
+  'Taxable Value',
+  'IGST',
+  'CGST',
+  'SGST',
+  'Invoice Value'
+];
+
+// Function to get column indices for GSTR-2B and GSTR-3B
+function getColumnIndices(headers, commonCols) {
+  return commonCols.map(col => headers.indexOf(col));
+}
+
 // Function to extract unmatched entries
 function getUnmatchedEntries() {
   const unmatched = {
@@ -2367,11 +2386,17 @@ function getUnmatchedEntries() {
     gstr3b: []
   };
 
+  // Get column indices for common columns
+  const gstr2bIndices = getColumnIndices(gstr2bHeaders(), commonColumns);
+  const gstr3bIndices = getColumnIndices(gstr3bHeaders(), commonColumns);
+
   // Filter GSTR-2B unmatched entries
   gstr2bData.forEach(row => {
     const matchCriteria = row[0];
     if (matchCriteria === 'Unmatch - Amt Diff' || matchCriteria === 'Unmatch') {
-      unmatched.gstr2b.push(row);
+      // Extract only common columns
+      const filteredRow = gstr2bIndices.map(index => row[index] || '');
+      unmatched.gstr2b.push(filteredRow);
     }
   });
 
@@ -2379,48 +2404,99 @@ function getUnmatchedEntries() {
   gstr3bData.forEach(row => {
     const matchCriteria = row[0];
     if (matchCriteria === 'Unmatch - Amt Diff' || matchCriteria === 'Unmatch') {
-      unmatched.gstr3b.push(row);
+      // Extract only common columns
+      const filteredRow = gstr3bIndices.map(index => row[index] || '');
+      unmatched.gstr3b.push(filteredRow);
     }
   });
 
   return unmatched;
 }
 
-// Function to format unmatched entries as plain text
+// Function to format unmatched entries as HTML tables
 function formatUnmatchedEntries(unmatched) {
-  let body = 'GST Reconciliation - Unmatched Entries\n\n';
+  const maxEntries = 10; // Limit to 10 entries per table to avoid URL length issues
+  let html = `
+    <html>
+    <body style="font-family: Arial, sans-serif; color: #333;">
+      <h2 style="color: #0e4377;">GST Reconciliation - Unmatched Entries</h2>
+  `;
 
-  // GSTR-2B Unmatched Entries
-  body += '=== GSTR-2B Unmatched Entries ===\n';
+  // GSTR-2B Unmatched Entries Table
+  html += `
+    <h3 style="color: #1a5fb4;">GSTR-2B Unmatched Entries</h3>
+  `;
   if (unmatched.gstr2b.length === 0) {
-    body += 'No unmatched entries found.\n';
+    html += `<p>No unmatched entries found.</p>`;
   } else {
-    unmatched.gstr2b.forEach((row, index) => {
-      body += `Entry ${index + 1}:\n`;
-      gstr2bHeaders().forEach((header, i) => {
-        body += `${header}: ${row[i] || ''}\n`;
-      });
-      body += '\n';
+    if (unmatched.gstr2b.length > maxEntries) {
+      html += `<p>Showing first ${maxEntries} of ${unmatched.gstr2b.length} entries. Download the reconciled file for full details.</p>`;
+      unmatched.gstr2b = unmatched.gstr2b.slice(0, maxEntries);
+    }
+    html += `
+      <table border="1" style="border-collapse: collapse; width: 100%; margin-bottom: 20px;">
+        <thead>
+          <tr style="background-color: #e6f3ff; color: #0e4377;">
+            ${commonColumns.map(header => `<th style="padding: 8px; text-align: left;">${header}</th>`).join('')}
+          </tr>
+        </thead>
+        <tbody>
+    `;
+    unmatched.gstr2b.forEach(row => {
+      html += `
+        <tr>
+          ${row.map(cell => `<td style="padding: 8px;">${cell}</td>`).join('')}
+        </tr>
+      `;
     });
+    html += `
+        </tbody>
+      </table>
+    `;
   }
 
-  body += '\n';
-
-  // GSTR-3B Unmatched Entries
-  body += '=== GSTR-3B Unmatched Entries ===\n';
+  // GSTR-3B Unmatched Entries Table
+  html += `
+    <h3 style="color: #1a5fb4;">GSTR-3B Unmatched Entries</h3>
+  `;
   if (unmatched.gstr3b.length === 0) {
-    body += 'No unmatched entries found.\n';
+    html += `<p>No unmatched entries found.</p>`;
   } else {
-    unmatched.gstr3b.forEach((row, index) => {
-      body += `Entry ${index + 1}:\n`;
-      gstr3bHeaders().forEach((header, i) => {
-        body += `${header}: ${row[i] || ''}\n`;
-      });
-      body += '\n';
+    if (unmatched.gstr3b.length > maxEntries) {
+      html += `<p>Showing first ${maxEntries} of ${unmatched.gstr3b.length} entries. Download the reconciled file for full details.</p>`;
+      unmatched.gstr3b = unmatched.gstr3b.slice(0, maxEntries);
+    }
+    html += `
+      <table border="1" style="border-collapse: collapse; width: 100%; margin-bottom: 20px;">
+        <thead>
+          <tr style="background-color: #e6f3ff; color: #0e4377;">
+            ${commonColumns.map(header => `<th style="padding: 8px; text-align: left;">${header}</th>`).join('')}
+          </tr>
+        </thead>
+        <tbody>
+    `;
+    unmatched.gstr3b.forEach(row => {
+      html += `
+        <tr>
+          ${row.map(cell => `<td style="padding: 8px;">${cell}</td>`).join('')}
+        </tr>
+      `;
     });
+    html += `
+        </tbody>
+      </table>
+    `;
   }
 
-  return body;
+  html += `
+      <p style="font-size: 14px; color: #666;">
+        Note: This email contains unmatched entries from the GST Reconciliation Tool. For the complete dataset, please download the reconciled Excel file from the tool.
+      </p>
+    </body>
+    </html>
+  `;
+
+  return html;
 }
 
 // Handle Send Email Button Click
@@ -2464,8 +2540,6 @@ document.getElementById('send-email-btn').addEventListener('click', () => {
     errorElement.classList.remove('hidden');
   }
 });
-
-
 
       
     </script>
