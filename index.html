@@ -2355,6 +2355,7 @@ tr:nth-child(even) td {
 
 
 // Function to validate email addresses
+// Function to validate email addresses
 function isValidEmail(email) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
@@ -2415,29 +2416,35 @@ function getUnmatchedEntries() {
 
 // Function to format unmatched entries as HTML tables
 function formatUnmatchedEntries(unmatched) {
-  const maxEntries = 10; // Limit to 10 entries per table to avoid URL length issues
+  const maxEntries = 8; // Reduced to 8 to minimize URL length issues
   let html = `
-    <html>
-    <body style="font-family: Arial, sans-serif; color: #333;">
-      <h2 style="color: #0e4377;">GST Reconciliation - Unmatched Entries</h2>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+      <title>GST Reconciliation - Unmatched Entries</title>
+    </head>
+    <body style="font-family: Arial, Helvetica, sans-serif; color: #333333; margin: 0; padding: 20px;">
+      <h2 style="color: #0e4377; margin-bottom: 20px;">GST Reconciliation - Unmatched Entries</h2>
   `;
 
   // GSTR-2B Unmatched Entries Table
   html += `
-    <h3 style="color: #1a5fb4;">GSTR-2B Unmatched Entries</h3>
+    <h3 style="color: #1a5fb4; margin: 15px 0;">GSTR-2B Unmatched Entries</h3>
   `;
   if (unmatched.gstr2b.length === 0) {
-    html += `<p>No unmatched entries found.</p>`;
+    html += `<p style="margin-bottom: 20px;">No unmatched entries found.</p>`;
   } else {
     if (unmatched.gstr2b.length > maxEntries) {
-      html += `<p>Showing first ${maxEntries} of ${unmatched.gstr2b.length} entries. Download the reconciled file for full details.</p>`;
+      html += `<p style="margin-bottom: 10px;">Showing first ${maxEntries} of ${unmatched.gstr2b.length} entries. Download the reconciled file for full details.</p>`;
       unmatched.gstr2b = unmatched.gstr2b.slice(0, maxEntries);
     }
     html += `
-      <table border="1" style="border-collapse: collapse; width: 100%; margin-bottom: 20px;">
+      <table style="border-collapse: collapse; width: 100%; margin-bottom: 30px; border: 1px solid #cccccc;">
         <thead>
           <tr style="background-color: #e6f3ff; color: #0e4377;">
-            ${commonColumns.map(header => `<th style="padding: 8px; text-align: left;">${header}</th>`).join('')}
+            ${commonColumns.map(header => `<th style="padding: 10px; text-align: left; border: 1px solid #cccccc; font-weight: bold;">${header}</th>`).join('')}
           </tr>
         </thead>
         <tbody>
@@ -2445,7 +2452,7 @@ function formatUnmatchedEntries(unmatched) {
     unmatched.gstr2b.forEach(row => {
       html += `
         <tr>
-          ${row.map(cell => `<td style="padding: 8px;">${cell}</td>`).join('')}
+          ${row.map(cell => `<td style="padding: 10px; border: 1px solid #cccccc;">${cell}</td>`).join('')}
         </tr>
       `;
     });
@@ -2457,20 +2464,20 @@ function formatUnmatchedEntries(unmatched) {
 
   // GSTR-3B Unmatched Entries Table
   html += `
-    <h3 style="color: #1a5fb4;">GSTR-3B Unmatched Entries</h3>
+    <h3 style="color: #1a5fb4; margin: 15px 0;">GSTR-3B Unmatched Entries</h3>
   `;
   if (unmatched.gstr3b.length === 0) {
-    html += `<p>No unmatched entries found.</p>`;
+    html += `<p style="margin-bottom: 20px;">No unmatched entries found.</p>`;
   } else {
     if (unmatched.gstr3b.length > maxEntries) {
-      html += `<p>Showing first ${maxEntries} of ${unmatched.gstr3b.length} entries. Download the reconciled file for full details.</p>`;
+      html += `<p style="margin-bottom: 10px;">Showing first ${maxEntries} of ${unmatched.gstr3b.length} entries. Download the reconciled file for full details.</p>`;
       unmatched.gstr3b = unmatched.gstr3b.slice(0, maxEntries);
     }
     html += `
-      <table border="1" style="border-collapse: collapse; width: 100%; margin-bottom: 20px;">
+      <table style="border-collapse: collapse; width: 100%; margin-bottom: 30px; border: 1px solid #cccccc;">
         <thead>
           <tr style="background-color: #e6f3ff; color: #0e4377;">
-            ${commonColumns.map(header => `<th style="padding: 8px; text-align: left;">${header}</th>`).join('')}
+            ${commonColumns.map(header => `<th style="padding: 10px; text-align: left; border: 1px solid #cccccc; font-weight: bold;">${header}</th>`).join('')}
           </tr>
         </thead>
         <tbody>
@@ -2478,7 +2485,7 @@ function formatUnmatchedEntries(unmatched) {
     unmatched.gstr3b.forEach(row => {
       html += `
         <tr>
-          ${row.map(cell => `<td style="padding: 8px;">${cell}</td>`).join('')}
+          ${row.map(cell => `<td style="padding: 10px; border: 1px solid #cccccc;">${cell}</td>`).join('')}
         </tr>
       `;
     });
@@ -2489,8 +2496,8 @@ function formatUnmatchedEntries(unmatched) {
   }
 
   html += `
-      <p style="font-size: 14px; color: #666;">
-        Note: This email contains unmatched entries from the GST Reconciliation Tool. For the complete dataset, please download the reconciled Excel file from the tool.
+      <p style="font-size: 12px; color: #666666; margin-top: 20px;">
+        This email was generated by the GST Reconciliation Tool. For the complete dataset, please download the reconciled Excel file from the tool.
       </p>
     </body>
     </html>
@@ -2529,7 +2536,7 @@ document.getElementById('send-email-btn').addEventListener('click', () => {
   const emailBody = formatUnmatchedEntries(unmatched);
   const subject = 'GST Reconciliation - Unmatched Entries Report';
 
-  // Create mailto URL
+  // Create mailto URL with HTML content
   const mailtoUrl = `mailto:${receiverEmail}?from=${senderEmail}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
 
   // Open email client
