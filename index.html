@@ -651,6 +651,49 @@ tr:nth-child(even) td {
       .youtube-link:hover {
         text-decoration: underline;
       }
+         /* Custom Dropdown Styles */
+      .custom-select {
+        position: relative;
+        display: inline-block;
+        min-width: 150px;
+        margin: 0 10px;
+      }
+      
+      .custom-select select {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 100%;
+        padding: 10px 15px;
+        border: 2px solid #1a73e8;
+        border-radius: 8px;
+        background-color: #f5f9ff;
+        color: #0e4377;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.3s ease;
+      }
+      
+      .custom-select select:hover {
+        border-color: #0d47a1;
+        background-color: #e6f3ff;
+      }
+      
+      .custom-select select:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.2);
+      }
+      
+      .custom-select::after {
+        content: "\25BC";
+        position: absolute;
+        top: 50%;
+        right: 15px;
+        transform: translateY(-50%);
+        color: #1a73e8;
+        pointer-events: none;
+      }
+      
       
       /* Responsive Styles */
       @media (max-width: 768px) {
@@ -694,6 +737,17 @@ tr:nth-child(even) td {
           flex-direction: column;
           gap: 10px;
         }
+
+.custom-select {
+          width: 100%;
+          margin: 10px 0;
+        }
+        
+        .email-section .flex {
+          flex-direction: column;
+          gap: 10px;
+        }
+        
       }
     </style>
   </head>
@@ -834,10 +888,10 @@ tr:nth-child(even) td {
           </div>
 
 
-        <!-- New Email Section -->
+     <!-- New Email Section with Dropdown Filters -->
   <div class="email-section" style="background: #f0f8ff; padding: 15px; border-radius: 10px; border: 1px dashed #1a73e8; margin: 20px 0;">
-    <h3 class="text-lg font-bold mb-2">Send Unmatched Entries via Email</h3>
-    <div class="flex flex-wrap gap-4">
+    <h3 class="text-lg font-bold mb-2">Email Reconciliation Results</h3>
+    <div class="flex flex-wrap gap-4" mb-4 items-center">
       <div class="flex-1">
         <label for="sender-email" class="block mb-2">Sender Email:</label>
         <input type="email" id="sender-email" placeholder="Enter sender email" class="w-full" required>
@@ -845,12 +899,34 @@ tr:nth-child(even) td {
       <div class="flex-1">
         <label for="receiver-email" class="block mb-2">Receiver Email:</label>
         <input type="email" id="receiver-email" placeholder="Enter receiver email" class="w-full" required>
+
+        
       </div>
     </div>
-    <div class="button-container mt-4">
+
+     <div class="flex items-center justify-center gap-4 flex-wrap">
+            <!-- Entry Filter Dropdown -->
+            <div class="custom-select">
+              <label for="entry-filter" class="block mb-2">Filter Entries:</label>
+              <select id="entry-filter">
+                <option value="all">All Entries</option>
+                <option value="match">Match Only</option>
+                <option value="unmatch">Unmatch Only</option>
+              </select>
+            </div>
+       <!-- Send Email Button -->
       <button id="send-email-btn" style="background: linear-gradient(145deg, #ff9800, #f57c00); color: white;">
         <i class="fas fa-envelope"></i> Send Email
       </button>
+         <!-- Export Format Dropdown -->
+            <div class="custom-select">
+              <label for="export-format" class="block mb-2">Export Format:</label>
+              <select id="export-format">
+                <option value="excel">Excel</option>
+                <option value="pdf">PDF</option>
+                <option value="both">Both</option>
+              </select>
+            </div>
     </div>
     <p id="email-error" class="text-red-600 text-center mt-2 hidden"></p>
   </div>
@@ -918,6 +994,8 @@ tr:nth-child(even) td {
 
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/exceljs@4.3.0/dist/exceljs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.25/dist/jspdf.plugin.autotable.min.js"></script>
     <script>
       const users = {
         "Sumitgarg" : { password: "Garg@123", expiry: "2026-04-30"},
