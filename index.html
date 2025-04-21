@@ -998,80 +998,99 @@ tr:nth-child(even) td {
 
       // ***Change 1: Page Load Check ko Improve Karna***
       document.addEventListener("DOMContentLoaded", function() {
-        const loggedInUser = localStorage.getItem("loggedInUser");
-        const isFreeService = localStorage.getItem("isFreeService") === "true";
+  const loggedInUser = localStorage.getItem("loggedInUser");
+  const isFreeService = localStorage.getItem("isFreeService") === "true";
 
-        if (loggedInUser) {
-          if (isFreeService) {
-            showTool(); // Free service user, show tool directly
-            restrictFreeServiceFeatures(); // Apply free service restrictions
-          } else if (checkSubscription(loggedInUser)) {
-            showTool(); // Normal user with valid subscription
-          } else {
-            showLogin(); // Subscription expired, show login
-          }
-        } else {
-          showLogin(); // No user logged in, show login
-        }
-      });
+  // Restore email fields from localStorage
+  const senderEmail = localStorage.getItem('senderEmail');
+  const receiverEmail = localStorage.getItem('receiverEmail');
+  if (senderEmail) {
+    document.getElementById('sender-email').value = senderEmail;
+  }
+  if (receiverEmail) {
+    document.getElementById('receiver-email').value = receiverEmail;
+  }
 
+  if (loggedInUser) {
+    if (isFreeService) {
+      showTool(); // Free service user, show tool directly
+      restrictFreeServiceFeatures(); // Apply free service restrictions
+    } else if (checkSubscription(loggedInUser)) {
+      showTool(); // Normal user with valid subscription
+    } else {
+      showLogin(); // Subscription expired, show login
+    }
+  } else {
+    showLogin(); // No user logged in, show login
+  }
+});
       function login() {
-        const username = document.getElementById("username").value;
-        const password = document.getElementById("password").value;
-        const error = document.getElementById("error");
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
+  const error = document.getElementById("error");
 
-        console.log("Login attempt with username:", username);
-        if (users[username] && users[username].password === password) {
-          console.log("User found, checking subscription...");
-          if (checkSubscription(username)) {
-            console.log("Subscription valid, setting localStorage and showing tool");
-            localStorage.setItem("loggedInUser", username);
-            localStorage.setItem("isFreeService", "false");
-            showTool();
+  console.log("Login attempt with username:", username);
+  if (users[username] && users[username].password === password) {
+    console.log("User found, checking subscription...");
+    if (checkSubscription(username)) {
+      console.log("Subscription valid, setting localStorage and showing tool");
+      localStorage.setItem("loggedInUser", username);
+      localStorage.setItem("isFreeService", "false");
+      // Clear email fields and localStorage
+      document.getElementById('sender-email').value = '';
+      document.getElementById('receiver-email').value = '';
+      localStorage.removeItem('senderEmail');
+      localStorage.removeItem('receiverEmail');
+      showTool();
 
-            const expiryMessage = document.getElementById("expiry-message");
-            if (expiryMessage) {
-              console.log("Expiry message element found, setting text:", users[username].expiry);
-              expiryMessage.textContent = `Subscription Expiry: ${users[username].expiry}`;
-              expiryMessage.style.display = "block";
-              expiryMessage.style.opacity = "1";
+      const expiryMessage = document.getElementById("expiry-message");
+      if (expiryMessage) {
+        console.log("Expiry message element found, setting text:", users[username].expiry);
+        expiryMessage.textContent = `Subscription Expiry: ${users[username].expiry}`;
+        expiryMessage.style.display = "block";
+        expiryMessage.style.opacity = "1";
 
-              setTimeout(() => {
-                console.log("Hiding expiry message after 10 seconds");
-                expiryMessage.style.opacity = "0";
-                setTimeout(() => {
-                  expiryMessage.style.display = "none";
-                  expiryMessage.style.opacity = "1";
-                  console.log("Expiry message hidden and reset");
-                }, 500);
-              }, 10000);
-            } else {
-              console.error("Expiry message element not found!");
-            }
-
-            document.getElementById("username").value = "";
-            document.getElementById("password").value = "";
-            error.textContent = "";
-          } else {
-            error.textContent = "Your subscription has expired!";
-            console.log("Subscription expired for user:", username);
-          }
-        } else {
-          error.textContent = "Invalid username or password!";
-          console.log("Invalid username or password for:", username);
-        }
+        setTimeout(() => {
+          console.log("Hiding expiry message after 10 seconds");
+          expiryMessage.style.opacity = "0";
+          setTimeout(() => {
+            expiryMessage.style.display = "none";
+            expiryMessage.style.opacity = "1";
+            console.log("Expiry message hidden and reset");
+          }, 500);
+        }, 10000);
+      } else {
+        console.error("Expiry message element not found!");
       }
+
+      document.getElementById("username").value = "";
+      document.getElementById("password").value = "";
+      error.textContent = "";
+    } else {
+      error.textContent = "Your subscription has expired!";
+      console.log("Subscription expired for user:", username);
+    }
+  } else {
+    error.textContent = "Invalid username or password!";
+    console.log("Invalid username or password for:", username);
+  }
+}
 
       function freeServiceLogin() {
-        localStorage.setItem("loggedInUser", "freeServiceUser");
-        localStorage.setItem("isFreeService", "true"); // Free service flag
-        showTool();
-        restrictFreeServiceFeatures(); // Restrictions apply karo
-        // Clear input fields after successful login
-        document.getElementById("username").value = "";
-        document.getElementById("password").value = "";
-        document.getElementById("error").textContent = ""; // Clear error message if any
-      }
+  localStorage.setItem("loggedInUser", "freeServiceUser");
+  localStorage.setItem("isFreeService", "true"); // Free service flag
+  // Clear email fields and localStorage
+  document.getElementById('sender-email').value = '';
+  document.getElementById('receiver-email').value = '';
+  localStorage.removeItem('senderEmail');
+  localStorage.removeItem('receiverEmail');
+  showTool();
+  restrictFreeServiceFeatures(); // Restrictions apply karo
+  // Clear input fields after successful login
+  document.getElementById("username").value = "";
+  document.getElementById("password").value = "";
+  document.getElementById("error").textContent = ""; // Clear error message if any
+}
 
       // Check Subscription Expiry (No Change Needed)
       function checkSubscription(username) {
@@ -1143,6 +1162,14 @@ tr:nth-child(even) td {
           reconcileData();
           localStorage.setItem('detailedReconciliation', detailedReconciliationCheckbox.checked);
         }
+        // Save email fields to localStorage on input
+document.getElementById('sender-email').addEventListener('input', function() {
+  localStorage.setItem('senderEmail', this.value);
+});
+
+document.getElementById('receiver-email').addEventListener('input', function() {
+  localStorage.setItem('receiverEmail', this.value);
+});
 
         // Restore previous data
         if (gstr2bData.length > 0) {
@@ -1221,18 +1248,23 @@ tr:nth-child(even) td {
       }
       // Reset Data Function
       function resetData() {
-        gstr2bData = [];
-        gstr3bData = [];
-        localStorage.removeItem('gstr2bData');
-        localStorage.removeItem('gstr3bData');
-        localStorage.setItem('detailedReconciliation', false);
-        document.getElementById('gstr2b-container').innerHTML = '';
-        document.getElementById('gstr3b-container').innerHTML = '';
-        document.getElementById('summary-container').innerHTML = '';
-        document.getElementById('output-link').style.display = 'none';
-        document.getElementById('gst-file').value = ''; // Clear file input
-        document.getElementById('diff-allowed').value = '1';
-      }
+  gstr2bData = [];
+  gstr3bData = [];
+  localStorage.removeItem('gstr2bData');
+  localStorage.removeItem('gstr3bData');
+  localStorage.setItem('detailedReconciliation', false);
+  document.getElementById('gstr2b-container').innerHTML = '';
+  document.getElementById('gstr3b-container').innerHTML = '';
+  document.getElementById('summary-container').innerHTML = '';
+  document.getElementById('output-link').style.display = 'none';
+  document.getElementById('gst-file').value = ''; // Clear file input
+  document.getElementById('diff-allowed').value = '1';
+  // Clear email fields and localStorage
+  document.getElementById('sender-email').value = '';
+  document.getElementById('receiver-email').value = '';
+  localStorage.removeItem('senderEmail');
+  localStorage.removeItem('receiverEmail');
+}
 
       function formatDate(excelDate) {
         if (!excelDate) return '';
