@@ -4,7 +4,48 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Free GST Reconciliation tool who reconcile your data within a seconds.">
+    <meta name="description" content="Free GST Reconciliation tool who reconcile your data within a seconds.
+This GST Reconciliation Tool is designed to help you easily compare and match your GST data from GSTR-2B and GSTR-3B/books. This guide will walk you through the process step by step.
+
+Step-by-Step Guide
+Log in: Use your username and password to access the tool.
+Download Sample File: Click on "Download Sample Excel File" to get a template for your data.
+Prepare Your Data: Enter your GSTR-2B data in GST Portal sheet and GSTR-3B or books in client data sheet according to the sample file.
+Upload File: Upload your prepared Excel file using the "Upload GST Data File" option.
+Set Difference Allowed: Adjust the tolerance for differences in amounts (default is 1).
+Enable Detailed Reconciliation: Check this box for detailed reconciliation or leave unchecked for a simple simple reconciliation.
+Enable Filters (Optional): Use filters to sort or search through your data.
+Reconcile Data: Click "Reconcile" to process and match your data.
+Review Results: Check the GSTR-2B, GSTR-3B, and Summary tables for matched data.
+Edit Data (If Needed): Make direct edits in the tables and reconcile again.
+Download Output: Click "Download Reconciled Data" to save the results.
+Feature Descriptions
+Login System: Secure access with username and password. Subscription status is verified upon login.
+Sample File Download: Provides a template to ensure your data is correctly formatted.
+File Upload: Upload your GST data in Excel (.xlsx) format.
+Difference Allowed: Set the acceptable difference in taxable value, IGST, CGST, and SGST for matching (default: 1).
+Detailed Reconciliation: When enabled, shows detailed match criteria; when disabled, shows a simplified "Match" or "Unmatch".
+Enable Filters: Adds dropdown filters to table columns for easy data sorting and searching.
+Reconcile Button: Processes the data and updates the tables with match results.
+Reset Data Button: Clears all uploaded data and resets the tool.
+Editable Tables: Directly edit data in the tables; changes are reflected upon reconciling again.
+Download Reconciled Data: Generates an Excel file with matched data, including color-coded rows for clarity.
+Understanding Match Criteria
+When Detailed Reconciliation is enabled, the tool uses the following criteria:
+
+Match - GSTN, Invoice No., Date: Exact match on GSTN, invoice number, and date.
+Match - GSTN, Invoice No.: Match on GSTN and invoice number, with possible date differences.
+Match - GSTN, Date: Match on GSTN and date, with possible invoice number differences.
+Match - GSTN: Match only on GSTN, with differences in invoice number and date.
+Unmatch - GSTN Not Exist: GSTN from one sheet is not found in the other.
+Unmatch - Amt Diff: Showing unmatch invoices due to amt difference
+Unmatch: Data does not meet any match criteria, generally due to extra invoices in either GSTR-2B or GSTR-3B/Books
+When Detailed Reconciliation is disabled, the criteria are simplified:
+
+Match: Data matches based on any of the detailed criteria above.
+Unmatch - GSTN Not Exist: GSTN from one sheet is not found in the other.
+Unmatch - Amt Diff: Showing unmatch invoices due to amt difference
+Unmatch: Data does not meet any match criteria, generally due to extra invoices in either GSTR-2B or GSTR-3B/Books">
     <meta name="keywords" content="GST,GST Reco, Reconciliation, GST Reconciliation, GSTR-2B, GSTR2B, GSTR-3B, GSTR3B, 2b vs 3b, gst.gov.in, https://www.gst.gov.in/, GST Login">
     <meta name="robots" content="index, follow">
     <meta name="googlebot" content="index, follow">
@@ -18,46 +59,51 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
     <style>
-      /* Existing styles unchanged */
       * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
         font-family: 'Segoe UI', Arial, sans-serif;
       }
+      
       body {
         background: #f0f8ff;
         color: #333;
         padding: 30px;
       }
-      .container {
-        max-width: 100%;
-        width: 98%;
-        margin: 0 auto;
-        background: #fff;
-        padding: 20px;
-        border-radius: 15px;
-        box-shadow: 0 8px 20px rgba(0, 61, 115, 0.1);
-        min-height: calc(80vh - 40px);
-        display: flex;
-        flex-direction: column;
-      }
-      .login-card {
-        max-width: 95%;
-        width: 800px;
-        margin: 10px auto;
-        background: white;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 8px 20px rgba(0, 61, 115, 0.1);
-        flex-grow: 1;
-        overflow-y: auto;
-      }
-      #login-section {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-      }
+      
+ .container {
+  max-width: 100%; /* Full width */
+  width: 98%; /* Slightly less than 100% to avoid edge-to-edge */
+  margin: 0 auto;
+  background: #fff;
+  padding: 20px; /* Reduced padding for compact look */
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0, 61, 115, 0.1);
+  min-height: calc(80vh - 40px); /* Reduced height (80% of viewport) */
+  display: flex;
+  flex-direction: column;
+}
+
+.login-card {
+  max-width: 95%; /* Increased width for desktop */
+  width: 800px; /* Wider for desktop */
+  margin: 10px auto; /* Reduced margin for compact look */
+  background: white;
+  padding: 20px; /* Reduced padding */
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0, 61, 115, 0.1);
+  flex-grow: 1;
+  overflow-y: auto; /* Scroll within login card */
+}
+
+
+#login-section {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+      
       h1 {
         text-align: center;
         color: #0e4377;
@@ -65,6 +111,7 @@
         margin-bottom: 20px;
         text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
       }
+      
       h2 {
         text-align: center;
         color: #1a5fb4;
@@ -74,6 +121,7 @@
         background: linear-gradient(to right, #e6f3ff, #f0f8ff);
         border-radius: 8px;
       }
+      
       .control-panel {
         background: #f5f9ff;
         border-radius: 12px;
@@ -81,6 +129,7 @@
         margin: 20px 0;
         box-shadow: 0 4px 10px rgba(0, 61, 115, 0.05);
       }
+      
       .options-container {
         display: flex;
         flex-wrap: wrap;
@@ -91,11 +140,13 @@
         border-radius: 10px;
         border: 1px solid #cce0ff;
       }
+      
       .option-group {
         display: flex;
         align-items: center;
         gap: 10px;
       }
+      
       .button-container {
         display: flex;
         flex-wrap: wrap;
@@ -103,6 +154,7 @@
         gap: 15px;
         margin: 20px 0;
       }
+      
       button {
         display: inline-flex;
         align-items: center;
@@ -117,34 +169,43 @@
         transition: all 0.3s ease;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       }
+      
       button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-      }
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+      
       button:active {
         transform: translateY(1px);
       }
+      
       #reconcile-btn {
         background: linear-gradient(145deg, #1a73e8, #0d47a1);
         color: white;
       }
+      
       #reconcile-btn:hover {
         background: linear-gradient(145deg, #0d47a1, #1a73e8);
       }
+      
       #reset-btn {
         background: linear-gradient(145deg, #e53935, #c62828);
         color: white;
       }
+      
       #reset-btn:hover {
         background: linear-gradient(145deg, #c62828, #e53935);
       }
+      
       #download-sample {
         background: linear-gradient(145deg, #2e7d32, #1b5e20);
         color: white;
       }
+      
       #download-sample:hover {
         background: linear-gradient(145deg, #1b5e20, #2e7d32);
       }
+      
       .upload-section {
         background: #f0f8ff;
         padding: 15px;
@@ -153,10 +214,12 @@
         margin: 20px 0;
         transition: all 0.3s ease;
       }
+      
       .upload-section:hover {
         background: #e6f3ff;
         border-color: #0d47a1;
       }
+      
       input[type="file"] {
         padding: 10px;
         border: 2px solid #1a73e8;
@@ -165,9 +228,11 @@
         width: 100%;
         transition: border-color 0.3s;
       }
+      
       input[type="file"]:hover {
         border-color: #0d47a1;
       }
+      
       input[type="number"], input[type="checkbox"], input[type="text"], input[type="password"] {
         padding: 10px;
         border: 2px solid #1a73e8;
@@ -175,28 +240,34 @@
         background: #f5f9ff;
         transition: all 0.3s ease;
       }
+      
       input[type="number"]:focus, input[type="text"]:focus, input[type="password"]:focus {
         border-color: #0d47a1;
         outline: none;
         box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.2);
       }
+      
       .checkbox-group {
         display: flex;
         align-items: center;
         gap: 10px;
       }
+      
       input[type="checkbox"] {
         width: 18px;
         height: 18px;
         accent-color: #1a73e8;
       }
+      
       label {
         font-weight: 600;
         color: #0e4377;
       }
+      
       .data-container {
         margin: 30px 0;
       }
+      
       .table-container {
         overflow-x: auto;
         overflow-y: auto;
@@ -208,11 +279,13 @@
         background: #f5f9ff;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
       }
+      
       table {
         width: 100%;
         border-collapse: collapse;
         font-size: 14px;
       }
+      
       table thead th {
         position: sticky;
         top: 0;
@@ -223,6 +296,7 @@
         padding: 12px;
         text-align: left;
       }
+      
       th {
         background: #1a73e8;
         color: white;
@@ -230,26 +304,36 @@
         padding: 12px;
         text-align: left;
       }
+      
       td {
-        border: 1px solid #cce0ff;
-        padding: 10px;
-        text-align: left;
-      }
-      tr:nth-child(even) td {
-        /* Removed background-color to allow tr inline styles */
-      }
-      #tool-section {
+  border: 1px solid #cce0ff;
+  padding: 10px;
+  text-align: left;
+  /* Remove background-color to allow tr inline styles */
+}
+
+tr:nth-child(even) td {
+  /* Remove background-color to allow tr inline styles */
+}
+
+      
+       #tool-section {
         transition: all 0.5s ease;
       }
+      
       #login-section.hidden, #tool-section.hidden {
         display: none;
       }
+      
+      
+      
       #error {
         color: #e53935;
         text-align: center;
         margin-top: 10px;
         font-weight: 600;
       }
+      
       #expiry-message {
         font-size: 1.2em;
         margin: 10px 0;
@@ -261,32 +345,38 @@
         color: #e53935;
       }
       .email-section:hover {
-        background: #e6f3ff;
-        border-color: #0d47a1;
-      }
-      #send-email-btn:hover {
-        background: linear-gradient(145deg, #f57c00, #ff9800);
-      }
-      #email-error {
-        color: #e53935;
-        font-weight: 600;
-      }
-      .email-section input[type="email"] {
-        padding: 10px;
-        border: 2px solid #1a73e8;
-        border-radius: 8px;
-        background: #f5f9ff;
-        transition: all 0.3s ease;
-        width: 100%;
-      }
-      .email-section input[type="email"]:focus {
-        border-color: #0d47a1;
-        outline: none;
-        box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.2);
-      }
-      .email-section input[type="email"]:hover {
-        border-color: #0d47a1;
-      }
+  background: #e6f3ff;
+  border-color: #0d47a1;
+}
+
+#send-email-btn:hover {
+  background: linear-gradient(145deg, #f57c00, #ff9800);
+}
+
+#email-error {
+  color: #e53935;
+  font-weight: 600;
+}
+
+.email-section input[type="email"] {
+  padding: 10px;
+  border: 2px solid #1a73e8;
+  border-radius: 8px;
+  background: #f5f9ff;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.email-section input[type="email"]:focus {
+  border-color: #0d47a1;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.2);
+}
+
+.email-section input[type="email"]:hover {
+  border-color: #0d47a1;
+}
+      
       a#download-output {
         display: inline-flex;
         align-items: center;
@@ -306,11 +396,14 @@
         margin: 20px auto;
         text-align: center;
       }
+      
       a#download-output:hover {
         background: linear-gradient(145deg, #0d47a1, #1a73e8);
         transform: translateY(-2px);
         box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
       }
+      
+      /* Footer Styles */
       footer {
         background: linear-gradient(145deg, #0e4377, #1a5fb4);
         color: #ffffff;
@@ -319,11 +412,13 @@
         margin-top: 30px;
         box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.05);
       }
+      
       .footer-content {
         max-width: 1200px;
         margin: 0 auto;
         text-align: center;
       }
+      
       .footer-links {
         display: flex;
         justify-content: center;
@@ -331,6 +426,7 @@
         margin: 1rem 0;
         flex-wrap: wrap;
       }
+      
       .footer-links a {
         color: #ffffff;
         text-decoration: none;
@@ -339,11 +435,14 @@
         padding: 5px 10px;
         border-radius: 5px;
       }
+      
       .footer-links a:hover {
         opacity: 1;
         text-decoration: underline;
         background: rgba(255, 255, 255, 0.1);
       }
+      
+      /* WhatsApp & Instructions Buttons */
       .whatsapp-btn, .instructions-btn {
         position: fixed;
         z-index: 1000;
@@ -356,6 +455,7 @@
         animation: glow 3s infinite;
         transition: all 0.3s ease;
       }
+      
       .whatsapp-btn {
         bottom: 20px;
         right: 20px;
@@ -364,6 +464,7 @@
         width: 70px;
         height: 70px;
       }
+      
       .instructions-btn {
         bottom: 100px;
         right: 20px;
@@ -374,18 +475,23 @@
         border: none;
         cursor: pointer;
       }
+      
       .whatsapp-btn:hover, .instructions-btn:hover {
         transform: scale(1.1);
         animation-play-state: paused;
       }
+      
       .whatsapp-btn i, .instructions-btn i {
         font-size: 36px;
       }
+      
       @keyframes glow {
         0% { box-shadow: 0 0 20px 0px rgba(26, 115, 232, 0.2); transform: scale(1); }
         50% { box-shadow: 0 0 40px 20px rgba(26, 115, 232, 0.1); transform: scale(1.05); }
         100% { box-shadow: 0 0 20px 0px rgba(26, 115, 232, 0.2); transform: scale(1); }
       }
+      
+      /* Modal Styles */
       .modal {
         display: none;
         position: fixed;
@@ -396,6 +502,7 @@
         background-color: rgba(0, 0, 0, 0.5);
         z-index: 2000;
       }
+      
       .modal-content {
         background-color: #fff;
         margin: 5% auto;
@@ -408,6 +515,7 @@
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         position: relative;
       }
+      
       .close-btn {
         position: absolute;
         top: 15px;
@@ -419,32 +527,41 @@
         background: none;
         transition: color 0.3s;
       }
+      
       .close-btn:hover {
         color: #e53935;
       }
+      
       .modal-content h2 {
         color: #0e4377;
         margin-bottom: 15px;
       }
+      
       .modal-content p {
         line-height: 1.6;
         color: #333;
       }
+      
       .modal-content h3 {
         color: #1a5fb4;
         margin: 15px 0 10px;
       }
+      
       .modal-content ol, .modal-content ul {
         margin-left: 20px;
         margin-bottom: 15px;
       }
+      
       .modal-content li {
         margin-bottom: 5px;
       }
+      
+      /* Filter Dropdown Styles */
       .filter-dropdown {
         position: relative;
         display: inline-block;
       }
+      
       .filter-btn {
         background: none;
         border: none;
@@ -455,98 +572,111 @@
         margin-left: 5px;
         box-shadow: none;
       }
+      
       .filter-dropdown-content {
-        display: none;
-        position: absolute;
-        background-color: #fff;
-        min-width: 200px;
-        max-height: 300px;
-        overflow-y: auto;
-        border: 1px solid #cce0ff;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        z-index: 20;
-        font-family: 'Segoe UI', Arial, sans-serif;
-      }
+  display: none;
+  position: absolute;
+  background-color: #fff;
+  min-width: 200px;
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #cce0ff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 20;
+  font-family: 'Segoe UI', Arial, sans-serif; /* Consistent font */
+}
       .filter-dropdown-content.show {
-        display: block;
-      }
-      .filter-input {
-        width: 100%;
-        padding: 8px;
-        border: 1px solid #cce0ff;
-        border-radius: 4px;
-        margin-bottom: 5px;
-        font-size: 14px;
-        font-weight: 400;
-      }
-      .filter-option {
-        padding: 8px 10px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 14px;
-        font-weight: 400;
-        color: #333;
-      }
-      .filter-option:hover {
-        background-color: #f0f8ff;
-      }
-      .filter-option input[type="checkbox"] {
-        width: 16px;
-        height: 16px;
-        accent-color: #1a73e8;
-      }
-      .filter-option label {
-        font-weight: 400;
-        color: #333;
-      }
-      .filter-actions {
-        padding: 8px;
-        border-top: 1px solid #cce0ff;
-        display: flex;
-        justify-content: space-between;
-      }
-      .filter-actions button {
-        background: #1a73e8;
-        color: white;
-        border: none;
-        padding: 5px 10px;
-        margin: 0 2px;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: 600;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        transition: background 0.3s ease;
-      }
-      .filter-actions button:hover {
-        background: #0d47a1;
-        transform: none;
-      }
-      .sort-actions {
-        padding: 8px;
-        border-top: 1px solid #cce0ff;
-        display: flex;
-        justify-content: space-between;
-      }
-      .sort-actions button {
-        background: #1a73e8;
-        color: white;
-        border: none;
-        padding: 5px 10px;
-        margin: 0 2px;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: 600;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        transition: background 0.3s ease;
-      }
-      .sort-actions button:hover {
-        background: #0d47a1;
-        transform: none;
-      }
+  display: block;
+}
+
+.filter-input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #cce0ff;
+  border-radius: 4px;
+  margin-bottom: 5px;
+  font-size: 14px; /* Match sorting button font size */
+  font-weight: 400; /* Normal weight for clarity */
+}
+
+.filter-option {
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px; /* Match sorting button font size */
+  font-weight: 400; /* Normal weight for readability */
+  color: #333; /* Darker color for visibility */
+}
+
+.filter-option:hover {
+  background-color: #f0f8ff;
+}
+
+.filter-option input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #1a73e8; /* Blue checkbox to match theme */
+}
+
+.filter-option label {
+  font-weight: 400; /* Normal weight */
+  color: #333; /* Darker for visibility */
+}
+
+.filter-actions {
+  padding: 8px;
+  border-top: 1px solid #cce0ff;
+  display: flex;
+  justify-content: space-between;
+}
+
+.filter-actions button {
+  background: #1a73e8; /* Match sorting button background */
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  margin: 0 2px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px; /* Match sorting button font size */
+  font-weight: 600; /* Match sorting button weight */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  transition: background 0.3s ease; /* Smooth hover transition */
+}
+
+.filter-actions button:hover {
+  background: #0d47a1; /* Match sorting button hover */
+  transform: none; /* Keep consistent with sorting buttons */
+}
+
+.sort-actions {
+  padding: 8px;
+  border-top: 1px solid #cce0ff;
+  display: flex;
+  justify-content: space-between;
+}
+
+.sort-actions button {
+  background: #1a73e8;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  margin: 0 2px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: background 0.3s ease;
+}
+
+.sort-actions button:hover {
+  background: #0d47a1;
+  transform: none;
+}
+      /* Explanation Section */
       .explanation {
         margin-top: 20px;
         padding: 20px;
@@ -556,33 +686,41 @@
         overflow-y: auto;
         max-height: calc(100vh - 300px);
       }
+      
       .explanation h2, .explanation h3 {
         color: #0e4377;
         background: none;
         text-align: left;
         padding: 0;
       }
+      
       .explanation ul, .explanation ol {
         margin-left: 20px;
         margin-bottom: 15px;
       }
+      
       .explanation li {
         margin-bottom: 5px;
       }
+      
       .youtube-link {
         color: #1a73e8;
         text-decoration: none;
         font-weight: 600;
       }
+      
       .youtube-link:hover {
         text-decoration: underline;
       }
+
+         /* Custom Dropdown Styles */
       .custom-select {
         position: relative;
         display: inline-block;
         min-width: 150px;
         margin: 0 10px;
       }
+      
       .custom-select select {
         appearance: none;
         -webkit-appearance: none;
@@ -597,14 +735,17 @@
         font-size: 14px;
         transition: all 0.3s ease;
       }
+      
       .custom-select select:hover {
         border-color: #0d47a1;
         background-color: #e6f3ff;
       }
+      
       .custom-select select:focus {
         outline: none;
         box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.2);
       }
+      
       .custom-select::after {
         content: "\25BC";
         position: absolute;
@@ -614,41 +755,55 @@
         color: #1a73e8;
         pointer-events: none;
       }
+      
+      /* Responsive Styles */
       @media (max-width: 768px) {
         .options-container {
           flex-direction: column;
         }
+        
         .button-container {
           flex-direction: column;
         }
+        
         button {
           width: 100%;
         }
-        .container {
-          width: 100%;
-          min-height: calc(100vh - 60px);
-          padding: 15px;
-        }
-        .login-card {
-          max-width: 90%;
-          width: 100%;
-          padding: 15px;
-        }
+        
+
+  
+  .container {
+    width: 100%; /* Full width on mobile */
+    min-height: calc(100vh - 60px); /* Full height on mobile */
+    padding: 15px;
+  }
+
+  .login-card {
+    max-width: 90%;
+    width: 100%; /* Responsive width on mobile */
+    padding: 15px;
+  }
+
+        
         h1 {
           font-size: 2em;
         }
+        
         .modal-content {
           width: 95%;
           padding: 15px;
         }
+        
         .footer-links {
           flex-direction: column;
           gap: 10px;
         }
+
         .custom-select {
           width: 100%;
           margin: 10px 0;
         }
+        
         .email-section .flex {
           flex-direction: column;
           gap: 10px;
@@ -792,45 +947,54 @@
             </button>
           </div>
 
-          <!-- Email Section -->
-          <div class="email-section" style="background: #f0f8ff; padding: 15px; border-radius: 10px; border: 1px dashed #1a73e8; margin: 20px 0;">
-            <h3 class="text-lg font-bold mb-2">Email Reconciliation Results</h3>
-            <div class="flex flex-wrap gap-4 mb-4 items-center">
-              <div class="flex-1">
-                <label for="sender-email" class="block mb-2">Sender Email:</label>
-                <input type="email" id="sender-email" placeholder="Enter sender email" class="w-full" required>
-              </div>
-              <div class="flex-1">
-                <label for="receiver-email" class="block mb-2">Receiver Email:</label>
-                <input type="email" id="receiver-email" placeholder="Enter receiver email" class="w-full" required>
-              </div>
-            </div>
-            <div class="flex items-center justify-center gap-4 flex-wrap">
-              <div class="custom-select">
-                <label for="entry-filter" class="block mb-2">Filter Entries:</label>
-                <select id="entry-filter">
-                  <option value="all">All Entries</option>
-                  <option value="match">Match Only</option>
-                  <option value="unmatch">Unmatch Only</option>
-                </select>
-              </div>
-              <button id="send-email-btn" style="background: linear-gradient(145deg, #ff9800, #f57c00); color: white; margin-top: 25px;">
-                <i class="fas fa-envelope"></i> Send Email
-              </button>
-              <div class="custom-select">
-                <label for="export-format" class="block mb-2">Export Format:</label>
-                <select id="export-format">
-                  <option value="excel">Excel</option>
-                  <option value="pdf">PDF</option>
-                  <option value="both">Both</option>
-                </select>
-              </div>
-            </div>
-            <p id="email-error" class="text-red-600 text-center mt-2 hidden"></p>
-            <p style="color: red; text-align: center; margin-top: 10px;">
-              Email function is pending due to ongoing improvements and suggestions.
-            </p>
-          </div>
+
+<!-- New Email Section with Drop-Down Filter -->
+<div class="email-section" style="background: #f0f8ff; padding: 15px; border-radius: 10px; border: 1px dashed #1a73e8; margin: 20px 0;">
+  <h3 class="text-lg font-bold mb-2">Email Reconciliation Results</h3>
+  <div class="flex flex-wrap gap-4 mb-4 items-center">
+    <div class="flex-1">
+      <label for="sender-email" class="block mb-2">Sender Email:</label>
+      <input type="email" id="sender-email" placeholder="Enter sender email" class="w-full" required>
+    </div>
+    <div class="flex-1">
+      <label for="receiver-email" class="block mb-2">Receiver Email:</label>
+      <input type="email" id="receiver-email" placeholder="Enter receiver email" class="w-full" required>
+    </div>
+  </div>
+
+  <div class="flex items-center justify-center gap-4 flex-wrap">
+    <!-- Entry Filter Dropdown -->
+    <div class="custom-select">
+      <label for="entry-filter" class="block mb-2">Filter Entries:</label>
+      <select id="entry-filter">
+        <option value="all">All Entries</option>
+        <option value="match">Match Only</option>
+        <option value="unmatch">Unmatch Only</option>
+      </select>
+    </div>
+    <!-- Send Email Button -->
+    <button id="send-email-btn" style="background: linear-gradient(145deg, #ff9800, #f57c00); color: white; margin-top: 25px;">
+      <i class="fas fa-envelope"></i> Send Email
+    </button>
+    <!-- Export Format Dropdown -->
+    <div class="custom-select">
+      <label for="export-format" class="block mb-2">Export Format:</label>
+      <select id="export-format">
+        <option value="excel">Excel</option>
+        <option value="pdf">PDF</option>
+        <option value="both">Both</option>
+      </select>
+    </div>
+  </div>
+  <p id="email-error" class="text-red-600 text-center mt-2 hidden"></p>
+  <p style="color: red; text-align: center; margin-top: 10px;">
+    Email function is pending due to ongoing improvements and suggestions.
+  </p>
+</div>
+
+
+
+          
         </div>
         
         <div class="data-container">
@@ -863,7 +1027,7 @@
     
     <div id="instructions-modal" class="modal">
       <div class="modal-content">
-        <span class="close-btn" onclick="hideInstructions()">x</span>
+        <span class="close-btn" onclick="hideInstructions()">x</span></span>
         <h2>GST Reconciliation Tool</h2>
         <h3>How to Use the Tool</h3>
         <ol>
@@ -913,143 +1077,165 @@
       </div>
     </footer>
 
-    <!-- Existing Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/exceljs@4.3.0/dist/exceljs.min.js"></script>
-    <!-- Added Luxon for robust date parsing -->
-    <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.3/build/global/luxon.min.js"></script>
     <script>
-      const { DateTime } = luxon;
-
       const users = {
         "Sumitgarg" : { password: "Garg@123", expiry: "2026-04-30"},
         "user1": { password: "pass123", expiry: "2025-04-30" },
         "user2": { password: "pass456", expiry: "2025-05-15" }
       };
 
+    //     if (window.location.href.toLowerCase(). includes("https://sumitgarg100000.github.io")) {
       let gstr2bData = localStorage.getItem('gstr2bData') ? JSON.parse(localStorage.getItem('gstr2bData')) : [];
       let gstr3bData = localStorage.getItem('gstr3bData') ? JSON.parse(localStorage.getItem('gstr3bData')) : [];
       const detailedReconciliationCheckbox = document.getElementById('detailed-reconciliation');
 
-      // Page Load Check
+      // ***Change 1: Page Load Check ko Improve Karna***
       document.addEventListener("DOMContentLoaded", function() {
-        const loggedInUser = localStorage.getItem("loggedInUser");
-        const isFreeService = localStorage.getItem("isFreeService") === "true";
+  const loggedInUser = localStorage.getItem("loggedInUser");
+  const isFreeService = localStorage.getItem("isFreeService") === "true";
 
-        // Restore email fields from localStorage
-        const senderEmail = localStorage.getItem('senderEmail');
-        const receiverEmail = localStorage.getItem('receiverEmail');
-        if (senderEmail) {
-          document.getElementById('sender-email').value = senderEmail;
-        }
-        if (receiverEmail) {
-          document.getElementById('receiver-email').value = receiverEmail;
-        }
+  // Restore email fields from localStorage
+  const senderEmail = localStorage.getItem('senderEmail');
+  const receiverEmail = localStorage.getItem('receiverEmail');
+  if (senderEmail) {
+    document.getElementById('sender-email').value = senderEmail;
+  }
+  if (receiverEmail) {
+    document.getElementById('receiver-email').value = receiverEmail;
+  }
 
-        if (loggedInUser) {
-          if (isFreeService) {
-            showTool();
-            restrictFreeServiceFeatures();
-          } else if (checkSubscription(loggedInUser)) {
-            showTool();
-          } else {
-            showLogin();
-          }
-        } else {
-          showLogin();
-        }
-      });
-
+  if (loggedInUser) {
+    if (isFreeService) {
+      showTool(); // Free service user, show tool directly
+      restrictFreeServiceFeatures(); // Apply free service restrictions
+    } else if (checkSubscription(loggedInUser)) {
+      showTool(); // Normal user with valid subscription
+    } else {
+      showLogin(); // Subscription expired, show login
+    }
+  } else {
+    showLogin(); // No user logged in, show login
+  }
+});
       function login() {
-        const username = document.getElementById("username").value;
-        const password = document.getElementById("password").value;
-        const error = document.getElementById("error");
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
+  const error = document.getElementById("error");
 
-        if (users[username] && users[username].password === password) {
-          if (checkSubscription(username)) {
-            localStorage.setItem("loggedInUser", username);
-            localStorage.setItem("isFreeService", "false");
-            document.getElementById('sender-email').value = '';
-            document.getElementById('receiver-email').value = '';
-            localStorage.removeItem('senderEmail');
-            localStorage.removeItem('receiverEmail');
-            showTool();
+  console.log("Login attempt with username:", username);
+  if (users[username] && users[username].password === password) {
+    console.log("User found, checking subscription...");
+    if (checkSubscription(username)) {
+      console.log("Subscription valid, setting localStorage and showing tool");
+      localStorage.setItem("loggedInUser", username);
+      localStorage.setItem("isFreeService", "false");
+      // Clear email fields and localStorage
+      document.getElementById('sender-email').value = '';
+      document.getElementById('receiver-email').value = '';
+      localStorage.removeItem('senderEmail');
+      localStorage.removeItem('receiverEmail');
+      showTool();
 
-            const expiryMessage = document.getElementById("expiry-message");
-            expiryMessage.textContent = `Subscription Expiry: ${users[username].expiry}`;
-            expiryMessage.style.display = "block";
+      const expiryMessage = document.getElementById("expiry-message");
+      if (expiryMessage) {
+        console.log("Expiry message element found, setting text:", users[username].expiry);
+        expiryMessage.textContent = `Subscription Expiry: ${users[username].expiry}`;
+        expiryMessage.style.display = "block";
+        expiryMessage.style.opacity = "1";
+
+        setTimeout(() => {
+          console.log("Hiding expiry message after 10 seconds");
+          expiryMessage.style.opacity = "0";
+          setTimeout(() => {
+            expiryMessage.style.display = "none";
             expiryMessage.style.opacity = "1";
-
-            setTimeout(() => {
-              expiryMessage.style.opacity = "0";
-              setTimeout(() => {
-                expiryMessage.style.display = "none";
-                expiryMessage.style.opacity = "1";
-              }, 500);
-            }, 10000);
-
-            document.getElementById("username").value = "";
-            document.getElementById("password").value = "";
-            error.textContent = "";
-          } else {
-            error.textContent = "Your subscription has expired!";
-          }
-        } else {
-          error.textContent = "Invalid username or password!";
-        }
+            console.log("Expiry message hidden and reset");
+          }, 500);
+        }, 10000);
+      } else {
+        console.error("Expiry message element not found!");
       }
+
+      document.getElementById("username").value = "";
+      document.getElementById("password").value = "";
+      error.textContent = "";
+    } else {
+      error.textContent = "Your subscription has expired!";
+      console.log("Subscription expired for user:", username);
+    }
+  } else {
+    error.textContent = "Invalid username or password!";
+    console.log("Invalid username or password for:", username);
+  }
+}
 
       function freeServiceLogin() {
-        localStorage.setItem("loggedInUser", "freeServiceUser");
-        localStorage.setItem("isFreeService", "true");
-        document.getElementById('sender-email').value = '';
-        document.getElementById('receiver-email').value = '';
-        localStorage.removeItem('senderEmail');
-        localStorage.removeItem('receiverEmail');
-        showTool();
-        restrictFreeServiceFeatures();
-        document.getElementById("username").value = "";
-        document.getElementById("password").value = "";
-        document.getElementById("error").textContent = "";
-      }
+  localStorage.setItem("loggedInUser", "freeServiceUser");
+  localStorage.setItem("isFreeService", "true"); // Free service flag
+  // Clear email fields and localStorage
+  document.getElementById('sender-email').value = '';
+  document.getElementById('receiver-email').value = '';
+  localStorage.removeItem('senderEmail');
+  localStorage.removeItem('receiverEmail');
+  showTool();
+  restrictFreeServiceFeatures(); // Restrictions apply karo
+  // Clear input fields after successful login
+  document.getElementById("username").value = "";
+  document.getElementById("password").value = "";
+  document.getElementById("error").textContent = ""; // Clear error message if any
+}
 
+      // Check Subscription Expiry (No Change Needed)
       function checkSubscription(username) {
         const expiryDate = new Date(users[username].expiry);
         const today = new Date();
         return today <= expiryDate;
       }
 
+      // Logout Function (No Change Needed)
       function logout() {
         localStorage.removeItem("loggedInUser");
         localStorage.removeItem("gstr2bData");
         localStorage.removeItem("gstr3bData");
-        localStorage.removeItem("isFreeService");
+        localStorage.removeItem("isFreeService"); // Free service flag clear karo
         gstr2bData = [];
         gstr3bData = [];
         resetData();
         showLogin();
+        // Clear input fields and reset login section
+        document.getElementById("username").value = "";
+        document.getElementById("password").value = "";
+        document.getElementById("error").textContent = ""; // Clear error message
+        // Ensure fields are blank when showing login section
         document.getElementById("username").value = "";
         document.getElementById("password").value = "";
         document.getElementById("error").textContent = "";
       }
 
+      // Show Login Section (No Change Needed)
       function showLogin() {
         document.getElementById("login-section").classList.remove("hidden");
         document.getElementById("tool-section").classList.add("hidden");
       }
 
+      // ***Change 2: Show Tool Function ko Enhance Karna***
       function showTool() {
         document.getElementById("login-section").classList.add("hidden");
         document.getElementById("tool-section").classList.remove("hidden");
 
-        const isFreeService = localStorage.getItem("isFreeService") === "true");
+        const isFreeService = localStorage.getItem("isFreeService") === "true";
+
+        // Restore checkbox state only for normal users
         const detailedReconciliationCheckbox = document.getElementById("detailed-reconciliation");
         detailedReconciliationCheckbox.checked = localStorage.getItem('detailedReconciliation') === 'true' && !isFreeService;
 
+        // Add event listeners only once (avoid duplicates)
         const reconcileBtn = document.getElementById('reconcile-btn');
         const downloadSample = document.getElementById('download-sample');
         const diffAllowed = document.getElementById('diff-allowed');
-        diffAllowed.value = "1";
+        diffAllowed.value = "1"; // Default to 1 for all users
         const resetBtn = document.getElementById('reset-btn');
         const gstFile = document.getElementById('gst-file');
 
@@ -1071,15 +1257,16 @@
           reconcileData();
           localStorage.setItem('detailedReconciliation', detailedReconciliationCheckbox.checked);
         }
+        // Save email fields to localStorage on input
+document.getElementById('sender-email').addEventListener('input', function() {
+  localStorage.setItem('senderEmail', this.value);
+});
 
-        document.getElementById('sender-email').addEventListener('input', function() {
-          localStorage.setItem('senderEmail', this.value);
-        });
+document.getElementById('receiver-email').addEventListener('input', function() {
+  localStorage.setItem('receiverEmail', this.value);
+});
 
-        document.getElementById('receiver-email').addEventListener('input', function() {
-          localStorage.setItem('receiverEmail', this.value);
-        });
-
+        // Restore previous data
         if (gstr2bData.length > 0) {
           displayData(gstr2bData, 'gstr2b-container', gstr2bHeaders(), 'gstr2b');
         }
@@ -1090,46 +1277,54 @@
           reconcileData();
         }
 
+        // Reset restrictions for normal users and apply for free service users
         const filterCheckbox = document.getElementById("enable-filter");
         if (!isFreeService) {
           detailedReconciliationCheckbox.disabled = false;
           filterCheckbox.disabled = false;
           diffAllowed.disabled = false;
-          document.getElementById("free-service-notice")?.remove();
+          document.getElementById("free-service-notice")?.remove(); // Remove notice if exists
         }
-        restrictFreeServiceFeatures();
+        restrictFreeServiceFeatures(); // Apply restrictions if free service mode
       }
 
       function restrictFreeServiceFeatures() {
-        const isFreeService = localStorage.getItem("isFreeService") === "true");
+        const isFreeService = localStorage.getItem("isFreeService") === "true";
+
         if (isFreeService) {
+          // Disable Detailed Reconciliation
           const detailedCheckbox = document.getElementById("detailed-reconciliation");
           detailedCheckbox.checked = false;
           detailedCheckbox.disabled = true;
 
+          // Disable Filter Option
           const filterCheckbox = document.getElementById("enable-filter");
           filterCheckbox.checked = false;
           filterCheckbox.disabled = true;
           filterEnabled = false;
-          toggleFilters();
+          toggleFilters(); // Filters ko hide karo
 
+          // Disable Difference Allowed with default value 1
           const diffAllowedInput = document.getElementById("diff-allowed");
-          diffAllowedInput.value = "1";
+          diffAllowedInput.value = "1"; // Default to 1 for free users
           diffAllowedInput.disabled = true;
 
+          // Disable Editable Fields in Existing Tables
           const tables = document.querySelectorAll("#gstr2b-container table, #gstr3b-container table");
           tables.forEach(table => {
             const rows = table.querySelectorAll("tbody tr");
             rows.forEach(row => {
               const cells = row.querySelectorAll("td");
               cells.forEach(cell => {
-                cell.setAttribute("contenteditable", "false");
+                cell.setAttribute("contenteditable", "false"); // Force disable
               });
             });
           });
 
+          // Apply colors for free service mode
           applyFreeServiceColors();
 
+          // Add notice
           const toolSection = document.getElementById("tool-section");
           const notice = document.createElement("p");
           notice.id = "free-service-notice";
@@ -1146,50 +1341,33 @@
           }
         }
       }
-
+      // Reset Data Function
       function resetData() {
-        gstr2bData = [];
-        gstr3bData = [];
-        localStorage.removeItem('gstr2bData');
-        localStorage.removeItem('gstr3bData');
-        localStorage.setItem('detailedReconciliation', false);
-        document.getElementById('gstr2b-container').innerHTML = '';
-        document.getElementById('gstr3b-container').innerHTML = '';
-        document.getElementById('summary-container').innerHTML = '';
-        document.getElementById('output-link').style.display = 'none';
-        document.getElementById('gst-file').value = '';
-        document.getElementById('diff-allowed').value = '1';
-        document.getElementById('sender-email').value = '';
-        document.getElementById('receiver-email').value = '';
-        localStorage.removeItem('senderEmail');
-        localStorage.removeItem('receiverEmail');
-      }
+  gstr2bData = [];
+  gstr3bData = [];
+  localStorage.removeItem('gstr2bData');
+  localStorage.removeItem('gstr3bData');
+  localStorage.setItem('detailedReconciliation', false);
+  document.getElementById('gstr2b-container').innerHTML = '';
+  document.getElementById('gstr3b-container').innerHTML = '';
+  document.getElementById('summary-container').innerHTML = '';
+  document.getElementById('output-link').style.display = 'none';
+  document.getElementById('gst-file').value = ''; // Clear file input
+  document.getElementById('diff-allowed').value = '1';
+  // Clear email fields and localStorage
+  document.getElementById('sender-email').value = '';
+  document.getElementById('receiver-email').value = '';
+  localStorage.removeItem('senderEmail');
+  localStorage.removeItem('receiverEmail');
+}
 
-      // *** Modified: New formatDate function using Luxon ***
-      function formatDate(input) {
-        if (!input || input === '') return '';
-
-        // Handle Excel serial numbers
-        if (typeof input === 'number' && input > 40000 && input < 50000) {
-          const date = DateTime.fromJSDate(new Date((input - 25569) * 86400 * 1000));
-          return date.isValid ? date.toFormat('dd-MMM-yyyy') : '';
-        }
-
-        // Handle string dates with Luxon
-        const date = DateTime.fromFormat(input, [
-          'yyyy-MM-dd',
-          'dd/MM/yyyy',
-          'dd-MM-yyyy',
-          'dd MMM yyyy',
-          'dd-MMM-yyyy',
-          'MM/dd/yyyy',
-          'yyyy/MM/dd',
-          'd/M/yyyy',
-          'd-M-yyyy',
-          'MMM d yyyy'
-        ].find(format => DateTime.fromFormat(input, format).isValid) || 'dd/MM/yyyy');
-
-        return date.isValid ? date.toFormat('dd-MMM-yyyy') : input;
+      function formatDate(excelDate) {
+        if (!excelDate) return '';
+        const date = new Date((excelDate - 25569) * 86400 * 1000);
+        const day = String(date.getUTCDate()).padStart(2, '0');
+        const month = date.toUTCString().slice(8, 11);
+        const year = date.getUTCFullYear();
+        return `${day}-${month}-${year}`;
       }
 
       const baseGstr2bHeaders = ['Match Criteria', 'GSTN', 'Name of Supplier', 'Invoice Number', 'Invoice type', 'Invoice Date', 'Invoice Value', 'Place of supply', 'Reverse Charge', 'Rate (%)', 'Taxable Value', 'IGST', 'CGST', 'SGST'];
@@ -1200,25 +1378,31 @@
       const extendedGstr3bHeaders = ['Invoice Value'];
       function gstr3bHeaders() { return [...baseGstr3bHeaders, ...extendedGstr3bHeaders]; }
 
-      // *** Modified: Updated generateSampleFile to use dd-MMM-yyyy format ***
       function generateSampleFile(event) {
         event.preventDefault();
         const wb = XLSX.utils.book_new();
         const gstr2bSampleHeaders = gstr2bHeaders();
         const gstr2bSample = [
           gstr2bSampleHeaders,
+          // Match - GSTN, Invoice No., Date (2 entries)
           ['Match - GSTN, Invoice No., Date', '27AABCU9603R1ZM', 'Supplier A', 'INV001', 'Regular', '01-Mar-2025', 11800, 'Maharashtra', 'N', 18, 10000, 1800, 0, 0, 0, 'Mar-2025', '15-Mar-2025', 'Yes', 'N/A', 0, 'GSTR-1', 'IRN001', '02-Mar-2025'],
-          ['Match - GSTN, Invoice No., Date', '27AABCU9603R1ZM', 'Supplier A', 'inv001', 'Regular', '01-Mar-2025', 5900, 'Maharashtra', 'N', 18, 5000, 900, 0, 0, 0, 'Mar-2025', '15-Mar-2025', 'Yes', 'N/A', 0, 'GSTR-1', 'IRN002', '02-Mar-2025'],
+          ['Match - GSTN, Invoice No., Date', '27AABCU9603R1ZM', 'Supplier A', 'inv001', 'Regular', '01-mar-2025', 5900, 'Maharashtra', 'N', 18, 5000, 900, 0, 0, 0, 'Mar-2025', '15-Mar-2025', 'Yes', 'N/A', 0, 'GSTR-1', 'IRN002', '02-Mar-2025'],
+          // Match - GSTN, Invoice No. (2 entries, different dates)
           ['Match - GSTN, Invoice No.', '29XYZ1234P1ZQ', 'Supplier B', 'INV002', 'Regular', '02-Mar-2025', 23600, 'Karnataka', 'N', 9, 20000, 0, 1800, 1800, 0, 'Mar-2025', '16-Mar-2025', 'Yes', 'N/A', 0, 'GSTR-5', 'IRN003', '03-Mar-2025'],
           ['Match - GSTN, Invoice No.', '29XYZ1234P1ZQ', 'Supplier B', 'INV004', 'Regular', '04-Mar-2025', 11800, 'Karnataka', 'N', 9, 10000, 0, 900, 900, 0, 'Mar-2025', '16-Mar-2025', 'Yes', 'N/A', 0, 'GSTR-5', 'IRN004', '04-Mar-2025'],
+          // Match - GSTN, Date (2 entries, different invoice numbers)
           ['Match - GSTN, Date', '33ABCDE5678F1Z5', 'Supplier C', 'INV0003', 'Regular', '04-Mar-2025', 14160, 'Tamil Nadu', 'N', 18, 12000, 2160, 0, 0, 0, 'Mar-2025', '17-Mar-2025', 'Yes', 'N/A', 0, 'GSTR-1', 'IRN005', '05-Mar-2025'],
           ['Match - GSTN, Date', '33ABCDE5678F1Z5', 'Supplier C', 'INV0004', 'Regular', '04-Mar-2025', 7080, 'Tamil Nadu', 'N', 18, 6000, 1080, 0, 0, 0, 'Mar-2025', '17-Mar-2025', 'Yes', 'N/A', 0, 'GSTR-1', 'IRN006', '05-Mar-2025'],
+          // Match - GSTN (2 entries, different invoice numbers and dates)
           ['Match - GSTN', '27AABCU9603R2ZM', 'Supplier C', 'INV0005', 'Regular', '31-Mar-2025', 9440, 'Maharashtra', 'N', 18, 8000, 1440, 0, 0, 0, 'Mar-2025', '31-Mar-2025', 'Yes', 'N/A', 0, 'GSTR-1', 'IRN007', '06-Mar-2025'],
           ['Match - GSTN', '27AABCU9603R2ZM', 'Supplier C', 'INV0006', 'Regular', '31-Mar-2025', 4720, 'Maharashtra', 'N', 18, 4000, 720, 0, 0, 0, 'Mar-2025', '31-Mar-2025', 'Yes', 'N/A', 0, 'GSTR-1', 'IRN008', '07-Mar-2025'],
+          // Unmatch - GSTN Not Exist (2 entries)
           ['Unmatch - GSTN Not Exist', '99NOTEXIST1234Z', 'Supplier X', 'INV007', 'Regular', '07-Mar-2025', 11800, 'Delhi', 'N', 18, 10000, 1800, 0, 0, 0, 'Mar-2025', '19-Mar-2025', 'Yes', 'N/A', 0, 'GSTR-1', 'IRN009', '08-Mar-2025'],
           ['Unmatch - GSTN Not Exist', '99NOTEXIST5678Z', 'Supplier Y', 'INV008', 'Regular', '08-Mar-2025', 5900, 'Delhi', 'N', 18, 5000, 900, 0, 0, 0, 'Mar-2025', '19-Mar-2025', 'Yes', 'N/A', 0, 'GSTR-1', 'IRN010', '09-Mar-2025'],
+          // Unmatch - Amt Diff (2 entries, same invoice number, different amounts)
           ['Unmatch - Amt Diff', '27AABCU9603R1ZM', 'Supplier A', 'INV009', 'Regular', '09-Mar-2025', 11802, 'Maharashtra', 'N', 18, 10000, 1802, 0, 0, 0, 'Mar-2025', '20-Mar-2025', 'Yes', 'N/A', 0, 'GSTR-1', 'IRN011', '10-Mar-2025'],
           ['Unmatch - Amt Diff', '27AABCU9603R1ZM', 'Supplier A', 'INV009', 'Regular', '09-Mar-2025', 5900, 'Maharashtra', 'N', 5, 5000, 250, 0, 0, 0, 'Mar-2025', '20-Mar-2025', 'Yes', 'N/A', 0, 'GSTR-1', 'IRN012', '10-Mar-2025'],
+          // Unmatch (2 entries, extra invoices)
           ['Unmatch', '27AABCU9603R1ZM', 'Supplier A', 'INV010', 'Regular', '10-Mar-2025', 7080, 'Maharashtra', 'N', 18, 6000, 1080, 0, 0, 0, 'Mar-2025', '21-Mar-2025', 'Yes', 'N/A', 0, 'GSTR-1', 'IRN013', '11-Mar-2025'],
           ['Unmatch', '29XYZ1234P1ZQ', 'Supplier B', 'INV011', 'Regular', '11-Mar-2025', 9440, 'Karnataka', 'N', 9, 8000, 0, 720, 720, 0, 'Mar-2025', '22-Mar-2025', 'Yes', 'N/A', 0, 'GSTR-5', 'IRN014', '12-Mar-2025'],
         ];
@@ -1232,19 +1416,26 @@
         const gstr3bSampleHeaders = gstr3bHeaders();
         const gstr3bSample = [
           gstr3bSampleHeaders,
+          // Match - GSTN, Invoice No., Date (2 entries)
           ['Match - GSTN, Invoice No., Date', '01-Mar-2025', '27AABCU9603R1ZM', 'Supplier A', 'INV001', 10000, 1800, 0, 0, 11800],
           ['Match - GSTN, Invoice No., Date', '01-Mar-2025', '27AABCU9603R1ZM', 'Supplier A', 'inv001', 5000, 900, 0, 0, 5900],
+          // Match - GSTN, Invoice No. (2 entries, different dates)
           ['Match - GSTN, Invoice No.', '03-Mar-2025', '29XYZ1234P1ZQ', 'Supplier B', 'INV002', 20000, 0, 1800, 1800, 23600],
           ['Match - GSTN, Invoice No.', '03-Mar-2025', '29XYZ1234P1ZQ', 'Supplier B', 'INV004', 10000, 0, 900, 900, 11800],
+          // Match - GSTN, Date (2 entries, different invoice numbers)
           ['Match - GSTN, Date', '04-Mar-2025', '33ABCDE5678F1Z5', 'Supplier C', 'INV003', 12000, 2160, 0, 0, 14160],
           ['Match - GSTN, Date', '04-Mar-2025', '33ABCDE5678F1Z5', 'Supplier C', 'INV004', 6000, 1080, 0, 0, 7080],
+          // Match - GSTN (2 entries, different invoice numbers and dates)
           ['Match - GSTN', '05-Mar-2025', '27AABCU9603R2ZM', 'Supplier C', 'INV005', 8000, 1440, 0, 0, 9440],
           ['Match - GSTN', '06-Mar-2025', '27AABCU9603R2ZM', 'Supplier C', 'INV006', 4000, 720, 0, 0, 4720],
+          // Unmatch - GSTN Not Exist (1 entry, GSTN not in GSTR-2B)
           ['Unmatch - GSTN Not Exist', '07-Mar-2025', '88UNIQUE1234Z', 'Supplier Z', 'INV015', 10000, 1800, 0, 0, 11800],
-          ['Unmatch - Amt Diff', '09-Mar-2025', '27AABCU9603R1ZM', 'Supplier A', 'INV009', 10000, 1800, 0, 0, 11800],
-          ['Unmatch - Amt Diff', '09-Mar-2025', '27AABCU9603R1ZM', 'Supplier A', 'INV009', 5000, 250, 0, 0, 5250],
-          ['Unmatch', '12-Mar-2025', '33ABCDE5678F1Z5', 'Supplier C', 'INV013', 7000, 1260, 0, 0, 8260],
-          ['Unmatch', '13-Mar-2025', '29XYZ1234P1ZQ', 'Supplier B', 'INV014', 9000, 0, 810, 810, 10620],
+          // Unmatch - Amt Diff (2 entries, same invoice number, different amounts)
+          ['Unmatch - Amt Diff', '09-Mar-2025', '27AABCU9603R1ZM', 'Supplier A', 'INV009', 10000, 1800, 0, 0, 11800], // Differs from GSTR-2B
+          ['Unmatch - Amt Diff', '09-Mar-2025', '27AABCU9603R1ZM', 'Supplier A', 'INV009', 5000, 250, 0, 0, 5250],  // Differs from GSTR-2B
+          // Unmatch (2 entries, extra invoices)
+          ['Unmatch', '12-Mar-2025', '33ABCDE5678F1Z5', 'Supplier C', 'INV013', 7000, 1260, 0, 0, 8260], // Extra invoice
+          ['Unmatch', '13-Mar-2025', '29XYZ1234P1ZQ', 'Supplier B', 'INV014', 9000, 0, 810, 810, 10620], // Extra invoice
         ];
         const ws2 = XLSX.utils.aoa_to_sheet(gstr3bSample);
         gstr3bSampleHeaders.forEach((_, index) => {
@@ -1272,23 +1463,22 @@
         return normalized;
       }
 
-      // *** Modified: Updated handleFileUpload to use raw: false for better date handling ***
       function handleFileUpload(event) {
         const file = event.target.files[0];
         const reader = new FileReader();
         reader.onload = function(e) {
           const data = new Uint8Array(e.target.result);
-          const workbook = XLSX.read(data, { type: 'array', dateNF: 'dd-mmm-yyyy', raw: false });
+          const workbook = XLSX.read(data, { type: 'array', dateNF: 'dd-mmm-yyyy' });
           const gstr2bSheet = workbook.Sheets['GST Portal'];
           if (gstr2bSheet) {
-            const rawData = XLSX.utils.sheet_to_json(gstr2bSheet, { header: 1, defval: '' });
+            const rawData = XLSX.utils.sheet_to_json(gstr2bSheet, { header: 1, raw: true, defval: '' });
             gstr2bData = rawData.slice(1).map(row => normalizeRow(row, gstr2bHeaders().length));
             localStorage.setItem('gstr2bData', JSON.stringify(gstr2bData));
             displayData(gstr2bData, 'gstr2b-container', gstr2bHeaders(), 'gstr2b');
           }
           const gstr3bSheet = workbook.Sheets['Client Data'];
           if (gstr3bSheet) {
-            const rawData = XLSX.utils.sheet_to_json(gstr3bSheet, { header: 1, defval: '' });
+            const rawData = XLSX.utils.sheet_to_json(gstr3bSheet, { header: 1, raw: true, defval: '' });
             gstr3bData = rawData.slice(1).map(row => normalizeRow(row, gstr3bHeaders().length));
             localStorage.setItem('gstr3bData', JSON.stringify(gstr3bData));
             displayData(gstr3bData, 'gstr3b-container', gstr3bHeaders(), 'gstr3b');
@@ -1298,52 +1488,45 @@
         reader.readAsArrayBuffer(file);
       }
 
-      // *** Modified: Updated displayData to format Invoice Date ***
       function displayData(data, containerId, headers, sheetType) {
-        const container = document.getElementById(containerId);
-        const isFreeService = localStorage.getItem("isFreeService") === "true");
-        const dateColumnIndex = headers.indexOf('Invoice Date');
+  const container = document.getElementById(containerId);
+  const isFreeService = localStorage.getItem("isFreeService") === "true";
+  let html = '<table><thead><tr>';
+  headers.forEach(header => html += `<th>${header}</th>`);
+  html += '</tr></thead><tbody>';
+  data.forEach((row, rowIndex) => {
+    html += `<tr data-row="${rowIndex}" data-sheet="${sheetType}">`;
+    headers.forEach((_, colIndex) => {
+      const cell = row[colIndex];
+      const value = typeof cell === 'number' && (cell > 40000 && cell < 50000) ? formatDate(cell) : (cell === undefined || cell === null ? '' : cell);
+      const isEditable = colIndex > 0 && !isFreeService; // Editable only for normal users
+      html += `<td contenteditable="${isEditable}" data-col="${colIndex}">${value}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  container.innerHTML = html;
+  const table = container.querySelector('table');
+  table.addEventListener('input', handleCellEdit);
+  if (filterEnabled) toggleFilters(); // Reapply filters if enabled
 
-        let html = '<table><thead><tr>';
-        headers.forEach(header => html += `<th>${header}</th>`);
-        html += '</tr></thead><tbody>';
-        data.forEach((row, rowIndex) => {
-          html += `<tr data-row="${rowIndex}" data-sheet="${sheetType}">`;
-          headers.forEach((header, colIndex) => {
-            let value = row[colIndex];
-            // Format Invoice Date column
-            if (colIndex === dateColumnIndex) {
-              value = formatDate(value);
-            } else {
-              value = value === undefined || value === null ? '' : value;
-            }
-            const isEditable = colIndex > 0 && !isFreeService;
-            html += `<td contenteditable="${isEditable}" data-col="${colIndex}">${value}</td>`;
-          });
-          html += '</tr>';
-        });
-        html += '</tbody></table>';
-        container.innerHTML = html;
-        const table = container.querySelector('table');
-        table.addEventListener('input', handleCellEdit);
-        if (filterEnabled) toggleFilters();
-
-        if (isFreeService) {
-          const cells = table.querySelectorAll("td");
-          cells.forEach(cell => {
-            cell.setAttribute("contenteditable", "false");
-          });
-          applyFreeServiceColors();
-        }
-      }
+  // Apply free service restrictions and colors
+  if (isFreeService) {
+    const cells = table.querySelectorAll("td");
+    cells.forEach(cell => {
+      cell.setAttribute("contenteditable", "false");
+    });
+    applyFreeServiceColors(); // Apply colors for free service mode
+  }
+}
 
       function handleCellEdit(event) {
         const target = event.target;
-        const isFreeService = localStorage.getItem("isFreeService") === "true");
+        const isFreeService = localStorage.getItem("isFreeService") === "true";
 
         if (isFreeService) {
-          event.preventDefault();
-          target.blur();
+          event.preventDefault(); // Prevent editing in free service mode
+          target.blur(); // Remove focus from cell
           return;
         }
 
@@ -1360,12 +1543,14 @@
             localStorage.setItem('gstr3bData', JSON.stringify(gstr3bData));
           }
           reconcileData();
+          // Filter refresh karna jab filter enabled ho
           if (filterEnabled) {
             refreshFilters(sheetType === 'gstr2b' ? 'gstr2b-container' : 'gstr3b-container');
           }
         }
       }
 
+      // Naya function filter refresh ke liye
       function refreshFilters(containerId) {
         const table = document.getElementById(containerId).querySelector('table');
         if (table) {
@@ -1374,655 +1559,1190 @@
             const dropdown = th.querySelector('.filter-dropdown');
             if (dropdown) {
               const optionsDiv = dropdown.querySelector('.filter-options');
-              populateFilterOptions(optionsDiv, containerId, colIndex);
-              applyFilters(containerId);
+              populateFilterOptions(optionsDiv, containerId, colIndex); // Options refresh karna
+              applyFilters(containerId); // Filters reapply karna
             }
           });
         }
       }
-function reconcileData() {
-  const diffInput = document.getElementById('diff-allowed').value;
-  const diffAllowed = diffInput === '' ? 0 : Number(diffInput) || 1;
-  const detailedReconciliation = document.getElementById('detailed-reconciliation').checked;
-  const gstr2bTable = document.querySelector('#gstr2b-container table tbody');
-  const gstr3bTable = document.querySelector('#gstr3b-container table tbody');
-  const reconciled2bData = [];
-  const reconciled3bData = [];
 
-  // Process GSTR-2B data
-  gstr2bData.forEach((row, index) => {
-    const match = findMatch(row, gstr2bData, gstr3bData, false, diffAllowed, detailedReconciliation);
-    const newRow = [match, ...row.slice(1)];
-    reconciled2bData.push(newRow);
-    if (gstr2bTable && gstr2bTable.rows[index]) updateRow(gstr2bTable.rows[index], newRow);
-  });
+      function reconcileData() {
+        const diffInput = document.getElementById('diff-allowed').value;
+        const diffAllowed = diffInput === '' ? 0 : Number(diffInput) || 1;
+        const gstr2bTable = document.querySelector('#gstr2b-container table tbody');
+        const gstr3bTable = document.querySelector('#gstr3b-container table tbody');
+        const reconciled2bData = [];
+        const reconciled3bData = [];
 
-  // Process GSTR-3B data
-  gstr3bData.forEach((row, index) => {
-    const match = findMatch(row, gstr3bData, gstr2bData, true, diffAllowed, detailedReconciliation);
-    const newRow = [match, ...row.slice(1)];
-    reconciled3bData.push(newRow);
-    if (gstr3bTable && gstr3bTable.rows[index]) updateRow(gstr3bTable.rows[index], newRow);
-  });
+        gstr2bData.forEach((row, index) => {
+          const match = findMatch(row, gstr2bData, gstr3bData, false, diffAllowed);
+          const newRow = [match, ...row.slice(1)];
+          reconciled2bData.push(newRow);
+          if (gstr2bTable && gstr2bTable.rows[index]) updateRow(gstr2bTable.rows[index], newRow);
+        });
 
-  // Update displayed data with reconciled results
-  displayData(reconciled2bData, 'gstr2b-container', gstr2bHeaders(), 'gstr2b');
-  displayData(reconciled3bData, 'gstr3b-container', gstr3bHeaders(), 'gstr3b');
+        gstr3bData.forEach((row, index) => {
+          const match = findMatch(row, gstr3bData, gstr2bData, true, diffAllowed);
+          const newRow = [match, ...row.slice(1)];
+          reconciled3bData.push(newRow);
+          if (gstr3bTable && gstr3bTable.rows[index]) updateRow(gstr3bTable.rows[index], newRow);
+        });
 
-  // Generate summary
-  const summaryData = generateSummary(reconciled2bData, reconciled3bData, detailedReconciliation);
-  displaySummary(summaryData);
+        displaySummary(reconciled2bData, reconciled3bData);
+        generateOutput(reconciled2bData, reconciled3bData);
 
-  // Generate output file
-  generateOutputFile(reconciled2bData, reconciled3bData, summaryData);
-
-  // Apply free service restrictions if applicable
-  if (localStorage.getItem('isFreeService') === 'true') {
-    applyFreeServiceColors();
-  }
-
-  // Reapply filters if enabled
-  if (filterEnabled) {
-    toggleFilters();
-  }
-}
-
-// Find match between source and target data
-function findMatch(row, sourceData, targetData, is3b, diffAllowed, detailed) {
-  const sourceGSTN = is3b ? row[2] : row[1];
-  const sourceInvoice = is3b ? row[4] : row[3];
-  const sourceDate = is3b ? row[1] : row[5];
-  const sourceTaxable = parseFloat(is3b ? row[5] : row[10]) || 0;
-  const sourceIGST = parseFloat(is3b ? row[6] : row[11]) || 0;
-  const sourceCGST = parseFloat(is3b ? row[7] : row[12]) || 0;
-  const sourceSGST = parseFloat(is3b ? row[8] : row[13]) || 0;
-
-  // Normalize date for comparison
-  const normalizedSourceDate = formatDate(sourceDate);
-  const sourceDateObj = DateTime.fromFormat(normalizedSourceDate, 'dd-M servi-yyyy');
-
-  // Check if GSTN exists in target data
-  const targetGSTNs = targetData.map(r => is3b ? r[1] : r[2]);
-  if (!targetGSTNs.includes(sourceGSTN)) {
-    return detailed ? 'Unmatch - GSTN Not Exist' : 'Unmatch';
-  }
-
-  let bestMatch = 'Unmatch';
-  let minDiff = Infinity;
-
-  targetData.forEach(targetRow => {
-    const targetGSTN = is3b ? targetRow[1] : targetRow[2];
-    const targetInvoice = is3b ? targetRow[3] : targetRow[4];
-    const targetDate = is3b ? targetRow[5] : targetRow[1];
-    const targetTaxable = parseFloat(is3b ? targetRow[10] : targetRow[5]) || 0;
-    const targetIGST = parseFloat(is3b ? targetRow[11] : targetRow[6]) || 0;
-    const targetCGST = parseFloat(is3b ? targetRow[12] : targetRow[7]) || 0;
-    const targetSGST = parseFloat(is3b ? targetRow[13] : targetRow[8]) || 0;
-
-    // Normalize target date
-    const normalizedTargetDate = formatDate(targetDate);
-    const targetDateObj = DateTime.fromFormat(normalizedTargetDate, 'dd-MMM-yyyy');
-
-    if (sourceGSTN === targetGSTN) {
-      const invoiceMatch = sourceInvoice.toString().toLowerCase() === targetInvoice.toString().toLowerCase();
-      const dateMatch = sourceDateObj.isValid && targetDateObj.isValid && sourceDateObj.toFormat('yyyy-MM-dd') === targetDateObj.toFormat('yyyy-MM-dd');
-
-      // Calculate differences
-      const taxableDiff = Math.abs(sourceTaxable - targetTaxable);
-      const igstDiff = Math.abs(sourceIGST - targetIGST);
-      const cgstDiff = Math.abs(sourceCGST - targetCGST);
-      const sgstDiff = Math.abs(sourceSGST - targetSGST);
-      const totalDiff = taxableDiff + igstDiff + cgstDiff + sgstDiff;
-
-      // Check if amounts are within allowed difference
-      const amountsMatch = taxableDiff <= diffAllowed && igstDiff <= diffAllowed && cgstDiff <= diffAllowed && sgstDiff <= diffAllowed;
-
-      if (invoiceMatch && dateMatch && amountsMatch) {
-        bestMatch = 'Match - GSTN, Invoice No., Date';
-        minDiff = 0;
-      } else if (invoiceMatch && amountsMatch && totalDiff < minDiff) {
-        bestMatch = detailed ? 'Match - GSTN, Invoice No.' : 'Match';
-        minDiff = totalDiff;
-      } else if (dateMatch && amountsMatch && totalDiff < minDiff) {
-        bestMatch = detailed ? 'Match - GSTN, Date' : 'Match';
-        minDiff = totalDiff;
-      } else if (amountsMatch && totalDiff < minDiff) {
-        bestMatch = detailed ? 'Match - GSTN' : 'Match';
-        minDiff = totalDiff;
-      } else if (invoiceMatch && !amountsMatch && totalDiff < minDiff) {
-        bestMatch = detailed ? 'Unmatch - Amt Diff' : 'Unmatch';
-        minDiff = totalDiff;
+        // Re-apply free service restrictions and ensure colors
+        restrictFreeServiceFeatures();
       }
-    }
-  });
+      function updateRow(rowElement, newRow) {
+        const match = newRow[0];
+        Array.from(rowElement.cells).forEach((cell, index) => {
+          cell.textContent = newRow[index];
+        });
+        colorRow(rowElement, match); // Color apply karo
+      }
 
-  return bestMatch;
-}
+      function normalizeInvoiceNumber(invNum) {
+        return invNum.replace(/[\s\/\\.,"?\']/g, '');
+      }
 
-// Update table row with reconciled data
-function updateRow(row, newRow) {
-  const headers = row.parentElement.parentElement.querySelector('thead').querySelectorAll('th');
-  const dateColumnIndex = Array.from(headers).findIndex(th => th.textContent === 'Invoice Date');
-  newRow.forEach((cell, index) => {
-    if (row.cells[index]) {
-      // Format date for display
-      const value = index === dateColumnIndex ? formatDate(cell) : cell;
-      row.cells[index].textContent = value === undefined || value === null ? '' : value;
-    }
-  });
-}
+      function findMatch(row, sourceData, compareData, is3b, diffAllowed) {
+        const sourceHeaders = is3b ? gstr3bHeaders() : gstr2bHeaders();
+        const compareHeaders = is3b ? gstr2bHeaders() : gstr3bHeaders();
+        const invDateIdx = sourceHeaders.indexOf('Invoice Date');
+        const gstnIdx = sourceHeaders.indexOf('GSTN');
+        const invNumIdx = sourceHeaders.indexOf('Invoice Number');
+        const compareGstnIdx = compareHeaders.indexOf('GSTN');
+        const invDate = String(row[invDateIdx]).toLowerCase().trim();
+        const gstn = String(row[gstnIdx]).toLowerCase().trim();
+        const invNum = normalizeInvoiceNumber(String(row[invNumIdx]).toLowerCase().trim());
 
-// Generate summary data
-function generateSummary(gstr2bData, gstr3bData, detailed) {
-  const summary = {
-    'Total Invoices': { 'GSTR-2B': gstr2bData.length, 'Client Data': gstr3bData.length },
-    'Match - GSTN, Invoice No., Date': { 'GSTR-2B': 0, 'Client Data': 0 },
-    'Match - GSTN, Invoice No.': { 'GSTR-2B': 0, 'Client Data': 0 },
-    'Match - GSTN, Date': { 'GSTR-2B': 0, 'Client Data': 0 },
-    'Match - GSTN': { 'GSTR-2B': 0, 'Client Data': 0 },
-    'Unmatch - GSTN Not Exist': { 'GSTR-2B': 0, 'Client Data': 0 },
-    'Unmatch - Amt Diff': { 'GSTR-2B': 0, 'Client Data': 0 },
-    'Unmatch': { 'GSTR-2B': 0, 'Client Data': 0 }
-  };
+        // Debugging: Log input values
+        console.log(`Processing row: GSTN=${gstn}, InvNo=${invNum}, Date=${invDate}, is3b=${is3b}`);
 
-  gstr2bData.forEach(row => {
-    const criteria = row[0];
-    const key = detailed ? criteria : (criteria.includes('Match') ? 'Match' : criteria);
-    if (summary[key]) summary[key]['GSTR-2B']++;
-  });
-
-  gstr3bData.forEach(row => {
-    const criteria = row[0];
-    const key = detailed ? criteria : (criteria.includes('Match') ? 'Match' : criteria);
-    if (summary[key]) summary[key]['Client Data']++;
-  });
-
-  return summary;
-}
-
-// Display summary table
-function displaySummary(summaryData) {
-  const container = document.getElementById('summary-container');
-  let html = '<table><thead><tr><th>Criteria</th><th>GSTR-2B</th><th>Client Data</th></tr></thead><tbody>';
-  for (const [criteria, counts] of Object.entries(summaryData)) {
-    html += `<tr><td>${criteria}</td><td>${counts['GSTR-2B']}</td><td>${counts['Client Data']}</td></tr>`;
-  }
-  html += '</tbody></table>';
-  container.innerHTML = html;
-}
-
-// Generate output Excel file
-function generateOutputFile(gstr2bData, gstr3bData, summaryData) {
-  const wb = XLSX.utils.book_new();
-
-  // GSTR-2B Sheet
-  const gstr2bHeaders = gstr2bHeaders();
-  const gstr2bSheetData = [gstr2bHeaders, ...gstr2bData.map(row => {
-    const dateIndex = gstr2bHeaders.indexOf('Invoice Date');
-    return row.map((cell, index) => index === dateIndex ? formatDate(cell) : cell);
-  })];
-  const ws1 = XLSX.utils.aoa_to_sheet(gstr2bSheetData);
-  applyStyles(ws1, gstr2bSheetData);
-  XLSX.utils.book_append_sheet(wb, ws1, 'GSTR-2B');
-
-  // Client Data Sheet
-  const gstr3bHeaders = gstr3bHeaders();
-  const gstr3bSheetData = [gstr3bHeaders, ...gstr3bData.map(row => {
-    const dateIndex = gstr3bHeaders.indexOf('Invoice Date');
-    return row.map((cell, index) => index === dateIndex ? formatDate(cell) : cell);
-  })];
-  const ws2 = XLSX.utils.aoa_to_sheet(gstr3bSheetData);
-  applyStyles(ws2, gstr3bSheetData);
-  XLSX.utils.book_append_sheet(wb, ws2, 'Client Data');
-
-  // Summary Sheet
-  const summaryHeaders = ['Criteria', 'GSTR-2B', 'Client Data'];
-  const summarySheetData = [summaryHeaders, ...Object.entries(summaryData).map(([criteria, counts]) => [criteria, counts['GSTR-2B'], counts['Client Data']])];
-  const ws3 = XLSX.utils.aoa_to_sheet(summarySheetData);
-  applyStyles(ws3, summarySheetData);
-  XLSX.utils.book_append_sheet(wb, ws3, 'Summary');
-
-  // Generate file
-  const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-  const blob = new Blob([wbout], { type: 'application/octet-stream' });
-  const url = URL.createObjectURL(blob);
-  const link = document.getElementById('download-output');
-  link.href = url;
-  link.download = 'GST_Reconciliation_Output.xlsx';
-  document.getElementById('output-link').style.display = 'block';
-}
-
-// Apply styles to Excel sheet
-function applyStyles(ws, data) {
-  const matchColors = {
-    'Match - GSTN, Invoice No., Date': '90EE90', // Light Green
-    'Match - GSTN, Invoice No.': '98FB98', // Pale Green
-    'Match - GSTN, Date': 'ADFF2F', // Green Yellow
-    'Match - GSTN': '7FFF00', // Chartreuse
-    'Match': '90EE90', // Light Green
-    'Unmatch - GSTN Not Exist': 'FF6347', // Tomato
-    'Unmatch - Amt Diff': 'FFA07A', // Light Salmon
-    'Unmatch': 'FF4500' // Orange Red
-  };
-
-  data.forEach((row, rowIndex) => {
-    row.forEach((cell, colIndex) => {
-      const cellRef = XLSX.utils.encode_cell({ r: rowIndex, c: colIndex });
-      if (!ws[cellRef]) ws[cellRef] = { v: cell };
-      if (rowIndex === 0) {
-        ws[cellRef].s = { fill: { fgColor: { rgb: 'E0FFFF' } }, font: { bold: true } };
-      } else if (colIndex === 0 && matchColors[cell]) {
-        ws[cellRef].s = { fill: { fgColor: { rgb: matchColors[cell] } } };
-        for (let i = 1; i < row.length; i++) {
-          const cellRef = XLSX.utils.encode_cell({ r: rowIndex, c: i });
-          if (!ws[cellRef]) ws[cellRef] = { v: row[i] };
-          ws[cellRef].s = { fill: { fgColor: { rgb: matchColors[cell] } } };
+        // 1. Match - GSTN, Invoice No., Date
+        console.log("Checking Match - GSTN, Invoice No., Date...");
+        const sourceTotals = calculateTotals(sourceData, invDate, gstn, invNum, is3b);
+        const compareTotals = calculateTotals(compareData, invDate, gstn, invNum, !is3b);
+        if (sourceTotals.count > 0 && compareTotals.count > 0) {
+          console.log(`Found match on GSTN, InvNo, Date. SourceTotals:`, sourceTotals, `CompareTotals:`, compareTotals);
+          if (checkTotals(sourceTotals, compareTotals, diffAllowed)) {
+            console.log("Totals match within diffAllowed. Returning Match - GSTN, Invoice No., Date");
+            return detailedReconciliationCheckbox.checked ? 'Match - GSTN, Invoice No., Date' : 'Match';
+          }
+          console.log("Totals differ, moving to next check");
+        } else {
+          console.log("No match on GSTN, InvNo, Date");
         }
-      }
-    });
-  });
-}
 
-// Apply free service colors to tables
-function applyFreeServiceColors() {
-  const containers = ['gstr2b-container', 'gstr3b-container'];
-  containers.forEach(containerId => {
-    const table = document.getElementById(containerId).querySelector('table');
-    if (table) {
-      const rows = table.querySelectorAll('tbody tr');
-      rows.forEach(row => {
-        const matchCell = row.cells[0].textContent;
-        let bgColor = '';
-        switch (matchCell) {
-          case 'Match':
+        // 2. Match - GSTN, Invoice No.
+        console.log("Checking Match - GSTN, Invoice No....");
+        const invTotals = calculateTotalsByInv(sourceData, gstn, invNum, is3b);
+        const compareInvTotals = calculateTotalsByInv(compareData, gstn, invNum, !is3b);
+        if (invTotals.count > 0 && compareInvTotals.count > 0) {
+          console.log(`Found match on GSTN, InvNo. InvTotals:`, invTotals, `CompareInvTotals:`, compareInvTotals);
+          if (checkTotals(invTotals, compareInvTotals, diffAllowed)) {
+            console.log("Totals match within diffAllowed. Returning Match - GSTN, Invoice No.");
+            return detailedReconciliationCheckbox.checked ? 'Match - GSTN, Invoice No.' : 'Match';
+          }
+          console.log("Totals differ, moving to next check");
+        } else {
+          console.log("No match on GSTN, InvNo");
+        }
+
+        // 3. Match - GSTN, Date
+        console.log("Checking Match - GSTN, Date...");
+        const gstnDateTotals = calculateTotalsByGstnDate(sourceData, invDate, gstn, is3b);
+        const compareGstnDateTotals = calculateTotalsByGstnDate(compareData, invDate, gstn, !is3b);
+        if (gstnDateTotals.count > 0 && compareGstnDateTotals.count > 0) {
+          console.log(`Found match on GSTN, Date. GstnDateTotals:`, gstnDateTotals, `CompareGstnDateTotals:`, compareGstnDateTotals);
+          if (checkTotals(gstnDateTotals, compareGstnDateTotals, diffAllowed)) {
+            console.log("Totals match within diffAllowed. Returning Match - GSTN, Date");
+            return detailedReconciliationCheckbox.checked ? 'Match - GSTN, Date' : 'Match';
+          }
+          console.log("Totals differ, moving to next check");
+        } else {
+          console.log("No match on GSTN, Date");
+        }
+
+        // 4. Match - GSTN
+        console.log("Checking Match - GSTN...");
+        const gstnTotals = calculateTotalsByGstn(sourceData, gstn, is3b);
+        const compareGstnTotals = calculateTotalsByGstn(compareData, gstn, !is3b);
+        if (gstnTotals.count > 0 && compareGstnTotals.count > 0) {
+          console.log(`Found match on GSTN. GstnTotals:`, gstnTotals, `CompareGstnTotals:`, compareGstnTotals);
+          if (checkTotals(gstnTotals, compareGstnTotals, diffAllowed)) {
+            console.log("Totals match within diffAllowed. Returning Match - GSTN");
+            return detailedReconciliationCheckbox.checked ? 'Match - GSTN' : 'Match';
+          }
+          console.log("Totals differ, moving to next check");
+        } else {
+          console.log("No match on GSTN");
+        }
+
+        // 5. Unmatch - GSTN Not Exist
+        console.log("Checking Unmatch - GSTN Not Exist...");
+        const gstnExistsInCompare = compareData.some(r => String(r[compareGstnIdx]).toLowerCase().trim() === gstn);
+        if (!gstnExistsInCompare) {
+          console.log("GSTN not found in compare data. Returning Unmatch - GSTN Not Exist");
+          return 'Unmatch - GSTN Not Exist';
+        }
+        console.log("GSTN exists in compare data");
+
+        // 6. Unmatch - Amt Diff (Check after GSTN Not Exist)
+        console.log("Checking Unmatch - Amt Diff...");
+        const amtDiffTotals = calculateTotalsByInv(sourceData, gstn, invNum, is3b);
+        const compareAmtDiffTotals = calculateTotalsByInv(compareData, gstn, invNum, !is3b);
+        if (amtDiffTotals.count > 0 && compareAmtDiffTotals.count > 0) {
+          console.log(`Found GSTN, InvNo match for Amt Diff check. Totals:`, amtDiffTotals, `CompareTotals:`, compareAmtDiffTotals);
+          if (!checkTotals(amtDiffTotals, compareAmtDiffTotals, diffAllowed)) {
+            console.log("Amounts differ beyond diffAllowed. Returning Unmatch - Amt Diff");
+            return 'Unmatch - Amt Diff';
+          }
+          console.log("Amounts match within diffAllowed, moving to Unmatch");
+        } else {
+          console.log("No GSTN, InvNo match for Amt Diff");
+        }
+
+        // 7. Unmatch
+        console.log("No match found. Returning Unmatch");
+        return 'Unmatch';
+      }
+
+      function calculateTotals(data, invDate, gstn, invNum, is3b) {
+        const headers = is3b ? gstr3bHeaders() : gstr2bHeaders();
+        const invDateIdx = headers.indexOf('Invoice Date');
+        const gstnIdx = headers.indexOf('GSTN');
+        const invNumIdx = headers.indexOf('Invoice Number');
+        const taxableIdx = headers.indexOf('Taxable Value');
+        const igstIdx = headers.indexOf('IGST');
+        const cgstIdx = headers.indexOf('CGST');
+        const sgstIdx = headers.indexOf('SGST');
+        let count = 0, taxable = 0, igst = 0, cgst = 0, sgst = 0;
+        data.forEach(row => {
+          if (String(row[invDateIdx]).toLowerCase() === invDate && 
+              String(row[gstnIdx]).toLowerCase() === gstn && 
+              normalizeInvoiceNumber(String(row[invNumIdx]).toLowerCase()) === invNum) { // Updated line
+            count++;
+            taxable += Number(row[taxableIdx]) || 0;
+            igst += Number(row[igstIdx]) || 0;
+            cgst += Number(row[cgstIdx]) || 0;
+            sgst += Number(row[sgstIdx]) || 0;
+          }
+        });
+        return { count, taxable, igst, cgst, sgst };
+      }
+
+      function calculateTotalsByInv(data, gstn, invNum, is3b) {
+        const headers = is3b ? gstr3bHeaders() : gstr2bHeaders();
+        const gstnIdx = headers.indexOf('GSTN');
+        const invNumIdx = headers.indexOf('Invoice Number');
+        const taxableIdx = headers.indexOf('Taxable Value');
+        const igstIdx = headers.indexOf('IGST');
+        const cgstIdx = headers.indexOf('CGST');
+        const sgstIdx = headers.indexOf('SGST');
+        let count = 0, taxable = 0, igst = 0, cgst = 0, sgst = 0;
+        data.forEach(row => {
+          if (String(row[gstnIdx]).toLowerCase() === gstn && 
+              normalizeInvoiceNumber(String(row[invNumIdx]).toLowerCase()) === invNum) {
+            count++;
+            taxable += Number(row[taxableIdx]) || 0;
+            igst += Number(row[igstIdx]) || 0;
+            cgst += Number(row[cgstIdx]) || 0;
+            sgst += Number(row[sgstIdx]) || 0;
+          }
+        });
+        return { count, taxable, igst, cgst, sgst };
+      }
+
+      function calculateTotalsByGstnDate(data, invDate, gstn, is3b) {
+        const headers = is3b ? gstr3bHeaders() : gstr2bHeaders();
+        const invDateIdx = headers.indexOf('Invoice Date');
+        const gstnIdx = headers.indexOf('GSTN');
+        const taxableIdx = headers.indexOf('Taxable Value');
+        const igstIdx = headers.indexOf('IGST');
+        const cgstIdx = headers.indexOf('CGST');
+        const sgstIdx = headers.indexOf('SGST');
+        let count = 0, taxable = 0, igst = 0, cgst = 0, sgst = 0;
+        data.forEach(row => {
+          if (String(row[invDateIdx]).toLowerCase() === invDate && 
+              String(row[gstnIdx]).toLowerCase() === gstn) {
+            count++;
+            taxable += Number(row[taxableIdx]) || 0;
+            igst += Number(row[igstIdx]) || 0;
+            cgst += Number(row[cgstIdx]) || 0;
+            sgst += Number(row[sgstIdx]) || 0;
+          }
+        });
+        return { count, taxable, igst, cgst, sgst };
+      }
+
+      function calculateTotalsByGstn(data, gstn, is3b) {
+        const headers = is3b ? gstr3bHeaders() : gstr2bHeaders();
+        const gstnIdx = headers.indexOf('GSTN');
+        const taxableIdx = headers.indexOf('Taxable Value');
+        const igstIdx = headers.indexOf('IGST');
+        const cgstIdx = headers.indexOf('CGST');
+        const sgstIdx = headers.indexOf('SGST');
+        let count = 0, taxable = 0, igst = 0, cgst = 0, sgst = 0;
+        data.forEach(row => {
+          if (String(row[gstnIdx]).toLowerCase() === gstn) {
+            count++;
+            taxable += Number(row[taxableIdx]) || 0;
+            igst += Number(row[igstIdx]) || 0;
+            cgst += Number(row[cgstIdx]) || 0;
+            sgst += Number(row[sgstIdx]) || 0;
+          }
+        });
+        return { count, taxable, igst, cgst, sgst };
+      }
+
+      function checkTotals(source, compare, diffAllowed) {
+        return Math.abs(source.taxable - compare.taxable) <= diffAllowed &&
+               Math.abs(source.igst - compare.igst) <= diffAllowed &&
+               Math.abs(source.cgst - compare.cgst) <= diffAllowed &&
+               Math.abs(source.sgst - compare.sgst) <= diffAllowed;
+      }
+
+      function applyFreeServiceColors() {
+  const isFreeService = localStorage.getItem("isFreeService") === "true";
+  if (!isFreeService) return;
+
+  // Apply to GSTR-2B and GSTR-3B tables
+  const tables = document.querySelectorAll("#gstr2b-container table, #gstr3b-container table, #summary-container table");
+  tables.forEach(table => {
+    const rows = table.querySelectorAll("tbody tr");
+    rows.forEach(row => {
+      const match = row.cells[0].textContent;
+      let backgroundColor = '#f0f0f0'; // Default locked color
+      let textColor = 'black';
+
+      if (detailedReconciliationCheckbox.checked) {
+        switch (match) {
           case 'Match - GSTN, Invoice No., Date':
+            backgroundColor = '#00ced1';
+            textColor = 'white';
+            break;
           case 'Match - GSTN, Invoice No.':
+            backgroundColor = '#4b0082';
+            textColor = 'white';
+            break;
           case 'Match - GSTN, Date':
+            backgroundColor = '#32cd32';
+            textColor = 'white';
+            break;
           case 'Match - GSTN':
-            bgColor = '#90EE90';
+            backgroundColor = '#ffbf00';
+            textColor = 'black';
             break;
           case 'Unmatch - GSTN Not Exist':
-            bgColor = '#FF6347';
+            backgroundColor = '#dc143c';
+            textColor = 'white';
             break;
           case 'Unmatch - Amt Diff':
-            bgColor = '#FFA07A';
+            backgroundColor = '#ff4500';
+            textColor = 'white';
             break;
           case 'Unmatch':
-            bgColor = '#FF4500';
+            backgroundColor = '#ff00ff';
+            textColor = 'white';
+            break;
+          default:
+            backgroundColor = '#ff00ff';
+            textColor = 'white';
             break;
         }
-        if (bgColor) {
-          row.style.backgroundColor = bgColor;
+      } else {
+        switch (match) {
+          case 'Match':
+            backgroundColor = '#00ced1';
+            textColor = 'white';
+            break;
+          case 'Unmatch - GSTN Not Exist':
+            backgroundColor = '#dc143c';
+            textColor = 'white';
+            break;
+          case 'Unmatch - Amt Diff':
+            backgroundColor = '#ff4500';
+            textColor = 'white';
+            break;
+          case 'Unmatch':
+            backgroundColor = '#ff00ff';
+            textColor = 'white';
+            break;
+          default:
+            backgroundColor = '#ff00ff';
+            textColor = 'white';
+            break;
         }
+      }
+
+      const cells = row.querySelectorAll("td");
+      cells.forEach(cell => {
+        cell.style.backgroundColor = backgroundColor;
+        cell.style.color = textColor;
+        cell.style.fontWeight = 'normal';
       });
+    });
+  });
+}
+      function colorRow(rowElement, match) {
+  rowElement.className = ''; // Clear existing classes
+  let backgroundColor = '';
+  let textColor = 'white'; // Default to white for visibility
+
+  if (detailedReconciliationCheckbox.checked) {
+    switch (match) {
+      case 'Match - GSTN, Invoice No., Date':
+        backgroundColor = '#00ced1'; // Turquoise
+        break;
+      case 'Match - GSTN, Invoice No.':
+        backgroundColor = '#4b0082'; // Indigo
+        break;
+      case 'Match - GSTN, Date':
+        backgroundColor = '#32cd32'; // Lime Green
+        break;
+      case 'Match - GSTN':
+        backgroundColor = '#ffbf00'; // Amber
+        textColor = 'black'; // Black text for better contrast
+        break;
+      case 'Unmatch - GSTN Not Exist':
+        backgroundColor = '#dc143c'; // Crimson
+        break;
+      case 'Unmatch - Amt Diff':
+        backgroundColor = '#ff4500'; // Orange Red
+        break;
+      default:
+        backgroundColor = '#ff00ff'; // Magenta
+        break;
     }
+  } else {
+    switch (match) {
+      case 'Match':
+        backgroundColor = '#00ced1'; // Turquoise
+        break;
+      case 'Unmatch - GSTN Not Exist':
+        backgroundColor = '#dc143c'; // Crimson
+        break;
+      case 'Unmatch - Amt Diff':
+        backgroundColor = '#ff4500'; // Orange Red
+        break;
+      default:
+        backgroundColor = '#ff00ff'; // Magenta
+        break;
+    }
+  }
+
+  // Apply styles to all cells in the row
+  Array.from(rowElement.cells).forEach(cell => {
+    cell.style.backgroundColor = backgroundColor;
+    cell.style.color = textColor;
+    cell.style.fontWeight = 'normal'; // Ensure font is visible
   });
 }
 
-// Filter-related functions
-let filterEnabled = false;
+      function calculateSummary(data, is3b) {
+        const headers = is3b ? gstr3bHeaders() : gstr2bHeaders();
+        const taxableIdx = headers.indexOf('Taxable Value');
+        const igstIdx = headers.indexOf('IGST');
+        const cgstIdx = headers.indexOf('CGST');
+        const sgstIdx = headers.indexOf('SGST');
+        const criteria = detailedReconciliationCheckbox.checked ?
+          ['Match - GSTN, Invoice No., Date', 'Match - GSTN, Invoice No.', 'Match - GSTN, Date', 'Match - GSTN', 'Unmatch - GSTN Not Exist', 'Unmatch - Amt Diff', 'Unmatch'] :
+          ['Match', 'Unmatch - GSTN Not Exist', 'Unmatch - Amt Diff', 'Unmatch'];
+        const summary = {};
+        criteria.forEach(criterion => {
+          summary[criterion] = { taxable: 0, igst: 0, cgst: 0, sgst: 0 };
+        });
+        data.forEach(row => {
+          let match = row[0];
+          if (!detailedReconciliationCheckbox.checked && 
+              ['Match - GSTN, Invoice No., Date', 'Match - GSTN, Invoice No.', 'Match - GSTN, Date', 'Match - GSTN'].includes(match)) {
+            match = 'Match';
+          }
+          summary[match].taxable += Number(row[taxableIdx]) || 0;
+          summary[match].igst += Number(row[igstIdx]) || 0;
+          summary[match].cgst += Number(row[cgstIdx]) || 0;
+          summary[match].sgst += Number(row[sgstIdx]) || 0;
+        });
+        const total = { taxable: 0, igst: 0, cgst: 0, sgst: 0 };
+        criteria.forEach(criterion => {
+          total.taxable += summary[criterion].taxable;
+          total.igst += summary[criterion].igst;
+          total.cgst += summary[criterion].cgst;
+          total.sgst += summary[criterion].sgst;
+        });
+        return { summary, total };
+      }
 
-function toggleFilters() {
-  filterEnabled = document.getElementById('enable-filter').checked;
-  const containers = ['gstr2b-container', 'gstr3b-container'];
-  containers.forEach(containerId => {
-    const table = document.getElementById(containerId).querySelector('table');
-    if (!table) return;
-    const headers = table.querySelectorAll('thead th');
-    headers.forEach((th, colIndex) => {
-      if (filterEnabled) {
-        th.innerHTML = `${th.textContent} <button class="filter-btn"><i class="fas fa-filter"></i></button>`;
+      function displaySummary(reconciled2bData, reconciled3bData) {
+  const gstr2bSummary = calculateSummary(reconciled2bData, false);
+  const gstr3bSummary = calculateSummary(reconciled3bData, true);
+  const container = document.getElementById('summary-container');
+  let html = '<table><thead><tr>';
+  html += '<th rowspan="2">Particulars</th>';
+  html += '<th colspan="4">GST Portal</th>';
+  html += '<th colspan="4">Client Data</th>';
+  html += '</tr><tr>';
+  ['Taxable Value', 'IGST', 'CGST', 'SGST'].forEach(header => html += `<th>${header}</th>`);
+  ['Taxable Value', 'IGST', 'CGST', 'SGST'].forEach(header => html += `<th>${header}</th>`);
+  html += '</tr></thead><tbody>';
+  const criteria = detailedReconciliationCheckbox.checked ?
+    ['Match - GSTN, Invoice No., Date', 'Match - GSTN, Invoice No.', 'Match - GSTN, Date', 'Match - GSTN', 'Unmatch - GSTN Not Exist', 'Unmatch - Amt Diff', 'Unmatch'] :
+    ['Match', 'Unmatch - GSTN Not Exist', 'Unmatch - Amt Diff', 'Unmatch'];
+  criteria.forEach(criterion => {
+    let backgroundColor = '';
+    let textColor = 'white';
+    if (detailedReconciliationCheckbox.checked) {
+      switch (criterion) {
+        case 'Match - GSTN, Invoice No., Date':
+          backgroundColor = '#00ced1'; // Turquoise
+          break;
+        case 'Match - GSTN, Invoice No.':
+          backgroundColor = '#4b0082'; // Indigo
+          break;
+        case 'Match - GSTN, Date':
+          backgroundColor = '#32cd32'; // Lime Green
+          break;
+        case 'Match - GSTN':
+          backgroundColor = '#ffbf00'; // Amber
+          textColor = 'black';
+          break;
+        case 'Unmatch - GSTN Not Exist':
+          backgroundColor = '#dc143c'; // Crimson
+          break;
+        case 'Unmatch - Amt Diff':
+          backgroundColor = '#ff4500'; // Orange Red
+          break;
+        default:
+          backgroundColor = '#ff00ff'; // Magenta
+          break;
+      }
+    } else {
+      switch (criterion) {
+        case 'Match':
+          backgroundColor = '#00ced1'; // Turquoise
+          break;
+        case 'Unmatch - GSTN Not Exist':
+          backgroundColor = '#dc143c'; // Crimson
+          break;
+        case 'Unmatch - Amt Diff':
+          backgroundColor = '#ff4500'; // Orange Red
+          break;
+        default:
+          backgroundColor = '#ff00ff'; // Magenta
+          break;
+      }
+    }
+    html += '<tr>';
+    html += `<td style="background-color: ${backgroundColor}; color: ${textColor};">${criterion}</td>`;
+    html += `<td style="background-color: ${backgroundColor}; color: ${textColor};">${(gstr2bSummary.summary[criterion]?.taxable || 0).toFixed(2)}</td>`;
+    html += `<td style="background-color: ${backgroundColor}; color: ${textColor};">${(gstr2bSummary.summary[criterion]?.igst || 0).toFixed(2)}</td>`;
+    html += `<td style="background-color: ${backgroundColor}; color: ${textColor};">${(gstr2bSummary.summary[criterion]?.cgst || 0).toFixed(2)}</td>`;
+    html += `<td style="background-color: ${backgroundColor}; color: ${textColor};">${(gstr2bSummary.summary[criterion]?.sgst || 0).toFixed(2)}</td>`;
+    html += `<td style="background-color: ${backgroundColor}; color: ${textColor};">${(gstr3bSummary.summary[criterion]?.taxable || 0).toFixed(2)}</td>`;
+    html += `<td style="background-color: ${backgroundColor}; color: ${textColor};">${(gstr3bSummary.summary[criterion]?.igst || 0).toFixed(2)}</td>`;
+    html += `<td style="background-color: ${backgroundColor}; color: ${textColor};">${(gstr3bSummary.summary[criterion]?.cgst || 0).toFixed(2)}</td>`;
+    html += `<td style="background-color: ${backgroundColor}; color: ${textColor};">${(gstr3bSummary.summary[criterion]?.sgst || 0).toFixed(2)}</td>`;
+    html += '</tr>';
+  });
+  html += '<tr style="font-weight: bold;">';
+  html += '<td><strong>Total</strong></td>';
+  html += `<td><strong>${gstr2bSummary.total.taxable.toFixed(2)}</strong></td>`;
+  html += `<td><strong>${gstr2bSummary.total.igst.toFixed(2)}</strong></td>`;
+  html += `<td><strong>${gstr2bSummary.total.cgst.toFixed(2)}</strong></td>`;
+  html += `<td><strong>${gstr2bSummary.total.sgst.toFixed(2)}</strong></td>`;
+  html += `<td><strong>${gstr3bSummary.total.taxable.toFixed(2)}</strong></td>`;
+  html += `<td><strong>${gstr3bSummary.total.igst.toFixed(2)}</strong></td>`;
+  html += `<td><strong>${gstr3bSummary.total.cgst.toFixed(2)}</strong></td>`;
+  html += `<td><strong>${gstr3bSummary.total.sgst.toFixed(2)}</strong></td>`;
+  html += '</tr>';
+  html += '</tbody></table>';
+  container.innerHTML = html;
+
+  // Apply free service colors if needed
+  if (localStorage.getItem("isFreeService") === "true") {
+    applyFreeServiceColors();
+  }
+}
+      async function generateOutput(reconciled2bData, reconciled3bData) {
+        const workbook = new ExcelJS.Workbook();
+        const ws1 = workbook.addWorksheet('GST Portal');
+        const headerRow1 = ws1.addRow(gstr2bHeaders());
+        headerRow1.eachCell(cell => {
+          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0FFFF' } };
+        });
+        reconciled2bData.forEach(row => {
+          const excelRow = row.map(cell => cell === undefined || cell === null ? '' : cell);
+          const addedRow = ws1.addRow(excelRow);
+          applyExcelRowColor(addedRow, row[0], gstr2bHeaders().length);
+        });
+        const ws2 = workbook.addWorksheet('Client Data');
+        const headerRow2 = ws2.addRow(gstr3bHeaders());
+        headerRow2.eachCell(cell => {
+          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0FFFF' } };
+        });
+        reconciled3bData.forEach(row => {
+          const excelRow = row.map(cell => cell === undefined || cell === null ? '' : cell);
+          const addedRow = ws2.addRow(excelRow);
+          applyExcelRowColor(addedRow, row[0], gstr3bHeaders().length);
+        });
+        const ws3 = workbook.addWorksheet('Summary');
+        const summaryHeader1 = ws3.addRow(['Particulars', 'GST Portal', '', '', '', 'Client Data', '', '', '']);
+        const summaryHeader2 = ws3.addRow(['', 'Taxable Value', 'IGST', 'CGST', 'SGST', 'Taxable Value', 'IGST', 'CGST', 'SGST']);
+        ws3.mergeCells('A1:A2');
+        ws3.mergeCells('B1:E1');
+        ws3.mergeCells('F1:I1');
+        [summaryHeader1, summaryHeader2].forEach(row => {
+          row.eachCell(cell => {
+            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0FFFF' } };
+          });
+        });
+        const gstr2bSummary = calculateSummary(reconciled2bData, false);
+        const gstr3bSummary = calculateSummary(reconciled3bData, true);
+        const criteria = detailedReconciliationCheckbox.checked ?
+          ['Match - GSTN, Invoice No., Date', 'Match - GSTN, Invoice No.', 'Match - GSTN, Date', 'Match - GSTN', 'Unmatch - GSTN Not Exist', 'Unmatch'] :
+          ['Match', 'Unmatch - GSTN Not Exist', 'Unmatch'];
+        criteria.forEach(criterion => {
+          ws3.addRow([
+            criterion,
+            gstr2bSummary.summary[criterion].taxable,
+            gstr2bSummary.summary[criterion].igst,
+            gstr2bSummary.summary[criterion].cgst,
+            gstr2bSummary.summary[criterion].sgst,
+            gstr3bSummary.summary[criterion].taxable,
+            gstr3bSummary.summary[criterion].igst,
+            gstr3bSummary.summary[criterion].cgst,
+            gstr3bSummary.summary[criterion].sgst
+          ]);
+        });
+
+        const totalRow = ws3.addRow([
+          'Total',
+          gstr2bSummary.total.taxable,
+          gstr2bSummary.total.igst,
+          gstr2bSummary.total.cgst,
+          gstr2bSummary.total.sgst,
+          gstr3bSummary.total.taxable,
+          gstr3bSummary.total.igst,
+          gstr3bSummary.total.cgst,
+          gstr3bSummary.total.sgst
+        ]);
+        totalRow.eachCell(cell => { cell.font = { bold: true }; });
+        const buffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { type: 'application/octet-stream' });
+        const url = URL.createObjectURL(blob);
+        const link = document.getElementById('download-output');
+        link.href = url;
+        link.download = 'Reconciled_GST_Data.xlsx';
+        document.getElementById('output-link').style.display = 'block';
+      }
+
+      function applyExcelRowColor(row, match, columnCount) {
+        const colors = detailedReconciliationCheckbox.checked ? {
+          'Match - GSTN, Invoice No., Date': 'FF00CED1',
+          'Match - GSTN, Invoice No.': 'FF4B0082',
+          'Match - GSTN, Date': 'FF32CD32',
+          'Match - GSTN': 'FFFFBF00',
+          'Unmatch - GSTN Not Exist': 'FFDC143C',
+          'Unmatch - Amt Diff': 'FFFF4500', // OrangeRed
+          'Unmatch': 'FFFF00FF'
+        } : {
+          'Match': 'FF00CED1',
+          'Unmatch - GSTN Not Exist': 'FFDC143C',
+          'Unmatch - Amt Diff': 'FFFF4500', // OrangeRed
+          'Unmatch': 'FFFF00FF'
+        };
+        const color = colors[match] || 'FFFF00FF';
+        for (let i = 1; i <= columnCount; i++) {
+          const cell = row.getCell(i);
+          cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: color }
+          };
+          if ((detailedReconciliationCheckbox.checked && 
+              ['Match - GSTN, Invoice No., Date', 'Match - GSTN, Invoice No.', 'Match - GSTN, Date', 'Match - GSTN', 'Unmatch - GSTN Not Exist', 'Unmatch - Amt Diff', 'Unmatch'].includes(match)) ||
+              (!detailedReconciliationCheckbox.checked && 
+              ['Match', 'Unmatch - GSTN Not Exist', 'Unmatch - Amt Diff', 'Unmatch'].includes(match))) {
+            cell.font = { color: { argb: 'FFFFFFFF' } };
+          }
+        }
+      }
+
+      // Filter State
+      let filterEnabled = false;
+      const filters = {};
+
+      // Initialize Filter Checkbox
+      document.getElementById('enable-filter').addEventListener('change', function () {
+        filterEnabled = this.checked;
+        toggleFilters();
+      });
+
+      // Toggle Filters On/Off
+      function toggleFilters() {
+        const containers = ['gstr2b-container', 'gstr3b-container'];
+        containers.forEach(containerId => {
+          const table = document.getElementById(containerId).querySelector('table');
+          if (table) {
+            const headers = table.querySelectorAll('thead th');
+            headers.forEach((th, colIndex) => {
+              if (filterEnabled) {
+                addFilterDropdown(th, containerId, colIndex);
+              } else {
+                removeFilterDropdown(th);
+              }
+            });
+            if (!filterEnabled) {
+              resetFilters(containerId);
+            }
+          }
+        });
+      }
+
+      // Add Filter Dropdown to Header
+      function addFilterDropdown(th, containerId, colIndex) {
+        if (th.querySelector('.filter-dropdown')) return; // Avoid duplicates
+        const headerText = th.textContent.trim();
         const dropdown = document.createElement('div');
         dropdown.className = 'filter-dropdown';
-        dropdown.innerHTML = `
-          <div class="filter-dropdown-content">
-            <input type="text" class="filter-input" placeholder="Search...">
-            <div class="filter-options"></div>
-            <div class="filter-actions">
-              <button class="apply-filter">Apply</button>
-              <button class="clear-filter">Clear</button>
-            </div>
-            <div class="sort-actions">
-              <button class="sort-asc">Sort A-Z</button>
-              <button class="sort-desc">Sort Z-A</button>
-            </div>
-          </div>`;
+
+        const filterBtn = document.createElement('button');
+        filterBtn.className = 'filter-btn';
+        filterBtn.innerHTML = 'â–¼'; // Down arrow for dropdown
+        filterBtn.addEventListener('click', () => toggleDropdown(dropdown));
+
+        const dropdownContent = document.createElement('div');
+        dropdownContent.className = 'filter-dropdown-content';
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'filter-input';
+        input.placeholder = `Filter ${headerText}`;
+        input.addEventListener('input', () => filterOptions(input, dropdownContent, containerId, colIndex));
+
+        const optionsDiv = document.createElement('div');
+        optionsDiv.className = 'filter-options';
+        populateFilterOptions(optionsDiv, containerId, colIndex);
+
+        const actionsDiv = document.createElement('div');
+        actionsDiv.className = 'filter-actions';
+        const selectAllBtn = document.createElement('button');
+        selectAllBtn.textContent = 'Select All';
+        selectAllBtn.addEventListener('click', () => selectAllOptions(optionsDiv, containerId, colIndex));
+        const uncheckAllBtn = document.createElement('button');
+        uncheckAllBtn.textContent = 'Uncheck All';
+        uncheckAllBtn.addEventListener('click', () => uncheckAllOptions(optionsDiv, containerId, colIndex));
+        actionsDiv.appendChild(selectAllBtn);
+        actionsDiv.appendChild(uncheckAllBtn);
+
+        // Sort Buttons
+        const sortDiv = document.createElement('div');
+        sortDiv.className = 'sort-actions';
+        const sortAscBtn = document.createElement('button');
+        sortAscBtn.textContent = 'Sort A-Z';
+        sortAscBtn.addEventListener('click', () => sortTable(containerId, colIndex, 'asc'));
+        const sortDescBtn = document.createElement('button');
+        sortDescBtn.textContent = 'Sort Z-A';
+        sortDescBtn.addEventListener('click', () => sortTable(containerId, colIndex, 'desc'));
+        sortDiv.appendChild(sortAscBtn);
+        sortDiv.appendChild(sortDescBtn);
+
+        // Assemble Dropdown Content
+        dropdownContent.appendChild(input);
+        dropdownContent.appendChild(optionsDiv);
+        dropdownContent.appendChild(actionsDiv);
+        dropdownContent.appendChild(sortDiv); // Sort buttons ko last mein add kiya
+        dropdown.appendChild(filterBtn);
+        dropdown.appendChild(dropdownContent);
         th.appendChild(dropdown);
-        populateFilterOptions(dropdown.querySelector('.filter-options'), containerId, colIndex);
-      } else {
-        th.innerHTML = th.textContent.split('<')[0];
       }
-    });
-  });
 
-  if (filterEnabled) {
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const dropdownContent = btn.parentElement.querySelector('.filter-dropdown-content');
-        document.querySelectorAll('.filter-dropdown-content.show').forEach(content => {
-          if (content !== dropdownContent) content.classList.remove('show');
+      //Uncheck Filter
+      function uncheckAllOptions(optionsDiv, containerId, colIndex) {
+        const checkboxes = optionsDiv.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(cb => cb.checked = false);
+        applyFilters(containerId);
+      }
+
+      // Remove Filter Dropdown
+      function removeFilterDropdown(th) {
+        const dropdown = th.querySelector('.filter-dropdown');
+        if (dropdown) dropdown.remove();
+      }
+
+      // Toggle Dropdown Visibility
+      function toggleDropdown(dropdown) {
+  const content = dropdown.querySelector('.filter-dropdown-content');
+  // Close all other dropdowns
+  document.querySelectorAll('.filter-dropdown-content.show').forEach(otherDropdown => {
+    if (otherDropdown !== content) {
+      otherDropdown.classList.remove('show');
+    }
+  });
+  // Toggle the clicked dropdown
+  content.classList.toggle('show');
+}
+
+      // Populate Filter Options
+      function populateFilterOptions(optionsDiv, containerId, colIndex) {
+        const table = document.getElementById(containerId).querySelector('table');
+        const rows = Array.from(table.querySelectorAll('tbody tr'));
+        const uniqueValues = new Set(rows.map(row => row.cells[colIndex].textContent.trim()));
+        optionsDiv.innerHTML = '';
+        uniqueValues.forEach(value => {
+          const option = document.createElement('div');
+          option.className = 'filter-option';
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.value = value;
+          checkbox.checked = true; // Default all selected
+          checkbox.addEventListener('change', () => applyFilters(containerId));
+          const label = document.createElement('label');
+          label.textContent = value || '(Blank)';
+          option.appendChild(checkbox);
+          option.appendChild(label);
+          optionsDiv.appendChild(option);
         });
-        dropdownContent.classList.toggle('show');
-      });
-    });
-
-    document.querySelectorAll('.apply-filter').forEach(btn => {
-      btn.addEventListener('click', () => applyFilters(btn.closest('.filter-dropdown').parentElement.parentElement.parentElement.parentElement.parentElement.id));
-    });
-
-    document.querySelectorAll('.clear-filter').forEach(btn => {
-      btn.addEventListener('click', () => clearFilters(btn.closest('.filter-dropdown').parentElement.parentElement.parentElement.parentElement.parentElement.id));
-    });
-
-    document.querySelectorAll('.sort-asc').forEach(btn => {
-      btn.addEventListener('click', () => sortTable(btn.closest('.filter-dropdown').parentElement.parentElement.parentElement.parentElement.parentElement.id, parseInt(btn.closest('th').cellIndex), 'asc'));
-    });
-
-    document.querySelectorAll('.sort-desc').forEach(btn => {
-      btn.addEventListener('click', () => sortTable(btn.closest('.filter-dropdown').parentElement.parentElement.parentElement.parentElement.parentElement.id, parseInt(btn.closest('th').cellIndex), 'desc'));
-    });
-
-    document.querySelectorAll('.filter-input').forEach(input => {
-      input.addEventListener('input', () => {
-        const optionsDiv = input.nextElementSibling;
-        const containerId = input.closest('.filter-dropdown').parentElement.parentElement.parentElement.parentElement.parentElement.id;
-        const colIndex = parseInt(input.closest('th').cellIndex);
-        populateFilterOptions(optionsDiv, containerId, colIndex, input.value.toLowerCase());
-      });
-    });
-  }
-}
-
-function populateFilterOptions(optionsDiv, containerId, colIndex, searchTerm = '') {
-  const table = document.getElementById(containerId).querySelector('table');
-  const rows = table.querySelectorAll('tbody tr');
-  const uniqueValues = new Set();
-  rows.forEach(row => {
-    const cellValue = row.cells[colIndex].textContent.toLowerCase();
-    if (cellValue && (!searchTerm || cellValue.includes(searchTerm))) {
-      uniqueValues.add(row.cells[colIndex].textContent);
-    }
-  });
-
-  optionsDiv.innerHTML = '';
-  uniqueValues.forEach(value => {
-    const option = document.createElement('div');
-    option.className = 'filter-option';
-    option.innerHTML = `
-      <input type="checkbox" value="${value}" checked>
-      <label>${value}</label>`;
-    optionsDiv.appendChild(option);
-  });
-}
-
-function applyFilters(containerId) {
-  const table = document.getElementById(containerId).querySelector('table');
-  const rows = table.querySelectorAll('tbody tr');
-  const headers = table.querySelectorAll('thead th');
-  const filters = {};
-
-  headers.forEach((th, colIndex) => {
-    const dropdown = th.querySelector('.filter-dropdown');
-    if (dropdown) {
-      const checkedOptions = dropdown.querySelectorAll('.filter-option input:checked');
-      filters[colIndex] = Array.from(checkedOptions).map(input => input.value);
-    }
-  });
-
-  rows.forEach(row => {
-    let showRow = true;
-    Object.keys(filters).forEach(colIndex => {
-      const cellValue = row.cells[colIndex].textContent;
-      if (filters[colIndex].length > 0 && !filters[colIndex].includes(cellValue)) {
-        showRow = false;
       }
-    });
-    row.style.display = showRow ? '' : 'none';
-  });
-}
 
-function clearFilters(containerId) {
-  const table = document.getElementById(containerId).querySelector('table');
-  const headers = table.querySelectorAll('thead th');
-  headers.forEach(th => {
-    const dropdown = th.querySelector('.filter-dropdown');
-    if (dropdown) {
-      const checkboxes = dropdown.querySelectorAll('.filter-option input');
-      checkboxes.forEach(checkbox => checkbox.checked = true);
-      const input = dropdown.querySelector('.filter-input');
-      if (input) input.value = '';
-      populateFilterOptions(dropdown.querySelector('.filter-options'), containerId, th.cellIndex);
-    }
-  });
-  applyFilters(containerId);
-}
+      //Filter Sort Function
+      function sortTable(containerId, colIndex, direction) {
+        const table = document.getElementById(containerId).querySelector('table');
+        const rows = Array.from(table.querySelectorAll('tbody tr'));
 
-function sortTable(containerId, colIndex, order) {
-  const table = document.getElementById(containerId).querySelector('table');
-  const tbody = table.querySelector('tbody');
-  const rows = Array.from(tbody.querySelectorAll('tr'));
+        rows.sort((a, b) => {
+          // ***Change 1: Values ko lowercase mein normalize karna***
+          const aValue = a.cells[colIndex].textContent.trim().toLowerCase(); // <--- Highlight: toLowerCase() added
+          const bValue = b.cells[colIndex].textContent.trim().toLowerCase(); // <--- Highlight: toLowerCase() added
 
-  rows.sort((a, b) => {
-    const aValue = a.cells[colIndex].textContent.toLowerCase();
-    const bValue = b.cells[colIndex].textContent.toLowerCase();
-    if (order === 'asc') {
-      return aValue.localeCompare(bValue, undefined, { numeric: true });
-    } else {
-      return bValue.localeCompare(aValue, undefined, { numeric: true });
-    }
-  });
+          // Check if this is the GSTN column (assuming GSTN is at index 1 in GSTR-2B and 2 in GSTR-3B)
+          const isGSTNColumn = (containerId === 'gstr2b-container' && colIndex === 1) || 
+                               (containerId === 'gstr3b-container' && colIndex === 2);
 
-  tbody.innerHTML = '';
-  rows.forEach(row => tbody.appendChild(row));
-  applyFilters(containerId);
-}
-// Modal functions
-function showInstructions() {
-  document.getElementById('instructions-modal').style.display = 'block';
-}
+          if (isGSTNColumn) {
+            // Custom GSTN sorting
+            // ***Change 2: State code aur rest ko bhi lowercase mein handle karna already hai, koi extra change nahi***
+            const aStateCode = parseInt(aValue.slice(0, 2), 10); // First 2 digits as number
+            const bStateCode = parseInt(bValue.slice(0, 2), 10);
+            const aRest = aValue.slice(2); // Rest of the GSTN
+            const bRest = bValue.slice(2);
 
-function hideInstructions() {
-  document.getElementById('instructions-modal').style.display = 'none';
-}
+            // Compare state codes first (numeric)
+            if (aStateCode !== bStateCode) {
+              return direction === 'asc' ? aStateCode - bStateCode : bStateCode - aStateCode;
+            }
 
-// Close modal when clicking outside
-window.addEventListener('click', function(event) {
-  const modal = document.getElementById('instructions-modal');
-  if (event.target === modal) {
-    modal.style.display = 'none';
-  }
-});
+            // If state codes are equal, compare the rest (alphanumeric)
+            return direction === 'asc' 
+              ? aRest.localeCompare(bRest, undefined, { numeric: true, sensitivity: 'base' })
+              : bRest.localeCompare(aRest, undefined, { numeric: true, sensitivity: 'base' });
+          }
 
-// Filter-related functions
-let filterEnabled = false;
+          // Existing logic for other columns
+          // ***Change 3: Numbers ke liye bhi case-insensitive nahi chahiye, koi change nahi yahan***
+          const aNum = parseFloat(aValue);
+          const bNum = parseFloat(bValue);
+          if (!isNaN(aNum) && !isNaN(bNum)) {
+            return direction === 'asc' ? aNum - bNum : bNum - aNum;
+          }
 
-function toggleFilters() {
-  filterEnabled = document.getElementById('enable-filter').checked;
-  const containers = ['gstr2b-container', 'gstr3b-container'];
-  containers.forEach(containerId => {
-    const table = document.getElementById(containerId).querySelector('table');
-    if (!table) return;
-    const headers = table.querySelectorAll('thead th');
-    headers.forEach((th, colIndex) => {
-      if (filterEnabled) {
-        th.innerHTML = `${th.textContent} <button class="filter-btn"><i class="fas fa-filter"></i></button>`;
-        const dropdown = document.createElement('div');
-        dropdown.className = 'filter-dropdown';
-        dropdown.innerHTML = `
-          <div class="filter-dropdown-content">
-            <input type="text" class="filter-input" placeholder="Search...">
-            <div class="filter-options"></div>
-            <div class="filter-actions">
-              <button class="apply-filter">Apply</button>
-              <button class="clear-filter">Clear</button>
-            </div>
-            <div class="sort-actions">
-              <button class="sort-asc">Sort A-Z</button>
-              <button class="sort-desc">Sort Z-A</button>
-            </div>
-          </div>`;
-        th.appendChild(dropdown);
-        populateFilterOptions(dropdown.querySelector('.filter-options'), containerId, colIndex);
-      } else {
-        th.innerHTML = th.textContent.split('<')[0];
-      }
-    });
-  });
+          // ***Change 4: Dates ke liye bhi case-insensitive nahi chahiye, lekin format consistency ke liye toLowerCase() pehle hi hai***
+          const aDate = Date.parse(aValue);
+          const bDate = Date.parse(bValue);
+          if (!isNaN(aDate) && !isNaN(bDate)) {
+            return direction === 'asc' ? aDate - bDate : bDate - aDate;
+          }
 
-  if (filterEnabled) {
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const dropdownContent = btn.parentElement.querySelector('.filter-dropdown-content');
-        document.querySelectorAll('.filter-dropdown-content.show').forEach(content => {
-          if (content !== dropdownContent) content.classList.remove('show');
+          // ***Change 5: Strings ke liye case-insensitive already sensitivity: 'base' se handle ho raha hai, bas toLowerCase() upar add kiya***
+          return direction === 'asc' 
+            ? aValue.localeCompare(bValue, undefined, { numeric: true, sensitivity: 'base' })
+            : bValue.localeCompare(aValue, undefined, { numeric: true, sensitivity: 'base' });
         });
-        dropdownContent.classList.toggle('show');
+
+        const tbody = table.querySelector('tbody');
+        tbody.innerHTML = '';
+        rows.forEach(row => tbody.appendChild(row));
+        applyFilters(containerId); // Filters reapply karna
+      }
+
+      // Filter Options Based on Input
+      function filterOptions(input, dropdownContent, containerId, colIndex) {
+        const filterText = input.value.toLowerCase();
+        const optionsDiv = dropdownContent.querySelector('.filter-options');
+        const options = optionsDiv.querySelectorAll('.filter-option');
+        options.forEach(option => {
+          const label = option.querySelector('label').textContent.toLowerCase();
+          option.style.display = label.includes(filterText) ? 'flex' : 'none';
+        });
+        applyFilters(containerId);
+      }
+
+      // Apply Filters to Table
+      function applyFilters(containerId) {
+        const table = document.getElementById(containerId).querySelector('table');
+        const rows = Array.from(table.querySelectorAll('tbody tr'));
+        const headers = table.querySelectorAll('thead th');
+
+        if (!filters[containerId]) filters[containerId] = {};
+
+        rows.forEach(row => {
+          let showRow = true;
+          headers.forEach((th, colIndex) => {
+            const dropdown = th.querySelector('.filter-dropdown-content');
+            if (dropdown) {
+              const selectedValues = Array.from(dropdown.querySelectorAll('input[type="checkbox"]:checked'))
+                .map(cb => cb.value);
+              const cellValue = row.cells[colIndex].textContent.trim();
+              if (selectedValues.length > 0 && !selectedValues.includes(cellValue)) {
+                showRow = false;
+              }
+            }
+          });
+          row.style.display = showRow ? '' : 'none';
+        });
+      }
+
+      // Select All Options
+      function selectAllOptions(optionsDiv, containerId, colIndex) {
+        const checkboxes = optionsDiv.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(cb => cb.checked = true);
+        applyFilters(containerId);
+      }
+
+      // Clear Filter
+      function clearFilter(containerId, colIndex) {
+        const table = document.getElementById(containerId).querySelector('table');
+        const th = table.querySelectorAll('thead th')[colIndex];
+        const dropdown = th.querySelector('.filter-dropdown-content');
+        const input = dropdown.querySelector('.filter-input');
+        const checkboxes = dropdown.querySelectorAll('input[type="checkbox"]');
+        input.value = '';
+        checkboxes.forEach(cb => cb.checked = true);
+        applyFilters(containerId);
+      }
+
+      // Reset All Filters
+      function resetFilters(containerId) {
+        const table = document.getElementById(containerId).querySelector('table');
+        if (table) {
+          const rows = table.querySelectorAll('tbody tr');
+          rows.forEach(row => row.style.display = '');
+          delete filters[containerId];
+        }
+      }
+
+      // Close Dropdowns on Click Outside
+      document.addEventListener('click', function (event) {
+        const dropdowns = document.querySelectorAll('.filter-dropdown-content');
+        dropdowns.forEach(dropdown => {
+          if (!dropdown.parentElement.contains(event.target)) {
+            dropdown.classList.remove('show');
+          }
+        });
       });
-    });
 
-    document.querySelectorAll('.apply-filter').forEach(btn => {
-      btn.addEventListener('click', () => applyFilters(btn.closest('.filter-dropdown').parentElement.parentElement.parentElement.parentElement.parentElement.id));
-    });
+      // Update displayData to Reapply Filters
+      function displayData(data, containerId, headers, sheetType) {
+        const container = document.getElementById(containerId);
+        let html = '<table><thead><tr>';
+        headers.forEach(header => html += `<th>${header}</th>`);
+        html += '</tr></thead><tbody>';
+        data.forEach((row, rowIndex) => {
+          html += `<tr data-row="${rowIndex}" data-sheet="${sheetType}">`;
+          headers.forEach((_, colIndex) => {
+            const cell = row[colIndex];
+            const value = typeof cell === 'number' && (cell > 40000 && cell < 50000) ? formatDate(cell) : (cell === undefined || cell === null ? '' : cell);
+            const isEditable = colIndex > 0;
+            html += `<td contenteditable="${isEditable}" data-col="${colIndex}">${value}</td>`;
+          });
+          html += '</tr>';
+        });
+        html += '</tbody></table>';
+        container.innerHTML = html;
+        const table = container.querySelector('table');
+        table.addEventListener('input', handleCellEdit);
+        if (filterEnabled) toggleFilters(); // Reapply filters if enabled
+      }
 
-    document.querySelectorAll('.clear-filter').forEach(btn => {
-      btn.addEventListener('click', () => clearFilters(btn.closest('.filter-dropdown').parentElement.parentElement.parentElement.parentElement.parentElement.id));
-    });
 
-    document.querySelectorAll('.sort-asc').forEach(btn => {
-      btn.addEventListener('click', () => sortTable(btn.closest('.filter-dropdown').parentElement.parentElement.parentElement.parentElement.parentElement.id, parseInt(btn.closest('th').cellIndex), 'asc'));
-    });
 
-    document.querySelectorAll('.sort-desc').forEach(btn => {
-      btn.addEventListener('click', () => sortTable(btn.closest('.filter-dropdown').parentElement.parentElement.parentElement.parentElement.parentElement.id, parseInt(btn.closest('th').cellIndex), 'desc'));
-    });
+  // ... existing code ...
 
-    document.querySelectorAll('.filter-input').forEach(input => {
-      input.addEventListener('input', () => {
-        const optionsDiv = input.nextElementSibling;
-        const containerId = input.closest('.filter-dropdown').parentElement.parentElement.parentElement.parentElement.parentElement.id;
-        const colIndex = parseInt(input.closest('th').cellIndex);
-        populateFilterOptions(optionsDiv, containerId, colIndex, input.value.toLowerCase());
-      });
-    });
+  /* ===== ADD THIS NEW CODE SECTION STARTING HERE ===== */
+  // Function to validate email addresses
+  function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   }
-}
 
-function populateFilterOptions(optionsDiv, containerId, colIndex, searchTerm = '') {
-  const table = document.getElementById(containerId).querySelector('table');
-  const rows = table.querySelectorAll('tbody tr');
-  const uniqueValues = new Set();
-  rows.forEach(row => {
-    const cellValue = row.cells[colIndex].textContent.toLowerCase();
-    if (cellValue && (!searchTerm || cellValue.includes(searchTerm))) {
-      uniqueValues.add(row.cells[colIndex].textContent);
-    }
-  });
+  // Function to get filtered entries based on dropdown selection
+  function getFilteredEntries() {
+    const entryFilter = document.getElementById('entry-filter').value;
+    const filtered = {
+      gstr2b: [],
+      gstr3b: []
+    };
 
-  optionsDiv.innerHTML = '';
-  uniqueValues.forEach(value => {
-    const option = document.createElement('div');
-    option.className = 'filter-option';
-    option.innerHTML = `
-      <input type="checkbox" value="${value}" checked>
-      <label>${value}</label>`;
-    optionsDiv.appendChild(option);
-  });
-}
-
-function applyFilters(containerId) {
-  const table = document.getElementById(containerId).querySelector('table');
-  const rows = table.querySelectorAll('tbody tr');
-  const headers = table.querySelectorAll('thead th');
-  const filters = {};
-
-  headers.forEach((th, colIndex) => {
-    const dropdown = th.querySelector('.filter-dropdown');
-    if (dropdown) {
-      const checkedOptions = dropdown.querySelectorAll('.filter-option input:checked');
-      filters[colIndex] = Array.from(checkedOptions).map(input => input.value);
-    }
-  });
-
-  rows.forEach(row => {
-    let showRow = true;
-    Object.keys(filters).forEach(colIndex => {
-      const cellValue = row.cells[colIndex].textContent;
-      if (filters[colIndex].length > 0 && !filters[colIndex].includes(cellValue)) {
-        showRow = false;
+    // Filter GSTR-2B entries
+    gstr2bData.forEach(row => {
+      const matchCriteria = row[0];
+      if (entryFilter === 'all' || 
+          (entryFilter === 'match' && matchCriteria.includes('Match')) ||
+          (entryFilter === 'unmatch' && (matchCriteria.includes('Unmatch') || matchCriteria === 'Unmatch'))) {
+        filtered.gstr2b.push(row);
       }
     });
-    row.style.display = showRow ? '' : 'none';
-  });
-}
 
-function clearFilters(containerId) {
-  const table = document.getElementById(containerId).querySelector('table');
-  const headers = table.querySelectorAll('thead th');
-  headers.forEach(th => {
-    const dropdown = th.querySelector('.filter-dropdown');
-    if (dropdown) {
-      const checkboxes = dropdown.querySelectorAll('.filter-option input');
-      checkboxes.forEach(checkbox => checkbox.checked = true);
-      const input = dropdown.querySelector('.filter-input');
-      if (input) input.value = '';
-      populateFilterOptions(dropdown.querySelector('.filter-options'), containerId, th.cellIndex);
-    }
-  });
-  applyFilters(containerId);
-}
+    // Filter GSTR-3B entries
+    gstr3bData.forEach(row => {
+      const matchCriteria = row[0];
+      if (entryFilter === 'all' || 
+          (entryFilter === 'match' && matchCriteria.includes('Match')) ||
+          (entryFilter === 'unmatch' && (matchCriteria.includes('Unmatch') || matchCriteria === 'Unmatch'))) {
+        filtered.gstr3b.push(row);
+      }
+    });
 
-function sortTable(containerId, colIndex, order) {
-  const table = document.getElementById(containerId).querySelector('table');
-  const tbody = table.querySelector('tbody');
-  const rows = Array.from(tbody.querySelectorAll('tr'));
+    return filtered;
+  }
 
-  rows.sort((a, b) => {
-    const aValue = a.cells[colIndex].textContent.toLowerCase();
-    const bValue = b.cells[colIndex].textContent.toLowerCase();
-    if (order === 'asc') {
-      return aValue.localeCompare(bValue, undefined, { numeric: true });
+  // Function to format entries as plain text
+  function formatEntriesAsText(filtered) {
+    let body = 'GST Reconciliation Report\n\n';
+    body += `Filter: ${document.getElementById('entry-filter').options[document.getElementById('entry-filter').selectedIndex].text}\n\n`;
+
+    // GSTR-2B Entries
+    body += '=== GSTR-2B Entries ===\n';
+    if (filtered.gstr2b.length === 0) {
+      body += 'No entries found.\n';
     } else {
-      return bValue.localeCompare(aValue, undefined, { numeric: true });
+      body += `Total Entries: ${filtered.gstr2b.length}\n\n`;
+      filtered.gstr2b.forEach((row, index) => {
+        body += `Entry ${index + 1}:\n`;
+        body += `Match Status: ${row[0]}\n`;
+        body += `GSTN: ${row[1] || ''}\n`;
+        body += `Supplier: ${row[2] || ''}\n`;
+        body += `Invoice No: ${row[3] || ''}\n`;
+        body += `Date: ${row[5] || ''}\n`;
+        body += `Taxable Value: ${row[10] || 0}\n`;
+        body += `IGST: ${row[11] || 0}\n`;
+        body += `CGST: ${row[12] || 0}\n`;
+        body += `SGST: ${row[13] || 0}\n\n`;
+      });
+    }
+
+    body += '\n';
+
+    // GSTR-3B Entries
+    body += '=== GSTR-3B Entries ===\n';
+    if (filtered.gstr3b.length === 0) {
+      body += 'No entries found.\n';
+    } else {
+      body += `Total Entries: ${filtered.gstr3b.length}\n\n`;
+      filtered.gstr3b.forEach((row, index) => {
+        body += `Entry ${index + 1}:\n`;
+        body += `Match Status: ${row[0]}\n`;
+        body += `Date: ${row[1] || ''}\n`;
+        body += `GSTN: ${row[2] || ''}\n`;
+        body += `Supplier: ${row[3] || ''}\n`;
+        body += `Invoice No: ${row[4] || ''}\n`;
+        body += `Taxable Value: ${row[5] || 0}\n`;
+        body += `IGST: ${row[6] || 0}\n`;
+        body += `CGST: ${row[7] || 0}\n`;
+        body += `SGST: ${row[8] || 0}\n\n`;
+      });
+    }
+
+
+    return body;
+  }
+
+
+  // Add event listener for send email button
+  document.getElementById('send-email-btn').addEventListener('click', () => {
+    const senderEmail = document.getElementById('sender-email').value.trim();
+    const receiverEmail = document.getElementById('receiver-email').value.trim();
+    const errorElement = document.getElementById('email-error');
+
+    // Validate email addresses
+    if (!senderEmail || !receiverEmail) {
+      errorElement.textContent = 'Please enter both sender and receiver email addresses.';
+      errorElement.classList.remove('hidden');
+      return;
+    }
+
+    if (!isValidEmail(senderEmail) || !isValidEmail(receiverEmail)) {
+      errorElement.textContent = 'Please enter valid email addresses.';
+      errorElement.classList.remove('hidden');
+      return;
+    }
+
+    // Clear error message
+    errorElement.textContent = '';
+    errorElement.classList.add('hidden');
+
+    // Get filtered entries based on dropdown selection
+    const filtered = getFilteredEntries();
+
+    // Format email body as plain text
+    const emailBody = formatEntriesAsText(filtered);
+    const subject = `GST Reconciliation Report - ${document.getElementById('entry-filter').options[document.getElementById('entry-filter').selectedIndex].text}`;
+
+    // Create mailto URL
+    const mailtoUrl = `mailto:${receiverEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
+
+    // Open email client
+    try {
+      window.open(mailtoUrl, '_blank');
+    } catch (e) {
+      errorElement.textContent = 'Failed to open email client. Please check your email client settings.';
+      errorElement.classList.remove('hidden');
+    }
+  });
+  /* ===== NEW CODE SECTION ENDS HERE ===== */
+
+
+
+
+
+      
+
+
+      
+      
+      function showInstructions() {
+        document.getElementById("instructions-modal").style.display = "block";
+      }
+      function hideInstructions() {
+        document.getElementById("instructions-modal").style.display = "none";
+      }
+      window.onclick = function(event) {
+        var modal = document.getElementById("instructions-modal");
+        if (event.target == modal) {
+          modal.style.display = "none";
+        }
+      }
+
+
+
+// Function to validate email addresses
+function isValidEmail(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
+// Function to extract unmatched entries
+function getUnmatchedEntries() {
+  const unmatched = {
+    gstr2b: [],
+    gstr3b: []
+  };
+
+  // Filter GSTR-2B unmatched entries
+  gstr2bData.forEach(row => {
+    const matchCriteria = row[0];
+    if (matchCriteria === 'Unmatch - Amt Diff' || matchCriteria === 'Unmatch') {
+      unmatched.gstr2b.push(row);
     }
   });
 
-  tbody.innerHTML = '';
-  rows.forEach(row => tbody.appendChild(row));
-  applyFilters(containerId);
+  // Filter GSTR-3B unmatched entries
+  gstr3bData.forEach(row => {
+    const matchCriteria = row[0];
+    if (matchCriteria === 'Unmatch - Amt Diff' || matchCriteria === 'Unmatch') {
+      unmatched.gstr3b.push(row);
+    }
+  });
+
+  return unmatched;
 }
 
-// Email functionality (placeholder)
-document.getElementById('send-email-btn').addEventListener('click', function() {
-  const emailError = document.getElementById('email-error');
-  emailError.textContent = 'Email functionality is under development.';
-  emailError.classList.remove('hidden');
-  setTimeout(() => {
-    emailError.classList.add('hidden');
-  }, 5000);
-});
+// Function to format unmatched entries as plain text
+function formatUnmatchedEntries(unmatched) {
+  let body = 'GST Reconciliation - Unmatched Entries\n\n';
 
-// Ensure filters are applied on page load if enabled
-document.getElementById('enable-filter').addEventListener('change', toggleFilters);
-
-// Close filter dropdowns when clicking outside
-document.addEventListener('click', function(event) {
-  if (!event.target.closest('.filter-btn') && !event.target.closest('.filter-dropdown-content')) {
-    document.querySelectorAll('.filter-dropdown-content.show').forEach(content => {
-      content.classList.remove('show');
+  // GSTR-2B Unmatched Entries
+  body += '=== GSTR-2B Unmatched Entries ===\n';
+  if (unmatched.gstr2b.length === 0) {
+    body += 'No unmatched entries found.\n';
+  } else {
+    unmatched.gstr2b.forEach((row, index) => {
+      body += `Entry ${index + 1}:\n`;
+      gstr2bHeaders().forEach((header, i) => {
+        body += `${header}: ${row[i] || ''}\n`;
+      });
+      body += '\n';
     });
   }
-});
 
-// Initialize tool state
-function initializeTool() {
-  const loggedInUser = localStorage.getItem('loggedInUser');
-  if (loggedInUser) {
-    showTool();
+  body += '\n';
+
+  // GSTR-3B Unmatched Entries
+  body += '=== GSTR-3B Unmatched Entries ===\n';
+  if (unmatched.gstr3b.length === 0) {
+    body += 'No unmatched entries found.\n';
+  } else {
+    unmatched.gstr3b.forEach((row, index) => {
+      body += `Entry ${index + 1}:\n`;
+      gstr3bHeaders().forEach((header, i) => {
+        body += `${header}: ${row[i] || ''}\n`;
+      });
+      body += '\n';
+    });
   }
+
+  return body;
 }
 
-// Run initialization
-initializeTool();
+// Handle Send Email Button Click
+document.getElementById('send-email-btn').addEventListener('click', () => {
+  const senderEmail = document.getElementById('sender-email').value.trim();
+  const receiverEmail = document.getElementById('receiver-email').value.trim();
+  const errorElement = document.getElementById('email-error');
+
+  // Validate email addresses
+  if (!senderEmail || !receiverEmail) {
+    errorElement.textContent = 'Please enter both sender and receiver email addresses.';
+    errorElement.classList.remove('hidden');
+    return;
+  }
+
+  if (!isValidEmail(senderEmail) || !isValidEmail(receiverEmail)) {
+    errorElement.textContent = 'Please enter valid email addresses.';
+    errorElement.classList.remove('hidden');
+    return;
+  }
+
+  // Clear error message
+  errorElement.textContent = '';
+  errorElement.classList.add('hidden');
+
+  // Get unmatched entries
+  const unmatched = getUnmatchedEntries();
+
+  // Format email body
+  const emailBody = formatUnmatchedEntries(unmatched);
+  const subject = 'GST Reconciliation - Unmatched Entries Report';
+
+  // Create mailto URL
+  const mailtoUrl = `mailto:${receiverEmail}?from=${senderEmail}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
+
+  // Open email client
+  try {
+    window.location.href = mailtoUrl;
+  } catch (e) {
+    errorElement.textContent = 'Failed to open email client. Please check your email client settings.';
+    errorElement.classList.remove('hidden');
+  }
+});
+
+  //         }   else      {       alert("This GST Reconciliation tool is fully secured by Sumit Garg. If not working or face any problem in accessing then contact to me. Name - Sumit Garg, Ph. No. - 9716804520, Email - SumitGarg100000@Gmail.com ");     }
+
+
+
+      
     </script>
   </body>
 </html>
