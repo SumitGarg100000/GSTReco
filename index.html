@@ -1366,51 +1366,81 @@ document.getElementById('receiver-email').addEventListener('input', function() {
 
 
 function parseAndFormatDate(dateInput) {
-  if (!dateInput) return '';
+  if (!dateInput || dateInput === '') return '';
+
+  // Helper function to format date as dd-mmm-yyyy
+  function formatDate(date) {
+    const day = String(date.getDate()).padStart(2, '0');
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const month = monthNames[date.getMonth()];
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+  }
 
   // Handle Excel serial numbers
   if (typeof dateInput === 'number' && dateInput > 40000 && dateInput < 50000) {
-    const date = new Date((dateInput - 25569) * 86400 * 1000);
-    const day = String(date.getUTCDate()).padStart(2, '0');
-    const month = date.toUTCString().slice(8, 11);
-    const year = date.getUTCFullYear();
-    return `${day}-${month}-${year}`;
+    // Excel serial number: days since Dec 31, 1899 (Excel treats 1900 as a leap year, so we adjust)
+    const excelEpoch = new Date(1899, 11, 30); // Dec 30, 1899
+    const days = Math.floor(dateInput);
+    const milliseconds = Math.round((dateInput - days) * 86400 * 1000); // Handle time if present
+    const date = new Date(excelEpoch.getTime() + days * 86400 * 1000 + milliseconds);
+    // Adjust for Excel's leap year bug (serial number 60 corresponds to Feb 29, 1900, which doesn't exist)
+    if (dateInput <= 60) {
+      date.setDate(date.getDate() - 1);
+    }
+    return formatDate(date);
   }
 
   // Handle string dates
-  let date;
   if (typeof dateInput === 'string') {
-    // Normalize common date formats
-    const normalizedInput = dateInput.replace(/[\.\/]/g, '-').trim();
-    date = new Date(normalizedInput);
+    // Remove extra spaces and normalize separators
+    const normalizedInput = dateInput.trim().replace(/[\.\/]/g, '-');
+
+    // Try parsing common formats
+    let date;
     
-    // Try parsing with different formats
-    if (isNaN(date.getTime())) {
-      // Try dd-mmm-yyyy or similar
-      const parts = normalizedInput.split('-');
-      if (parts.length === 3) {
-        const [day, month, year] = parts;
-        const monthNames = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
-        const monthIndex = monthNames.indexOf(month.toLowerCase());
-        if (monthIndex !== -1 && day.length <= 2 && year.length === 4) {
-          date = new Date(Date.UTC(parseInt(year), monthIndex, parseInt(day)));
-        }
+    // 1. Try DD-MMM-YYYY or DD-MMM-YY
+    const mmmRegex = /^(\d{1,2})-([A-Za-z]{3})-(\d{2,4})$/;
+    if (mmmRegex.test(normalizedInput)) {
+      const [, day, monthStr, year] = normalizedInput.match(mmmRegex);
+      const monthNames = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+      const monthIndex = monthNames.indexOf(monthStr.toLowerCase());
+      if (monthIndex !== -1) {
+        const fullYear = year.length === 2 ? (parseInt(year) < 50 ? `20${year}` : `19${year}`) : year;
+        date = new Date(parseInt(fullYear), monthIndex, parseInt(day));
       }
     }
-  } else {
-    date = new Date(dateInput);
+
+    // 2. Try DD-MM-YYYY or DD-MM-YY
+    if (!date || isNaN(date.getTime())) {
+      const dmyRegex = /^(\d{1,2})-(\d{1,2})-(\d{2,4})$/;
+      if (dmyRegex.test(normalizedInput)) {
+        const [, day, month, year] = normalizedInput.match(dmyRegex);
+        const fullYear = year.length === 2 ? (parseInt(year) < 50 ? `20${year}` : `19${year}`) : year;
+        date = new Date(parseInt(fullYear), parseInt(month) - 1, parseInt(day));
+      }
+    }
+
+    // 3. Try ISO-like formats or fallback to JavaScript Date parsing
+    if (!date || isNaN(date.getTime())) {
+      date = new Date(normalizedInput);
+    }
+
+    // Validate and format
+    if (date && !isNaN(date.getTime())) {
+      return formatDate(date);
+    }
+
+    console.warn(`Invalid date format: ${dateInput}`);
+    return '';
   }
 
-  // Format to dd-mmm-yyyy
-  if (!isNaN(date.getTime())) {
-    const day = String(date.getUTCDate()).padStart(2, '0');
-    const month = date.toUTCString().slice(8, 11);
-    const year = date.getUTCFullYear();
-    return `${day}-${month}-${year}`;
+  // Handle Date objects
+  if (dateInput instanceof Date && !isNaN(dateInput.getTime())) {
+    return formatDate(dateInput);
   }
 
-  // Return empty string for invalid dates
-  console.warn(`Invalid date format: ${dateInput}`);
+  console.warn(`Unrecognized date input: ${dateInput}`);
   return '';
 }
       function formatDate(dateInput) {
@@ -1515,12 +1545,12 @@ function parseAndFormatDate(dateInput) {
   const reader = new FileReader();
   reader.onload = function(e) {
     const data = new Uint8Array(e.target.result);
-    const workbook = XLSX.read(data, { type: 'array', dateNF: 'dd-mmm-yyyy' });
+    const workbook = XLSX.read(data, { type: 'array', dateNF: 'dd-mmm-yyyy', raw: true });
     
     // Process GSTR-2B Data
     const gstr2bSheet = workbook.Sheets['GST Portal'];
     if (gstr2bSheet) {
-      const rawData = XLSX.utils.sheet_to_json(gstr2bSheet, { header: 1, raw: false, defval: '' });
+      const rawData = XLSX.utils.sheet_to_json(gstr2bSheet, { header: 1, defval: '' });
       gstr2bData = rawData.slice(1).map(row => {
         const normalized = normalizeRow(row, gstr2bHeaders().length);
         // Convert date columns
@@ -1530,7 +1560,7 @@ function parseAndFormatDate(dateInput) {
           gstr2bHeaders().indexOf('IRN Date') // Index 22
         ];
         dateIndices.forEach(idx => {
-          if (normalized[idx]) {
+          if (normalized[idx] !== '') {
             normalized[idx] = parseAndFormatDate(normalized[idx]);
           }
         });
@@ -1543,12 +1573,12 @@ function parseAndFormatDate(dateInput) {
     // Process GSTR-3B Data
     const gstr3bSheet = workbook.Sheets['Client Data'];
     if (gstr3bSheet) {
-      const rawData = XLSX.utils.sheet_to_json(gstr3bSheet, { header: 1, raw: false, defval: '' });
+      const rawData = XLSX.utils.sheet_to_json(gstr3bSheet, { header: 1, defval: '' });
       gstr3bData = rawData.slice(1).map(row => {
         const normalized = normalizeRow(row, gstr3bHeaders().length);
         // Convert date column
         const dateIndex = gstr3bHeaders().indexOf('Invoice Date'); // Index 1
-        if (normalized[dateIndex]) {
+        if (normalized[dateIndex] !== '') {
           normalized[dateIndex] = parseAndFormatDate(normalized[dateIndex]);
         }
         return normalized;
@@ -1595,8 +1625,7 @@ function parseAndFormatDate(dateInput) {
     applyFreeServiceColors();
   }
 }
-
-      function handleCellEdit(event) {
+function handleCellEdit(event) {
   const target = event.target;
   const isFreeService = localStorage.getItem("isFreeService") === "true";
 
@@ -1616,7 +1645,7 @@ function parseAndFormatDate(dateInput) {
                         headers[colIndex] === 'IRN Date';
     let newValue = target.textContent.trim();
     
-    if (isDateColumn) {
+    if (isDateColumn && newValue !== '') {
       newValue = parseAndFormatDate(newValue);
       target.textContent = newValue; // Update display
     }
@@ -2163,7 +2192,7 @@ function parseAndFormatDate(dateInput) {
       const isDateColumn = gstr2bHeaders()[idx] === 'Invoice Date' ||
                           gstr2bHeaders()[idx] === 'GSTR-1/5 Filing Date' ||
                           gstr2bHeaders()[idx] === 'IRN Date';
-      return isDateColumn ? parseAndFormatDate(cell) : (cell === undefined || cell === null ? '' : cell);
+      return isDateColumn && cell !== '' ? parseAndFormatDate(cell) : (cell === undefined || cell === null ? '' : cell);
     });
     const addedRow = ws1.addRow(excelRow);
     applyExcelRowColor(addedRow, row[0], gstr2bHeaders().length);
@@ -2176,7 +2205,7 @@ function parseAndFormatDate(dateInput) {
   reconciled3bData.forEach(row => {
     const excelRow = row.map((cell, idx) => {
       const isDateColumn = gstr3bHeaders()[idx] === 'Invoice Date';
-      return isDateColumn ? parseAndFormatDate(cell) : (cell === undefined || cell === null ? '' : cell);
+      return isDateColumn && cell !== '' ? parseAndFormatDate(cell) : (cell === undefined || cell === null ? '' : cell);
     });
     const addedRow = ws2.addRow(excelRow);
     applyExcelRowColor(addedRow, row[0], gstr3bHeaders().length);
@@ -2230,7 +2259,6 @@ function parseAndFormatDate(dateInput) {
   link.download = 'Reconciled_GST_Data.xlsx';
   document.getElementById('output-link').style.display = 'block';
 }
-
       function applyExcelRowColor(row, match, columnCount) {
         const colors = detailedReconciliationCheckbox.checked ? {
           'Match - GSTN, Invoice No., Date': 'FF00CED1',
