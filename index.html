@@ -325,7 +325,10 @@ tr:nth-child(even) td {
         display: none;
       }
       
-      
+      .date-column {
+    min-width: 100px;
+    white-space: nowrap;
+}
       
       #error {
         color: #e53935;
@@ -1607,7 +1610,7 @@ function parseAndFormatDate(dateInput) {
                           headers[colIndex] === 'IRN Date';
       const value = isDateColumn ? parseAndFormatDate(cell) : (cell === undefined || cell === null ? '' : cell);
       const isEditable = colIndex > 0 && !isFreeService;
-      html += `<td contenteditable="${isEditable}" data-col="${colIndex}">${value}</td>`;
+      html += `<td class="${isDateColumn ? 'date-column' : ''}" contenteditable="${isEditable}" data-col="${colIndex}">${value}</td>`;
     });
     html += '</tr>';
   });
