@@ -325,10 +325,7 @@ tr:nth-child(even) td {
         display: none;
       }
       
-      .date-column {
-    min-width: 100px;
-    white-space: nowrap;
-}
+      
       
       #error {
         color: #e53935;
@@ -1610,7 +1607,7 @@ function parseAndFormatDate(dateInput) {
                           headers[colIndex] === 'IRN Date';
       const value = isDateColumn ? parseAndFormatDate(cell) : (cell === undefined || cell === null ? '' : cell);
       const isEditable = colIndex > 0 && !isFreeService;
-      html += `<td class="${isDateColumn ? 'date-column' : ''}" contenteditable="${isEditable}" data-col="${colIndex}">${value}</td>`;
+      html += `<td contenteditable="${isEditable}" data-col="${colIndex}">${value}</td>`;
     });
     html += '</tr>';
   });
@@ -2334,7 +2331,7 @@ function handleCellEdit(event) {
 
         const filterBtn = document.createElement('button');
         filterBtn.className = 'filter-btn';
-        filterBtn.innerHTML = 'â–¼'; // Down arrow for dropdown
+        filterBtn.innerHTML = 'Ã¢â€“Â¼'; // Down arrow for dropdown
         filterBtn.addEventListener('click', () => toggleDropdown(dropdown));
 
         const dropdownContent = document.createElement('div');
