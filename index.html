@@ -1362,13 +1362,20 @@ document.getElementById('receiver-email').addEventListener('input', function() {
 }
 
       function formatDate(excelDate) {
-        if (!excelDate) return '';
-        const date = new Date((excelDate - 25569) * 86400 * 1000);
-        const day = String(date.getUTCDate()).padStart(2, '0');
-        const month = date.toUTCString().slice(8, 11);
-        const year = date.getUTCFullYear();
-        return `${day}-${month}-${year}`;
-      }
+    if (!excelDate) return '';
+    
+    // If already in string format (like "01-Mar-2025"), return as-is
+    if (typeof excelDate === 'string' && excelDate.match(/^\d{2}-[a-zA-Z]{3}-\d{4}$/)) {
+        return excelDate;
+    }
+    
+    // Handle Excel numeric dates
+    const date = new Date((excelDate - 25569) * 86400 * 1000);
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const month = date.toUTCString().slice(8, 11);
+    const year = date.getUTCFullYear();
+    return `${day}-${month}-${year}`;
+}
 
       const baseGstr2bHeaders = ['Match Criteria', 'GSTN', 'Name of Supplier', 'Invoice Number', 'Invoice type', 'Invoice Date', 'Invoice Value', 'Place of supply', 'Reverse Charge', 'Rate (%)', 'Taxable Value', 'IGST', 'CGST', 'SGST'];
       const extendedGstr2bHeaders = ['Cess', 'GSTR-1/5 Period', 'GSTR-1/5 Filing Date', 'ITC Availability', 'Reason', 'Applicable % of Tax Rate', 'Source', 'IRN', 'IRN Date'];
@@ -2453,7 +2460,10 @@ document.getElementById('receiver-email').addEventListener('input', function() {
           html += `<tr data-row="${rowIndex}" data-sheet="${sheetType}">`;
           headers.forEach((_, colIndex) => {
             const cell = row[colIndex];
-            const value = typeof cell === 'number' && (cell > 40000 && cell < 50000) ? formatDate(cell) : (cell === undefined || cell === null ? '' : cell);
+const value = (typeof cell === 'number' && (cell > 40000 && cell < 50000)) || 
+              (sheetType === 'gstr3b' && colIndex === 1) ? // Invoice Date is at index 1 in Client Data
+              formatDate(cell) : 
+              (cell === undefined || cell === null ? '' : cell);
             const isEditable = colIndex > 0;
             html += `<td contenteditable="${isEditable}" data-col="${colIndex}">${value}</td>`;
           });
