@@ -197,13 +197,13 @@
                 <div class="col">
                     <div class="form-group">
                         <label for="basic_salary">Basic Salary</label>
-                        <input type="number" id="basic_salary" placeholder="Enter basic salary" min="0">
+                        <input type="number" id="basicsalary" placeholder="Enter basic salary" min="0">
                     </div>
                 </div>
                 <div class="col">
                     <div class="form-group">
                         <label for="hra_salary">HRA</label>
-                        <input type="number" id="hra_salary" placeholder="Enter HRA" min="0">
+                        <input type="number" id="hra" placeholder="Enter HRA" min="0">
                     </div>
                 </div>
             </div>
@@ -211,27 +211,27 @@
                 <div class="col">
                     <div class="form-group">
                         <label for="bonus_incentive">Bonus/Incentive</label>
-                        <input type="number" id="bonus_incentive" placeholder="Enter bonus" min="0">
+                        <input type="number" id="bonus" placeholder="Enter bonus" min="0">
                     </div>
                 </div>
                 <div class="col">
                     <div class="form-group">
                         <label for="special_allowance">Special Allowance</label>
-                        <input type="number" id="special_allowance" placeholder="Enter special allowance" min="0">
+                        <input type="number" id="specialallowance" placeholder="Enter special allowance" min="0">
                     </div>
                 </div>
             </div>
             <div class="flex-row">
                 <div class="col">
                     <div class="form-group">
-                        <label for="other_allowance">Other Allowance</label>
+                        <label for="otherallowance">Other Allowance</label>
                         <input type="number" id="other_allowance" placeholder="Enter other allowance" min="0">
                     </div>
                 </div>
                 <div class="col">
                     <div class="form-group">
                         <label for="hra_exemption">HRA Exemption u/s 10(13A)</label>
-                        <input type="number" id="hra_exemption" placeholder="Enter HRA exemption amount" min="0">
+                        <input type="number" id="exemptionsec13a" placeholder="Enter HRA exemption amount" min="0">
                     </div>
                 </div>
             </div>
@@ -239,13 +239,13 @@
                 <div class="col">
                     <div class="form-group">
                         <label for="exempt_allowance">Exempt Allowance (e.g., Conveyance)</label>
-                        <input type="number" id="exempt_allowance" placeholder="Enter exempt allowance" min="0">
+                        <input type="number" id="otherexemption" placeholder="Enter exempt allowance" min="0">
                     </div>
                 </div>
                 <div class="col">
                     <div class="form-group">
                         <label for="professional_tax">Professional Tax Paid</label>
-                        <input type="number" id="professional_tax" placeholder="Enter professional tax" min="0" value="2400">
+                        <input type="number" id="professionaltax" placeholder="Enter professional tax" min="0" value="2400">
                     </div>
                 </div>
             </div>
@@ -266,8 +266,11 @@
                 </div>
                 <div class="col">
                     <div class="form-group">
-                        <label for="housing_loan_interest">Interest on Housing Loan</label>
-                        <input type="number" id="housing_loan_interest" placeholder="Enter interest (max 2 lakh)" min="0">
+                        <label for="interestself">Interest on Housing Loan(Self-occupied)</label>
+                        <input type="number" id="interestself" placeholder="Enter interest (max 2 lakh)" min="0">
+                   <label for="interestletout">Interest on Housing Loan(Let out)</label>
+                        <input type="number" id="interestletout" placeholder="Enter interest (max 2 lakh)" min="0">
+                   
                     </div>
                 </div>
             </div>
@@ -280,7 +283,7 @@
                 <div class="col">
                     <div class="form-group">
                         <label for="other_income">Other Income (e.g., Interest, Dividends)</label>
-                        <input type="number" id="other_income" placeholder="Enter other income" min="0">
+                        <input type="number" id="otherincome" placeholder="Enter other income" min="0">
                     </div>
                 </div>
             </div>
@@ -293,13 +296,13 @@
                 <div class="col">
                     <div class="form-group">
                         <label for="section_80c">Section 80C Investments</label>
-                        <input type="number" id="section_80c" placeholder="Max 1.5 lakh (combined)" min="0">
+                        <input type="number" id="deduction80c" placeholder="Max 1.5 lakh (combined)" min="0">
                     </div>
                 </div>
                 <div class="col">
                     <div class="form-group">
                         <label for="section_80ccc">Section 80CCC (Pension Plans)</label>
-                        <input type="number" id="section_80ccc" placeholder="Max 1.5 lakh (combined)" min="0">
+                        <input type="number" id="deduction80ccc" placeholder="Max 1.5 lakh (combined)" min="0">
                     </div>
                 </div>
             </div>
@@ -307,13 +310,13 @@
                 <div class="col">
                     <div class="form-group">
                         <label for="section_80ccd1">Section 80CCD(1) (NPS Employee)</label>
-                        <input type="number" id="section_80ccd1" placeholder="Max 1.5 lakh (combined)" min="0">
+                        <input type="number" id="deduction80ccd1" placeholder="Max 1.5 lakh (combined)" min="0">
                     </div>
                 </div>
                 <div class="col">
                     <div class="form-group">
                         <label for="section_80ccd1b">Section 80CCD(1B) (Additional NPS)</label>
-                        <input type="number" id="section_80ccd1b" placeholder="Max 50,000" min="0">
+                        <input type="number" id="deduction80ccd1b" placeholder="Max 50,000" min="0">
                     </div>
                 </div>
             </div>
@@ -321,13 +324,13 @@
                 <div class="col">
                     <div class="form-group">
                         <label for="section_80ccd2">Section 80CCD(2) (NPS Employer)</label>
-                        <input type="number" id="section_80ccd2" placeholder="Max 10% of salary" min="0">
+                        <input type="number" id="deduction80ccd2" placeholder="Max 10% of salary" min="0">
                     </div>
                 </div>
                 <div class="col">
                     <div class="form-group">
                         <label for="section_80d">Section 80D (Health Insurance)</label>
-                        <input type="number" id="section_80d" placeholder="Max 25,000/50,000" min="0">
+                        <input type="number" id="deduction80d" placeholder="Max 25,000/50,000" min="0">
                     </div>
                 </div>
             </div>
@@ -335,13 +338,13 @@
                 <div class="col">
                     <div class="form-group">
                         <label for="section_80e">Section 80E (Education Loan Interest)</label>
-                        <input type="number" id="section_80e" placeholder="Enter education loan interest" min="0">
+                        <input type="number" id="deduction80e" placeholder="Enter education loan interest" min="0">
                     </div>
                 </div>
                 <div class="col">
                     <div class="form-group">
                         <label for="section_80g">Section 80G (Donations)</label>
-                        <input type="number" id="section_80g" placeholder="Enter donation amount" min="0">
+                        <input type="number" id="deduction80g" placeholder="Enter donation amount" min="0">
                     </div>
                 </div>
             </div>
@@ -349,7 +352,7 @@
                 <div class="col">
                     <div class="form-group">
                         <label for="section_80tta">Section 80TTA/80TTB (Savings Interest)</label>
-                        <input type="number" id="section_80tta" placeholder="Max 10,000/50,000" min="0">
+                        <input type="number" id="deduction80tta" placeholder="Max 10,000/50,000" min="0">
                     </div>
                 </div>
             </div>
