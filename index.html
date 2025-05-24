@@ -3,1215 +3,842 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CA Firm - Professional Tax & GST Services</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <meta name="description" content="TDS Calculator for FY 2025-26/AY 2026-27 aligned with Form 16.">
+    <title>TDS on Salary Calculator - FY 2025-26</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* Custom Styles */
+        :root {
+            --primary-color: #0e4377;
+            --secondary-color: #1a73e8;
+            --text-light: #FFFFFF;
+            --text-dark: #2C3E50;
+            --table-header: #1a73e8;
+            --table-row-alt: #F8F9FA;
+        }
         body {
-            font-family: 'Segoe UI', Arial, sans-serif;
+            font-family: 'Montserrat', sans-serif;
+            line-height: 1.6;
+            background-color: #f0f8ff;
+            color: var(--text-dark);
+            padding-bottom: 2rem;
         }
-        .service-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        header {
+            background: linear-gradient(145deg, var(--primary-color), var(--secondary-color));
+            color: var(--text-light);
+            padding: 2rem;
+            text-align: center;
         }
-        .service-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-        .btn-primary {
-            background-color: #1a73e8;
-            color: white;
-            transition: background-color 0.3s;
-        }
-        .btn-primary:hover {
-            background-color: #0d47a1;
-        }
-        .animate-fade-in {
-            animation: fadeIn 0.8s ease-in-out forwards;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .hero-pattern {
-            background-color: #1a73e8;
-            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
-        }
-        
-        /* GST Tool Overlay Styles */
-        #gst-tool-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 9998;
-            display: none;
-            overflow-y: auto;
-        }
-        
-        #gst-tool-container {
-            position: relative;
-            width: 95%;
+        .container {
             max-width: 1200px;
-            height: 90vh;
-            margin: 2.5% auto;
-            background: #fff;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        .card {
+            background: white;
             border-radius: 12px;
-            padding: 20px;
-            overflow-y: auto;
-            z-index: 9999;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
         }
-        
-        #close-tool-btn {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: #dc3545;
-            color: white;
+        .card-header {
+            border-bottom: 1px solid #eaeaea;
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .card-header h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        input[type="number"],
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #1a73e8;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            background: #f5f9ff;
+        }
+        input[type="number"]:focus,
+        input[type="text"]:focus,
+        select:focus {
+            border-color: #0d47a1;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.2);
+        }
+        .button {
+            padding: 12px 25px;
             border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            font-size: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            border-radius: 8px;
             cursor: pointer;
-            z-index: 10000;
+            font-size: 1rem;
+            font-weight: 600;
+            background: linear-gradient(145deg, #1a73e8, #0d47a1);
+            color: white;
         }
-        
-        .testimonial-card {
-            transition: all 0.3s ease;
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         }
-        .testimonial-card:hover {
-            transform: scale(1.03);
+        .flex-row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -0.5rem;
         }
-        
-        .team-member-card {
-            transition: all 0.3s ease;
+        .col {
+            padding: 0 0.5rem;
+            flex: 1;
+            min-width: 250px;
         }
-        .team-member-card:hover {
-            transform: translateY(-5px);
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
         }
-        
-        /* Custom animations */
-        .hover-lift {
-            transition: transform 0.3s ease;
+        .result-table th,
+        .result-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border: 1px solid #E0E0E0;
         }
-        .hover-lift:hover {
-            transform: translateY(-5px);
+        .result-table th {
+            background-color: var(--table-header);
+            color: white;
+            font-size: 0.85rem;
         }
-        
-        /* Counter animation */
-        .counter-value {
-            transition: all 0.5s ease;
+        .result-table tr:nth-child(even) {
+            background-color: var(--table-row-alt);
+        }
+        .summary-box {
+            background: linear-gradient(145deg, #1a73e8, #0d47a1);
+            color: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        .chart-container {
+            height: 300px;
+            margin: 2rem 0;
+        }
+        footer {
+            background: linear-gradient(145deg, #0e4377, #1a5fb4);
+            color: var(--text-light);
+            padding: 1.5rem;
+            text-align: center;
+        }
+        @media (max-width: 768px) {
+            .col { flex: 100%; }
+            .button { width: 100%; }
         }
     </style>
 </head>
-<body class="antialiased text-gray-800 bg-gray-50">
-    <!-- Header/Navigation -->
-    <header class="bg-white shadow-md fixed w-full z-50">
-        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-            <a href="#" class="flex items-center">
-                <span class="text-2xl md:text-3xl font-bold text-blue-700">
-                    <i class="fas fa-balance-scale mr-2"></i>
-                    TaxPro
-                </span>
-                <span class="hidden md:inline-block text-blue-900 font-light ml-1">Chartered Accountants</span>
-            </a>
-            
-            <!-- Desktop Navigation -->
-            <nav class="hidden md:flex items-center space-x-8">
-                <a href="#home" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">Home</a>
-                <a href="#services" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">Services</a>
-                <a href="#about" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">About</a>
-                <a href="#team" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">Our Team</a>
-                <a href="#contact" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">Contact</a>
-                <a href="#gst-tool-section" class="bg-blue-700 text-white px-4 py-2 rounded-md hover:bg-blue-800 transition-colors font-medium">GST Tools</a>
-            </nav>
-            
-            <!-- Mobile Menu Button -->
-            <button id="mobile-menu-button" class="md:hidden text-gray-700 focus:outline-none">
-                <i class="fas fa-bars text-2xl"></i>
-            </button>
-        </div>
-        
-        <!-- Mobile Navigation -->
-        <div id="mobile-menu" class="md:hidden bg-white shadow-lg rounded-b-lg hidden px-4 py-4 absolute w-full">
-            <div class="flex flex-col space-y-3">
-                <a href="#home" class="text-gray-700 hover:text-blue-600 transition-colors font-medium py-2">Home</a>
-                <a href="#services" class="text-gray-700 hover:text-blue-600 transition-colors font-medium py-2">Services</a>
-                <a href="#about" class="text-gray-700 hover:text-blue-600 transition-colors font-medium py-2">About</a>
-                <a href="#team" class="text-gray-700 hover:text-blue-600 transition-colors font-medium py-2">Our Team</a>
-                <a href="#contact" class="text-gray-700 hover:text-blue-600 transition-colors font-medium py-2">Contact</a>
-                <a href="#gst-tool-section" class="bg-blue-700 text-white px-4 py-2 rounded-md hover:bg-blue-800 transition-colors font-medium text-center">GST Tools</a>
-            </div>
+<body>
+    <header>
+        <h1>TDS on Salary Calculator</h1>
+        <h2>FY 2025-26 (AY 2026-27)</h2>
+        <div class="container">
+            <button class="button" onclick="resetValues()">Reset</button>
+            <button class="button" onclick="printAsPDF()">Print as PDF</button>
         </div>
     </header>
 
-    <!-- Hero Section -->
-    <section id="home" class="hero-pattern pt-32 pb-20">
-        <div class="container mx-auto px-4">
-            <div class="flex flex-col md:flex-row items-center">
-                <div class="md:w-1/2 text-white animate-fade-in">
-                    <h1 class="text-4xl md:text-5xl font-bold mb-4">Expert Financial Solutions for Your Business</h1>
-                    <p class="text-xl mb-8">Providing professional accounting, tax planning, and GST reconciliation services to help your business grow.</p>
-                    <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-                        <a href="#contact" class="bg-white text-blue-700 hover:bg-gray-100 px-8 py-3 rounded-lg font-medium text-center transition-colors">
-                            <i class="fas fa-phone-alt mr-2"></i> Contact Us
-                        </a>
-                        <a href="#gst-tool-section" class="bg-blue-900 text-white hover:bg-blue-800 px-8 py-3 rounded-lg font-medium text-center transition-colors">
-                            <i class="fas fa-tools mr-2"></i> Try Our GST Tool
-                        </a>
+    <div class="container">
+        <!-- Basic Details -->
+        <div class="card">
+            <div class="card-header"><h3>Basic Details</h3></div>
+            <div class="flex-row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="employee_name">Name</label>
+                        <input type="text" id="employee_name" placeholder="Enter employee name">
                     </div>
                 </div>
-                <div class="md:w-1/2 mt-10 md:mt-0 flex justify-center">
-                    <div class="bg-white p-6 rounded-lg shadow-xl transform rotate-3 hover:rotate-0 transition-transform">
-                        <div class="transform -rotate-3 transition-transform">
-                            <h2 class="text-2xl font-bold text-blue-700 mb-3">Financial Success</h2>
-                            <p class="text-gray-600 mb-4">Our expertise drives your business growth through informed financial decisions.</p>
-                            <div class="flex items-center justify-between bg-blue-50 p-4 rounded-lg">
-                                <div class="text-center">
-                                    <div class="text-3xl font-bold text-blue-700 counter-value" data-target="95">0</div>
-                                    <div class="text-sm text-gray-500">Client Retention</div>
-                                </div>
-                                <div class="text-center">
-                                    <div class="text-3xl font-bold text-blue-700 counter-value" data-target="500">0</div>
-                                    <div class="text-sm text-gray-500">Clients Served</div>
-                                </div>
-                                <div class="text-center">
-                                    <div class="text-3xl font-bold text-blue-700 counter-value" data-target="15">0</div>
-                                    <div class="text-sm text-gray-500">Years Experience</div>
-                                </div>
-                            </div>
-                        </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="pan_number">PAN Number</label>
+                        <input type="text" id="pan_number" placeholder="Enter PAN number">
+                    </div>
+                </div>
+            </div>
+            <div class="flex-row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="employee_age">Age</label>
+                        <input type="number" id="employee_age" placeholder="Enter age" min="18" value="30">
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="tax_scheme">Tax Regime</label>
+                        <select id="tax_scheme">
+                            <option value="new">New Tax Regime (Default)</option>
+                            <option value="old">Old Tax Regime</option>
+                        </select>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
 
-    <!-- Services Section -->
-    <section id="services" class="py-20 bg-white">
-        <div class="container mx-auto px-4">
-            <div class="text-center mb-16">
-                <h2 class="text-3xl font-bold text-gray-800 mb-4">Our Services</h2>
-                <p class="text-xl text-gray-600 max-w-2xl mx-auto">We provide a wide range of accounting and taxation services to meet your business needs.</p>
+        <!-- Salary Details (Annual) -->
+        <div class="card">
+            <div class="card-header"><h3>Salary Income (Annual)</h3></div>
+            <div class="flex-row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="basic_salary">Basic Salary</label>
+                        <input type="number" id="basic_salary" placeholder="Enter basic salary" min="0">
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="hra_salary">HRA</label>
+                        <input type="number" id="hra_salary" placeholder="Enter HRA" min="0">
+                    </div>
+                </div>
             </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- GST Reconciliation Tool Card -->
-                <div id="gst-tool-section" class="service-card bg-gradient-to-br from-blue-600 to-blue-800 rounded-xl shadow-lg overflow-hidden cursor-pointer">
-                    <div class="p-6 text-white h-full flex flex-col">
-                        <div class="flex items-center justify-center mb-4">
-                            <div class="bg-white rounded-full p-3">
-                                <i class="fas fa-sync-alt text-3xl text-blue-700"></i>
-                            </div>
-                        </div>
-                        <h3 class="text-2xl font-bold mb-3 text-center">GST Reconciliation Tool</h3>
-                        <p class="text-gray-100 mb-4">Our automated GST Reconciliation tool matches your GSTR-2B and GSTR-3B data quickly and accurately to identify discrepancies.</p>
-                        <div class="flex-grow"></div>
-                        <div class="text-center mt-4">
-                            <button onclick="openGSTTool()" class="bg-white text-blue-700 hover:bg-gray-100 px-6 py-2 rounded-lg font-medium inline-flex items-center transition-colors">
-                                <i class="fas fa-calculator mr-2"></i> Launch Tool
-                            </button>
-                        </div>
+            <div class="flex-row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="bonus_incentive">Bonus/Incentive</label>
+                        <input type="number" id="bonus_incentive" placeholder="Enter bonus" min="0">
                     </div>
                 </div>
-                
-                <!-- Tax Planning Card -->
-                <div class="service-card bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
-                    <div class="p-6 h-full flex flex-col">
-                        <div class="flex items-center justify-center mb-4">
-                            <div class="bg-blue-100 rounded-full p-3">
-                                <i class="fas fa-chart-line text-3xl text-blue-700"></i>
-                            </div>
-                        </div>
-                        <h3 class="text-2xl font-bold mb-3 text-gray-800 text-center">Tax Planning</h3>
-                        <p class="text-gray-600 mb-4">Strategic tax planning to minimize liabilities and maximize savings for individuals and businesses.</p>
-                        <div class="flex-grow"></div>
-                        <div class="text-center mt-4">
-                            <a href="#contact" class="bg-blue-700 text-white hover:bg-blue-800 px-6 py-2 rounded-lg font-medium inline-flex items-center transition-colors">
-                                <i class="fas fa-arrow-right mr-2"></i> Learn More
-                            </a>
-                        </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="special_allowance">Special Allowance</label>
+                        <input type="number" id="special_allowance" placeholder="Enter special allowance" min="0">
                     </div>
                 </div>
-                
-                <!-- Financial Consulting Card -->
-                <div class="service-card bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
-                    <div class="p-6 h-full flex flex-col">
-                        <div class="flex items-center justify-center mb-4">
-                            <div class="bg-blue-100 rounded-full p-3">
-                                <i class="fas fa-handshake text-3xl text-blue-700"></i>
-                            </div>
-                        </div>
-                        <h3 class="text-2xl font-bold mb-3 text-gray-800 text-center">Financial Consulting</h3>
-                        <p class="text-gray-600 mb-4">Expert advice on financial management, business growth strategies and investment decisions.</p>
-                        <div class="flex-grow"></div>
-                        <div class="text-center mt-4">
-                            <a href="#contact" class="bg-blue-700 text-white hover:bg-blue-800 px-6 py-2 rounded-lg font-medium inline-flex items-center transition-colors">
-                                <i class="fas fa-arrow-right mr-2"></i> Learn More
-                            </a>
-                        </div>
+            </div>
+            <div class="flex-row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="other_allowance">Other Allowance</label>
+                        <input type="number" id="other_allowance" placeholder="Enter other allowance" min="0">
                     </div>
                 </div>
-                
-                <!-- Audit & Assurance Card -->
-                <div class="service-card bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
-                    <div class="p-6 h-full flex flex-col">
-                        <div class="flex items-center justify-center mb-4">
-                            <div class="bg-blue-100 rounded-full p-3">
-                                <i class="fas fa-clipboard-check text-3xl text-blue-700"></i>
-                            </div>
-                        </div>
-                        <h3 class="text-2xl font-bold mb-3 text-gray-800 text-center">Audit & Assurance</h3>
-                        <p class="text-gray-600 mb-4">Comprehensive audit services ensuring compliance with regulatory requirements and financial accuracy.</p>
-                        <div class="flex-grow"></div>
-                        <div class="text-center mt-4">
-                            <a href="#contact" class="bg-blue-700 text-white hover:bg-blue-800 px-6 py-2 rounded-lg font-medium inline-flex items-center transition-colors">
-                                <i class="fas fa-arrow-right mr-2"></i> Learn More
-                            </a>
-                        </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="hra_exemption">HRA Exemption u/s 10(13A)</label>
+                        <input type="number" id="hra_exemption" placeholder="Enter HRA exemption amount" min="0">
                     </div>
                 </div>
-                
-                <!-- Bookkeeping Card -->
-                <div class="service-card bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
-                    <div class="p-6 h-full flex flex-col">
-                        <div class="flex items-center justify-center mb-4">
-                            <div class="bg-blue-100 rounded-full p-3">
-                                <i class="fas fa-book text-3xl text-blue-700"></i>
-                            </div>
-                        </div>
-                        <h3 class="text-2xl font-bold mb-3 text-gray-800 text-center">Bookkeeping</h3>
-                        <p class="text-gray-600 mb-4">Professional bookkeeping services to maintain accurate financial records and ensure regulatory compliance.</p>
-                        <div class="flex-grow"></div>
-                        <div class="text-center mt-4">
-                            <a href="#contact" class="bg-blue-700 text-white hover:bg-blue-800 px-6 py-2 rounded-lg font-medium inline-flex items-center transition-colors">
-                                <i class="fas fa-arrow-right mr-2"></i> Learn More
-                            </a>
-                        </div>
+            </div>
+            <div class="flex-row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="exempt_allowance">Exempt Allowance (e.g., Conveyance)</label>
+                        <input type="number" id="exempt_allowance" placeholder="Enter exempt allowance" min="0">
                     </div>
                 </div>
-                
-                <!-- Business Registration Card -->
-                <div class="service-card bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
-                    <div class="p-6 h-full flex flex-col">
-                        <div class="flex items-center justify-center mb-4">
-                            <div class="bg-blue-100 rounded-full p-3">
-                                <i class="fas fa-building text-3xl text-blue-700"></i>
-                            </div>
-                        </div>
-                        <h3 class="text-2xl font-bold mb-3 text-gray-800 text-center">Business Registration</h3>
-                        <p class="text-gray-600 mb-4">Assistance with company incorporation, GST registration, and other business setup requirements.</p>
-                        <div class="flex-grow"></div>
-                        <div class="text-center mt-4">
-                            <a href="#contact" class="bg-blue-700 text-white hover:bg-blue-800 px-6 py-2 rounded-lg font-medium inline-flex items-center transition-colors">
-                                <i class="fas fa-arrow-right mr-2"></i> Learn More
-                            </a>
-                        </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="professional_tax">Professional Tax Paid</label>
+                        <input type="number" id="professional_tax" placeholder="Enter professional tax" min="0" value="2400">
                     </div>
                 </div>
             </div>
         </div>
-    </section>
 
-    <!-- About Section -->
-    <section id="about" class="py-20 bg-gray-100">
-        <div class="container mx-auto px-4">
-            <div class="flex flex-col md:flex-row items-center">
-                <div class="md:w-1/2 mb-10 md:mb-0">
-                    <div class="bg-white p-6 rounded-lg shadow-xl transform -rotate-2 hover:rotate-0 transition-transform">
-                        <div class="transform rotate-2 transition-transform">
-                            <h3 class="text-2xl font-bold text-blue-700 mb-4">Our Approach</h3>
-                            <p class="text-gray-600 mb-4">We believe in building long-term relationships with our clients through transparency, integrity, and professional excellence.</p>
-                            <div class="flex items-center mb-4">
-                                <i class="fas fa-check-circle text-green-500 mr-3 text-xl"></i>
-                                <span class="text-gray-700">Transparent & ethical financial practices</span>
-                            </div>
-                            <div class="flex items-center mb-4">
-                                <i class="fas fa-check-circle text-green-500 mr-3 text-xl"></i>
-                                <span class="text-gray-700">Personalized strategies for each client</span>
-                            </div>
-                            <div class="flex items-center">
-                                <i class="fas fa-check-circle text-green-500 mr-3 text-xl"></i>
-                                <span class="text-gray-700">Advanced digital tools & technologies</span>
-                            </div>
-                        </div>
+        <!-- House Property -->
+        <div class="card">
+            <div class="card-header"><h3>House Property</h3></div>
+            <div class="flex-row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="property_type">Property Type</label>
+                        <select id="property_type">
+                            <option value="self-occupied">Self-Occupied</option>
+                            <option value="let-out">Let-Out</option>
+                        </select>
                     </div>
                 </div>
-                
-                <div class="md:w-1/2 md:pl-12">
-                    <h2 class="text-3xl font-bold text-gray-800 mb-6">About Our Firm</h2>
-                    <p class="text-lg text-gray-600 mb-6">With over 15 years of experience in accounting and taxation, our team of certified professionals is committed to helping businesses achieve their financial goals through expert advisory and innovative solutions.</p>
-                    <p class="text-lg text-gray-600 mb-8">We specialize in GST compliance, tax planning, financial consulting, and audit services tailored to meet the specific needs of businesses across various industries.</p>
-                    <div class="grid grid-cols-2 gap-6">
-                        <div class="bg-white p-4 rounded-lg shadow hover-lift">
-                            <div class="text-2xl font-bold text-blue-700 mb-1 counter-value" data-target="15">0</div>
-                            <p class="text-gray-600">Years Experience</p>
-                        </div>
-                        <div class="bg-white p-4 rounded-lg shadow hover-lift">
-                            <div class="text-2xl font-bold text-blue-700 mb-1 counter-value" data-target="12">0</div>
-                            <p class="text-gray-600">Certified Experts</p>
-                        </div>
-                        <div class="bg-white p-4 rounded-lg shadow hover-lift">
-                            <div class="text-2xl font-bold text-blue-700 mb-1 counter-value" data-target="500">0</div>
-                            <p class="text-gray-600">Happy Clients</p>
-                        </div>
-                        <div class="bg-white p-4 rounded-lg shadow hover-lift">
-                            <div class="text-2xl font-bold text-blue-700 mb-1 counter-value" data-target="30">0</div>
-                            <p class="text-gray-600">Industry Awards</p>
-                        </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="housing_loan_interest">Interest on Housing Loan</label>
+                        <input type="number" id="housing_loan_interest" placeholder="Enter interest (max 2 lakh)" min="0">
                     </div>
                 </div>
             </div>
         </div>
-    </section>
 
-    <!-- Testimonials Section -->
-    <section class="py-20 bg-white">
-        <div class="container mx-auto px-4">
-            <div class="text-center mb-16">
-                <h2 class="text-3xl font-bold text-gray-800 mb-4">What Our Clients Say</h2>
-                <p class="text-xl text-gray-600 max-w-2xl mx-auto">We take pride in our client satisfaction and value their feedback.</p>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <div class="testimonial-card bg-blue-50 rounded-xl shadow-md p-6">
-                    <div class="flex items-center mb-4">
-                        <div class="text-yellow-400 flex">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                        </div>
-                    </div>
-                    <p class="text-gray-600 mb-6">"Their GST reconciliation tool saved our accounting team countless hours. The tax planning advice we received helped us optimize our financial strategy significantly."</p>
-                    <div class="flex items-center">
-                        <div class="bg-blue-700 rounded-full w-12 h-12 flex items-center justify-center text-white font-bold text-xl">
-                            RK
-                        </div>
-                        <div class="ml-4">
-                            <h4 class="font-bold text-gray-800">Rajesh Kumar</h4>
-                            <p class="text-gray-500 text-sm">CFO, Tech Solutions Ltd</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="testimonial-card bg-blue-50 rounded-xl shadow-md p-6">
-                    <div class="flex items-center mb-4">
-                        <div class="text-yellow-400 flex">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                        </div>
-                    </div>
-                    <p class="text-gray-600 mb-6">"Working with TaxPro has transformed our financial management. Their detailed audit services and prompt responses to our queries have been exceptional."</p>
-                    <div class="flex items-center">
-                        <div class="bg-blue-700 rounded-full w-12 h-12 flex items-center justify-center text-white font-bold text-xl">
-                            SP
-                        </div>
-                        <div class="ml-4">
-                            <h4 class="font-bold text-gray-800">Sunita Patel</h4>
-                            <p class="text-gray-500 text-sm">Director, Retail Ventures</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="testimonial-card bg-blue-50 rounded-xl shadow-md p-6">
-                    <div class="flex items-center mb-4">
-                        <div class="text-yellow-400 flex">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star-half-alt"></i>
-                        </div>
-                    </div>
-                    <p class="text-gray-600 mb-6">"As a small business owner, I've found their bookkeeping services to be reliable and cost-effective. Their GST knowledge has saved us from potential compliance issues."</p>
-                    <div class="flex items-center">
-                        <div class="bg-blue-700 rounded-full w-12 h-12 flex items-center justify-center text-white font-bold text-xl">
-                            AM
-                        </div>
-                        <div class="ml-4">
-                            <h4 class="font-bold text-gray-800">Amit Mehta</h4>
-                            <p class="text-gray-500 text-sm">Owner, Spice Traders</p>
-                        </div>
+        <!-- Other Income -->
+        <div class="card">
+            <div class="card-header"><h3>Income from Other Sources</h3></div>
+            <div class="flex-row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="other_income">Other Income (e.g., Interest, Dividends)</label>
+                        <input type="number" id="other_income" placeholder="Enter other income" min="0">
                     </div>
                 </div>
             </div>
         </div>
-    </section>
 
-    <!-- Team Section -->
-    <section id="team" class="py-20 bg-gray-100">
-        <div class="container mx-auto px-4">
-            <div class="text-center mb-16">
-                <h2 class="text-3xl font-bold text-gray-800 mb-4">Our Expert Team</h2>
-                <p class="text-xl text-gray-600 max-w-2xl mx-auto">Meet our dedicated team of financial professionals.</p>
+        <!-- Deductions (Old Regime) -->
+        <div class="card" id="old-regime-deductions" style="display: none;">
+            <div class="card-header"><h3>Deductions (Old Tax Regime)</h3></div>
+            <div class="flex-row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="section_80c">Section 80C Investments</label>
+                        <input type="number" id="section_80c" placeholder="Max 1.5 lakh (combined)" min="0">
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="section_80ccc">Section 80CCC (Pension Plans)</label>
+                        <input type="number" id="section_80ccc" placeholder="Max 1.5 lakh (combined)" min="0">
+                    </div>
+                </div>
             </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <div class="team-member-card bg-white rounded-xl shadow-lg overflow-hidden">
-                    <div class="p-6">
-                        <div class="flex justify-center mb-4">
-                            <div class="w-24 h-24 bg-blue-700 rounded-full flex items-center justify-center text-white text-3xl font-bold">
-                                VP
-                            </div>
-                        </div>
-                        <h3 class="text-xl font-bold text-center text-gray-800 mb-2">Vijay Prakash, FCA</h3>
-                        <p class="text-blue-600 text-center mb-4">Managing Partner</p>
-                        <p class="text-gray-600 text-center mb-6">15+ years experience in tax consulting and financial advisory for corporate clients.</p>
-                        <div class="flex justify-center space-x-4">
-                            <a href="#" class="text-blue-700 hover:text-blue-900">
-                                <i class="fab fa-linkedin text-xl"></i>
-                            </a>
-                            <a href="#" class="text-blue-700 hover:text-blue-900">
-                                <i class="fas fa-envelope text-xl"></i>
-                            </a>
-                        </div>
+            <div class="flex-row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="section_80ccd1">Section 80CCD(1) (NPS Employee)</label>
+                        <input type="number" id="section_80ccd1" placeholder="Max 1.5 lakh (combined)" min="0">
                     </div>
                 </div>
-                
-                <div class="team-member-card bg-white rounded-xl shadow-lg overflow-hidden">
-                    <div class="p-6">
-                        <div class="flex justify-center mb-4">
-                            <div class="w-24 h-24 bg-blue-700 rounded-full flex items-center justify-center text-white text-3xl font-bold">
-                                NS
-                            </div>
-                        </div>
-                        <h3 class="text-xl font-bold text-center text-gray-800 mb-2">Neha Sharma, ACA</h3>
-                        <p class="text-blue-600 text-center mb-4">GST Specialist</p>
-                        <p class="text-gray-600 text-center mb-6">Expert in GST compliance and reconciliation with 8+ years of experience in indirect taxation.</p>
-                        <div class="flex justify-center space-x-4">
-                            <a href="#" class="text-blue-700 hover:text-blue-900">
-                                <i class="fab fa-linkedin text-xl"></i>
-                            </a>
-                            <a href="#" class="text-blue-700 hover:text-blue-900">
-                                <i class="fas fa-envelope text-xl"></i>
-                            </a>
-                        </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="section_80ccd1b">Section 80CCD(1B) (Additional NPS)</label>
+                        <input type="number" id="section_80ccd1b" placeholder="Max 50,000" min="0">
                     </div>
                 </div>
-                
-                <div class="team-member-card bg-white rounded-xl shadow-lg overflow-hidden">
-                    <div class="p-6">
-                        <div class="flex justify-center mb-4">
-                            <div class="w-24 h-24 bg-blue-700 rounded-full flex items-center justify-center text-white text-3xl font-bold">
-                                RJ
-                            </div>
-                        </div>
-                        <h3 class="text-xl font-bold text-center text-gray-800 mb-2">Rahul Joshi, MBA</h3>
-                        <p class="text-blue-600 text-center mb-4">Financial Consultant</p>
-                        <p class="text-gray-600 text-center mb-6">Specializes in financial planning and business advisory with a focus on growth strategies.</p>
-                        <div class="flex justify-center space-x-4">
-                            <a href="#" class="text-blue-700 hover:text-blue-900">
-                                <i class="fab fa-linkedin text-xl"></i>
-                            </a>
-                            <a href="#" class="text-blue-700 hover:text-blue-900">
-                                <i class="fas fa-envelope text-xl"></i>
-                            </a>
-                        </div>
+            </div>
+            <div class="flex-row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="section_80ccd2">Section 80CCD(2) (NPS Employer)</label>
+                        <input type="number" id="section_80ccd2" placeholder="Max 10% of salary" min="0">
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="section_80d">Section 80D (Health Insurance)</label>
+                        <input type="number" id="section_80d" placeholder="Max 25,000/50,000" min="0">
+                    </div>
+                </div>
+            </div>
+            <div class="flex-row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="section_80e">Section 80E (Education Loan Interest)</label>
+                        <input type="number" id="section_80e" placeholder="Enter education loan interest" min="0">
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="section_80g">Section 80G (Donations)</label>
+                        <input type="number" id="section_80g" placeholder="Enter donation amount" min="0">
+                    </div>
+                </div>
+            </div>
+            <div class="flex-row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="section_80tta">Section 80TTA/80TTB (Savings Interest)</label>
+                        <input type="number" id="section_80tta" placeholder="Max 10,000/50,000" min="0">
                     </div>
                 </div>
             </div>
         </div>
-    </section>
 
-    <!-- Contact Section -->
-    <section id="contact" class="py-20 bg-white">
-        <div class="container mx-auto px-4">
-            <div class="text-center mb-16">
-                <h2 class="text-3xl font-bold text-gray-800 mb-4">Contact Us</h2>
-                <p class="text-xl text-gray-600 max-w-2xl mx-auto">Reach out to us for expert financial solutions tailored to your business needs.</p>
-            </div>
-            
-            <div class="flex flex-col md:flex-row">
-                <div class="md:w-1/2 md:pr-10 mb-10 md:mb-0">
-                    <form class="bg-gray-50 p-8 rounded-lg shadow-lg">
-                        <div class="mb-6">
-                            <label for="name" class="block text-gray-700 font-medium mb-2">Full Name</label>
-                            <input type="text" id="name" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        </div>
-                        <div class="mb-6">
-                            <label for="email" class="block text-gray-700 font-medium mb-2">Email Address</label>
-                            <input type="email" id="email" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        </div>
-                        <div class="mb-6">
-                            <label for="phone" class="block text-gray-700 font-medium mb-2">Phone Number</label>
-                            <input type="tel" id="phone" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        </div>
-                        <div class="mb-6">
-                            <label for="service" class="block text-gray-700 font-medium mb-2">Service Interested In</label>
-                            <select id="service" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                <option value="">Select a Service</option>
-                                <option value="gst">GST Reconciliation</option>
-                                <option value="tax">Tax Planning</option>
-                                <option value="audit">Audit & Assurance</option>
-                                <option value="consulting">Financial Consulting</option>
-                                <option value="bookkeeping">Bookkeeping</option>
-                            </select>
-                        </div>
-                        <div class="mb-6">
-                            <label for="message" class="block text-gray-700 font-medium mb-2">Message</label>
-                            <textarea id="message" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-                        </div>
-                        <button type="submit" class="w-full bg-blue-700 text-white py-3 rounded-lg font-medium hover:bg-blue-800 transition-colors">
-                            <i class="fas fa-paper-plane mr-2"></i> Send Message
-                        </button>
-                    </form>
+        <!-- Month-Wise TDS Deducted -->
+        <div class="card">
+            <div class="card-header"><h3>Month-Wise TDS Deducted</h3></div>
+            <div class="flex-row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="tds_apr">April</label>
+                        <input type="number" id="tds_apr" placeholder="Enter April TDS" min="0">
+                    </div>
                 </div>
-                
-                <div class="md:w-1/2 md:pl-10">
-                    <div class="bg-blue-700 text-white p-8 rounded-lg shadow-lg h-full">
-                        <h3 class="text-2xl font-bold mb-6">Get in Touch</h3>
-                        <div class="mb-8">
-                            <div class="flex items-start mb-4">
-                                <div class="mr-4 mt-1">
-                                    <i class="fas fa-map-marker-alt text-xl"></i>
-                                </div>
-                                <div>
-                                    <h4 class="font-bold mb-1">Office Address</h4>
-                                    <p>123 Financial District, Rohini</p>
-                                    <p>Delhi - 110086, India</p>
-                                </div>
-                            </div>
-                            <div class="flex items-start mb-4">
-                                <div class="mr-4 mt-1">
-                                    <i class="fas fa-phone-alt text-xl"></i>
-                                </div>
-                                <div>
-                                    <h4 class="font-bold mb-1">Phone Number</h4>
-                                    <p>+91 9716804520</p>
-                                    <p>+91 1145678900</p>
-                                </div>
-                            </div>
-                            <div class="flex items-start mb-4">
-                                <div class="mr-4 mt-1">
-                                    <i class="fas fa-envelope text-xl"></i>
-                                </div>
-                                <div>
-                                    <h4 class="font-bold mb-1">Email</h4>
-                                    <p>Sumitgarg100000@gmail.com</p>
-                                    <p>info@taxpro.com</p>
-                                </div>
-                            </div>
-                            <div class="flex items-start">
-                                <div class="mr-4 mt-1">
-                                    <i class="fas fa-clock text-xl"></i>
-                                </div>
-                                <div>
-                                    <h4 class="font-bold mb-1">Business Hours</h4>
-                                    <p>Monday - Friday: 9:30 AM - 6:30 PM</p>
-                                    <p>Saturday: 10:00 AM - 2:00 PM</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <h4 class="font-bold text-xl mb-4">Connect With Us</h4>
-                        <div class="flex space-x-4">
-                            <a href="#" class="bg-white text-blue-700 w-10 h-10 rounded-full flex items-center justify-center hover:bg-blue-100 transition-colors">
-                                <i class="fab fa-facebook-f"></i>
-                            </a>
-                            <a href="#" class="bg-white text-blue-700 w-10 h-10 rounded-full flex items-center justify-center hover:bg-blue-100 transition-colors">
-                                <i class="fab fa-twitter"></i>
-                            </a>
-                            <a href="#" class="bg-white text-blue-700 w-10 h-10 rounded-full flex items-center justify-center hover:bg-blue-100 transition-colors">
-                                <i class="fab fa-linkedin-in"></i>
-                            </a>
-                            <a href="#" class="bg-white text-blue-700 w-10 h-10 rounded-full flex items-center justify-center hover:bg-blue-100 transition-colors">
-                                <i class="fab fa-instagram"></i>
-                            </a>
-                        </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="tds_may">May</label>
+                        <input type="number" id="tds_may" placeholder="Enter May TDS" min="0">
+                    </div>
+                </div>
+            </div>
+            <div class="flex-row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="tds_jun">June</label>
+                        <input type="number" id="tds_jun" placeholder="Enter June TDS" min="0">
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="tds_jul">July</label>
+                        <input type="number" id="tds_jul" placeholder="Enter July TDS" min="0">
+                    </div>
+                </div>
+            </div>
+            <div class="flex-row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="tds_aug">August</label>
+                        <input type="number" id="tds_aug" placeholder="Enter August TDS" min="0">
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="tds_sep">September</label>
+                        <input type="number" id="tds_sep" placeholder="Enter September TDS" min="0">
+                    </div>
+                </div>
+            </div>
+            <div class="flex-row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="tds_oct">October</label>
+                        <input type="number" id="tds_oct" placeholder="Enter October TDS" min="0">
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="tds_nov">November</label>
+                        <input type="number" id="tds_nov" placeholder="Enter November TDS" min="0">
+                    </div>
+                </div>
+            </div>
+            <div class="flex-row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="tds_dec">December</label>
+                        <input type="number" id="tds_dec" placeholder="Enter December TDS" min="0">
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="tds_jan">January</label>
+                        <input type="number" id="tds_jan" placeholder="Enter January TDS" min="0">
+                    </div>
+                </div>
+            </div>
+            <div class="flex-row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="tds_feb">February</label>
+                        <input type="number" id="tds_feb" placeholder="Enter February TDS" min="0">
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="tds_mar">March</label>
+                        <input type="number" id="tds_mar" placeholder="Enter March TDS" min="0">
                     </div>
                 </div>
             </div>
         </div>
-    </section>
 
-    <!-- Footer -->
-    <footer class="bg-gray-800 text-white py-12">
-        <div class="container mx-auto px-4">
-            <div class="flex flex-col md:flex-row justify-between">
-                <div class="mb-8 md:mb-0 md:w-1/3">
-                    <h3 class="text-2xl font-bold mb-4">
-                        <i class="fas fa-balance-scale mr-2"></i>
-                        TaxPro CA
-                    </h3>
-                    <p class="text-gray-300 mb-4">Professional accounting and taxation services providing expert financial solutions for businesses.</p>
-                    <div class="flex space-x-4">
-                        <a href="#" class="text-gray-300 hover:text-white">
-                            <i class="fab fa-facebook-f"></i>
-                        </a>
-                        <a href="#" class="text-gray-300 hover:text-white">
-                            <i class="fab fa-twitter"></i>
-                        </a>
-                        <a href="#" class="text-gray-300 hover:text-white">
-                            <i class="fab fa-linkedin-in"></i>
-                        </a>
-                        <a href="#" class="text-gray-300 hover:text-white">
-                            <i class="fab fa-instagram"></i>
-                        </a>
-                    </div>
-                </div>
-                
-                <div class="mb-8 md:mb-0 md:w-1/4">
-                    <h4 class="text-lg font-bold mb-4">Quick Links</h4>
-                    <ul class="space-y-2">
-                        <li><a href="#home" class="text-gray-300 hover:text-white">Home</a></li>
-                        <li><a href="#services" class="text-gray-300 hover:text-white">Services</a></li>
-                        <li><a href="#about" class="text-gray-300 hover:text-white">About Us</a></li>
-                        <li><a href="#team" class="text-gray-300 hover:text-white">Our Team</a></li>
-                        <li><a href="#contact" class="text-gray-300 hover:text-white">Contact</a></li>
-                    </ul>
-                </div>
-                
-                <div class="mb-8 md:mb-0 md:w-1/4">
-                    <h4 class="text-lg font-bold mb-4">Services</h4>
-                    <ul class="space-y-2">
-                        <li><a href="#gst-tool-section" class="text-gray-300 hover:text-white">GST Reconciliation</a></li>
-                        <li><a href="#" class="text-gray-300 hover:text-white">Tax Planning</a></li>
-                        <li><a href="#" class="text-gray-300 hover:text-white">Audit & Assurance</a></li>
-                        <li><a href="#" class="text-gray-300 hover:text-white">Financial Consulting</a></li>
-                        <li><a href="#" class="text-gray-300 hover:text-white">Bookkeeping</a></li>
-                    </ul>
-                </div>
-                
-                <div class="md:w-1/4">
-                    <h4 class="text-lg font-bold mb-4">Contact</h4>
-                    <ul class="space-y-2">
-                        <li class="flex items-start">
-                            <i class="fas fa-map-marker-alt mt-1.5 mr-2"></i>
-                            <span>123 Financial District, Rohini, Delhi - 110086</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fas fa-phone-alt mt-1.5 mr-2"></i>
-                            <span>+91 9716804520</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fas fa-envelope mt-1.5 mr-2"></i>
-                            <span>Sumitgarg100000@gmail.com</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            
-            <div class="mt-12 pt-8 border-t border-gray-700 text-center">
-                <p>&copy; 2023 TaxPro Chartered Accountants. All rights reserved.</p>
-            </div>
+        <!-- Calculate Button -->
+        <div class="text-center my-8">
+            <button id="calculate-btn" class="button" onclick="calculateTDS()">Calculate TDS</button>
         </div>
-    </footer>
 
-    <!-- GST Tool Overlay -->
-    <div id="gst-tool-overlay">
-        <div id="gst-tool-container">
-            <button id="close-tool-btn" onclick="closeGSTTool()">×</button>
-            <div id="gst-tool-content">
-                <!-- GST Reconciliation Tool Content Will Be Loaded Here -->
-                <div class="container">
-                    <!-- Login Section -->
-                    <div id="login-section">
-                        <h1 class="mb-6">Login to GST Reconciliation Tool</h1>
-                        <div class="login-card">
-                            <div class="mb-6">
-                                <label for="username" class="block mb-2">Username:</label>
-                                <input type="text" id="username" value="" placeholder="Enter username" class="w-full">
-                            </div>
-                            <div class="mb-6">
-                                <label for="password" class="block mb-2">Password:</label>
-                                <input type="password" id="password" value="" placeholder="Enter password" class="w-full">
-                            </div>
-                            <div class="flex flex-wrap justify-center gap-4">
-                                <button onclick="login()" style="background: linear-gradient(145deg, #1a73e8, #0d47a1); color: white;" class="flex-1"><i class="fas fa-sign-in-alt"></i> Login</button>
-                                <button onclick="freeServiceLogin()" style="background: linear-gradient(145deg, #ff9800, #f57c00); color: white;" class="flex-1">
-                                    <i class="fas fa-user-check"></i> Free Service Login
-                                </button>
-                            </div>
-                            <p id="error" class="mt-4"></p>
-
-                            <div class="explanation" id="explanation-container">
-                                <h2 class="text-xl font-bold mb-4">How to Use the GST Reconciliation Tool</h2>
-                                <p class="mb-4">The GST Reconciliation Tool is designed to help you easily compare and match your GST data from GSTR-2B and GSTR-3B. This guide will walk you through the process step by step.</p>
-                                
-                                <h3 class="text-lg font-bold mb-2">Watch Tutorial Video</h3>
-                                <p class="mb-4">Check out our step-by-step tutorial video on YouTube to learn how to use the GST Reconciliation Tool effectively:</p>
-                                <p class="mb-6"><a href="https://youtu.be/pTR1yrEHlrU" class="youtube-link" target="_blank" rel="noopener noreferrer">Click Here</a></p>
-                                
-                                <h3 class="text-lg font-bold mb-2">Step-by-Step Guide</h3>
-                                <ol class="list-decimal ml-6 mb-6">
-                                    <li><strong>Log in</strong>: Use your username and password to access the tool.</li>
-                                    <li><strong>Download Sample File</strong>: Click on "Download Sample Excel File" to get a template for your data.</li>
-                                    <li><strong>Prepare Your Data</strong>: Enter your GSTR-2B data in GST Portal sheet and GSTR-3B or books in client data sheet according to the sample file.</li>
-                                    <li><strong>Upload File</strong>: Upload your prepared Excel file using the "Upload GST Data File" option.</li>
-                                    <li><strong>Set Difference Allowed</strong>: Adjust the tolerance for differences in amounts (default is 1).</li>
-                                    <li><strong>Enable Detailed Reconciliation</strong>: Check this box for detailed reconciliation or leave unchecked for a simple reconciliation.</li>
-                                    <li><strong>Enable Filters (Optional)</strong>: Use filters to sort or search through your data.</li>
-                                    <li><strong>Reconcile Data</strong>: Click "Reconcile" to process and match your data.</li>
-                                    <li><strong>Review Results</strong>: Check the GSTR-2B, GSTR-3B, and Summary tables for matched data.</li>
-                                    <li><strong>Edit Data (If Needed)</strong>: Make direct edits in the tables and reconcile again.</li>
-                                    <li><strong>Download Output</strong>: Click "Download Reconciled Data" to save the results.</li>
-                                </ol>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Tool Section -->
-                    <div id="tool-section" class="hidden">
-                        <div class="flex justify-between items-center mb-4">
-                            <h1>GST Reconciliation Tool</h1>
-                            <button onclick="logout()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg">
-                                <i class="fas fa-sign-out-alt"></i> Logout
-                            </button>
-                        </div>
-                        <p id="expiry-message" style="display: none;" class="text-center"></p>
-                        
-                        <div class="control-panel">
-                            <!-- Sample Download Button -->
-                            <div class="button-container">
-                                <button id="download-sample" class="bg-green-600 hover:bg-green-700">
-                                    <i class="fas fa-file-download"></i> Download Sample Excel File
-                                </button>
-                            </div>
-                            
-                            <!-- Options Container -->
-                            <div class="options-container">
-                                <div class="option-group">
-                                    <label for="diff-allowed">Difference Allowed:</label>
-                                    <input type="number" id="diff-allowed" value="1" min="0" class="w-20" placeholder="0 if blank">
-                                    <span class="text-sm text-gray-600">(Default: 1)</span>
-                                </div>
-                                
-                                <div class="checkbox-group">
-                                    <input type="checkbox" id="detailed-reconciliation" name="detailed-reconciliation">
-                                    <label for="detailed-reconciliation">Detailed Reconciliation</label>
-                                </div>
-                                
-                                <div class="checkbox-group">
-                                    <input type="checkbox" id="enable-filter" name="enable-filter">
-                                    <label for="enable-filter">Enable Filters</label>
-                                </div>
-                            </div>
-                            
-                            <!-- Upload Section -->
-                            <div class="upload-section">
-                                <label for="gst-file" class="block mb-2">
-                                    <i class="fas fa-file-upload mr-2"></i>Upload GST Data File (GSTR-2B & GSTR-3B):
-                                </label>
-                                <input type="file" id="gst-file" accept=".xlsx" class="block w-full">
-                            </div>
-                            
-                            <!-- Action Buttons -->
-                            <div class="button-container">
-                                <button id="reconcile-btn">
-                                    <i class="fas fa-sync-alt"></i> Reconcile
-                                </button>
-                                <button id="reset-btn">
-                                    <i class="fas fa-trash-alt"></i> Reset Data
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div class="data-container">
-                            <h2>GSTR-2B Data</h2>
-                            <div id="gstr2b-container" class="table-container"></div>
-                            
-                            <h2>Client Data</h2>
-                            <div id="gstr3b-container" class="table-container"></div>
-                            
-                            <h2>Summary</h2>
-                            <div id="summary-container" class="table-container"></div>
-                        </div>
-                        
-                        <div id="output-link" style="display: none;" class="text-center">
-                            <h3 class="text-xl font-bold text-blue-800 mb-4">Reconciled Output:</h3>
-                            <a id="download-output" href="#" class="inline-block">
-                                <i class="fas fa-file-excel mr-2"></i> Download Reconciled Data
-                            </a>
-                        </div>
-                    </div>
-                </div>
+        <!-- Results Section -->
+        <div class="card" id="results-section" style="display: none;">
+            <div class="card-header"><h3>TDS Calculation Results</h3></div>
+            <h4 class="text-xl font-semibold mb-4 text-gray-700">Income Breakup</h4>
+            <table class="result-table mb-6">
+                <thead><tr><th>Particulars</th><th>Amount (₹)</th></tr></thead>
+                <tbody>
+                    <tr><td>Basic Salary</td><td id="basic_salary_result">0</td></tr>
+                    <tr><td>HRA</td><td id="hra_result">0</td></tr>
+                    <tr><td>Bonus/Incentive</td><td id="bonus_result">0</td></tr>
+                    <tr><td>Special Allowance</td><td id="special_allowance_result">0</td></tr>
+                    <tr><td>Other Allowance</td><td id="other_allowance_result">0</td></tr>
+                    <tr><td><strong>Gross Salary</strong></td><td id="gross_salary" class="font-bold">0</td></tr>
+                    <tr><td>HRA Exemption u/s 10(13A)</td><td id="hra_exemption_result">0</td></tr>
+                    <tr><td>Exempt Allowance</td><td id="exempt_allowance_result">0</td></tr>
+                    <tr><td>Professional Tax Paid</td><td id="professional_tax_result">0</td></tr>
+                    <tr><td>Standard Deduction</td><td id="standard_deduction">0</td></tr>
+                    <tr><td><strong>Total Exemptions & Deductions</strong></td><td id="total_exemptions" class="font-bold">0</td></tr>
+                    <tr><td><strong>Net Salary Income</strong></td><td id="net_salary" class="font-bold">0</td></tr>
+                    <tr><td>Loss from House Property (Interest)</td><td id="housing_loan_interest_result">0</td></tr>
+                    <tr><td>Income from Other Sources</td><td id="other_income_result">0</td></tr>
+                    <tr><td><strong>Gross Total Income</strong></td><td id="gross_total_income" class="font-bold">0</td></tr>
+                </tbody>
+            </table>
+            <h4 class="text-xl font-semibold mb-4 text-gray-700">Deductions (Old Regime)</h4>
+            <table class="result-table mb-6">
+                <thead><tr><th>Particulars</th><th>Amount (₹)</th></tr></thead>
+                <tbody>
+                    <tr><td>Section 80C</td><td id="section_80c_result">0</td></tr>
+                    <tr><td>Section 80CCC</td><td id="section_80ccc_result">0</td></tr>
+                    <tr><td>Section 80CCD(1)</td><td id="section_80ccd1_result">0</td></tr>
+                    <tr><td>Section 80CCD(1B)</td><td id="section_80ccd1b_result">0</td></tr>
+                    <tr><td>Section 80CCD(2)</td><td id="section_80ccd2_result">0</td></tr>
+                    <tr><td>Section 80D</td><td id="section_80d_result">0</td></tr>
+                    <tr><td>Section 80E</td><td id="section_80e_result">0</td></tr>
+                    <tr><td>Section 80G</td><td id="section_80g_result">0</td></tr>
+                    <tr><td>Section 80TTA/80TTB</td><td id="section_80tta_result">0</td></tr>
+                    <tr><td><strong>Total Deductions</strong></td><td id="total_deductions" class="font-bold">0</td></tr>
+                </tbody>
+            </table>
+            <h4 class="text-xl font-semibold mb-4 text-gray-700">Tax Calculation</h4>
+            <table class="result-table mb-6">
+                <thead><tr><th>Particulars</th><th>Amount (₹)</th></tr></thead>
+                <tbody>
+                    <tr><td>Gross Total Income</td><td id="gross_income_tax">0</td></tr>
+                    <tr><td>Total Deductions (Old Regime)</td><td id="total_deductions_tax">0</td></tr>
+                    <tr><td><strong>Net Taxable Income</strong></td><td id="net_taxable_income" class="font-bold">0</td></tr>
+                    <tr><td>Income Tax</td><td id="income_tax">0</td></tr>
+                    <tr><td>Rebate u/s 87A</td><td id="rebate">0</td></tr>
+                    <tr><td>Surcharge</td><td id="surcharge">0</td></tr>
+                    <tr><td>Tax After Rebate & Surcharge</td><td id="tax_after_rebate">0</td></tr>
+                    <tr><td>Health & Education Cess (4%)</td><td id="cess">0</td></tr>
+                    <tr><td>Prior TDS Deducted</td><td id="prior_tds_result">0</td></tr>
+                    <tr><td><strong>Remaining Annual Tax Liability</strong></td><td id="annual_tax_liability" class="font-bold">0</td></tr>
+                </tbody>
+            </table>
+            <h4 class="text-xl font-semibold mb-4 text-gray-700">Monthly TDS Breakdown</h4>
+            <div class="chart-container">
+                <canvas id="tds-chart"></canvas>
+            </div>
+            <table class="result-table mb-6">
+                <thead><tr><th>Month</th><th>TDS Deducted (₹)</th><th>TDS Liability (₹)</th></tr></thead>
+                <tbody id="monthly_tds_table"></tbody>
+            </table>
+            <div class="summary-box">
+                <h3>Average Monthly TDS (Remaining Months)</h3>
+                <div class="amount" id="monthly_tds_amount">₹ 0</div>
             </div>
         </div>
     </div>
 
-    <!-- JavaScript -->
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/exceljs@4.3.0/dist/exceljs.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/date-fns/2.29.3/date-fns.min.js"></script>
-    
+    <footer>
+        <p>© 2025 TDS Calculator. All rights reserved.</p>
+    </footer>
+
     <script>
-        // Mobile Menu Toggle
-        document.getElementById('mobile-menu-button').addEventListener('click', function() {
-            const mobileMenu = document.getElementById('mobile-menu');
-            mobileMenu.classList.toggle('hidden');
-        });
-
-        // GST Tool Functions
-        function openGSTTool() {
-            document.getElementById('gst-tool-overlay').style.display = 'block';
-            document.body.style.overflow = 'hidden'; // Prevent scrolling of background
-        }
-
-        function closeGSTTool() {
-            document.getElementById('gst-tool-overlay').style.display = 'none';
-            document.body.style.overflow = 'auto'; // Restore scrolling
-        }
-
-        // Counter Animation
-        function animateCounters() {
-            const counters = document.querySelectorAll('.counter-value');
-            const speed = 200; // Animation speed
-            
-            counters.forEach(counter => {
-                const target = +counter.getAttribute('data-target');
-                const count = +counter.innerText;
-                const increment = target / speed;
-                
-                if (count < target) {
-                    counter.innerText = Math.ceil(count + increment);
-                    setTimeout(() => animateCounters(), 1);
-                } else {
-                    counter.innerText = target;
-                }
-            });
-        }
-
-        // Scroll Animation
-        document.addEventListener('DOMContentLoaded', function() {
-            // Start counter animation
-            animateCounters();
-            
-            // Smooth scrolling for anchor links
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const targetId = this.getAttribute('href');
-                    if (targetId === '#gst-tool-section') {
-                        const element = document.querySelector(targetId);
-                        window.scrollTo({
-                            top: element.offsetTop - 100,
-                            behavior: 'smooth'
-                        });
-                    } else if (targetId !== '#') {
-                        const element = document.querySelector(targetId);
-                        window.scrollTo({
-                            top: element.offsetTop - 80,
-                            behavior: 'smooth'
-                        });
-                    }
-                    
-                    // Close mobile menu if open
-                    document.getElementById('mobile-menu').classList.add('hidden');
-                });
-            });
-        });
-
-        // GST Reconciliation Tool Code
-        const users = {
-            "Sumitgarg" : { password: "Garg@123", expiry: "2026-04-30"},
-            "user1": { password: "pass123", expiry: "2025-04-30" },
-            "user2": { password: "pass456", expiry: "2025-05-15" }
+        // Initialize form
+        window.onload = function() {
+            document.getElementById('professional_tax').value = 2400;
+            document.getElementById('tax_scheme').value = 'new';
+            document.getElementById('old-regime-deductions').style.display = 'none';
+            document.getElementById('hra_exemption').disabled = true;
+            document.getElementById('hra_exemption').value = 0;
+            document.getElementById('employee_age').value = 30;
         };
 
-        let gstr2bData = localStorage.getItem('gstr2bData') ? JSON.parse(localStorage.getItem('gstr2bData')) : [];
-        let gstr3bData = localStorage.getItem('gstr3bData') ? JSON.parse(localStorage.getItem('gstr3bData')) : [];
-        const detailedReconciliationCheckbox = document.getElementById('detailed-reconciliation');
-
-        document.addEventListener("DOMContentLoaded", function() {
-            const loggedInUser = localStorage.getItem("loggedInUser");
-            const isFreeService = localStorage.getItem("isFreeService") === "true";
-
-            // Restore email fields from localStorage
-            const senderEmail = localStorage.getItem('senderEmail');
-            const receiverEmail = localStorage.getItem('receiverEmail');
-
-            if (loggedInUser) {
-                if (isFreeService) {
-                    showTool(); // Free service user, show tool directly
-                    restrictFreeServiceFeatures(); // Apply free service restrictions
-                } else if (checkSubscription(loggedInUser)) {
-                    showTool(); // Normal user with valid subscription
-                } else {
-                    showLogin(); // Subscription expired, show login
-                }
+        // Toggle old regime deductions and HRA exemption
+        document.getElementById('tax_scheme').addEventListener('change', function() {
+            const oldRegimeDeductions = document.getElementById('old-regime-deductions');
+            const hraExemptionField = document.getElementById('hra_exemption');
+            if (this.value === 'old') {
+                oldRegimeDeductions.style.display = 'block';
+                hraExemptionField.disabled = false;
             } else {
-                showLogin(); // No user logged in, show login
+                oldRegimeDeductions.style.display = 'none';
+                hraExemptionField.disabled = true;
+                hraExemptionField.value = 0;
             }
         });
 
-        function login() {
-            const username = document.getElementById("username").value;
-            const password = document.getElementById("password").value;
-            const error = document.getElementById("error");
+        // Reset form
+        function resetValues() {
+            document.querySelectorAll('input[type="text"], input[type="number"]').forEach(input => input.value = '');
+            document.getElementById('tax_scheme').value = 'new';
+            document.getElementById('property_type').value = 'self-occupied';
+            document.getElementById('results-section').style.display = 'none';
+            document.getElementById('professional_tax').value = 2400;
+            document.getElementById('old-regime-deductions').style.display = 'none';
+            document.getElementById('hra_exemption').disabled = true;
+            document.getElementById('hra_exemption').value = 0;
+            document.getElementById('employee_age').value = 30;
+        }
 
-            console.log("Login attempt with username:", username);
-            if (users[username] && users[username].password === password) {
-                console.log("User found, checking subscription...");
-                if (checkSubscription(username)) {
-                    console.log("Subscription valid, setting localStorage and showing tool");
-                    localStorage.setItem("loggedInUser", username);
-                    localStorage.setItem("isFreeService", "false");
-                    
-                    showTool();
+        // Print as PDF
+        function printAsPDF() {
+            window.print();
+        }
 
-                    const expiryMessage = document.getElementById("expiry-message");
-                    if (expiryMessage) {
-                        console.log("Expiry message element found, setting text:", users[username].expiry);
-                        expiryMessage.textContent = `Subscription Expiry: ${users[username].expiry}`;
-                        expiryMessage.style.display = "block";
-                        expiryMessage.style.opacity = "1";
-
-                        setTimeout(() => {
-                            console.log("Hiding expiry message after 10 seconds");
-                            expiryMessage.style.opacity = "0";
-                            setTimeout(() => {
-                                expiryMessage.style.display = "none";
-                                expiryMessage.style.opacity = "1";
-                                console.log("Expiry message hidden and reset");
-                            }, 500);
-                        }, 10000);
-                    } else {
-                        console.error("Expiry message element not found!");
-                    }
-
-                    document.getElementById("username").value = "";
-                    document.getElementById("password").value = "";
-                    error.textContent = "";
-                } else {
-                    error.textContent = "Your subscription has expired!";
-                    console.log("Subscription expired for user:", username);
-                }
+        // Tax calculation functions
+        function calculateOldRegimeTax(income, age) {
+            let tax = 0, rebate = 0;
+            if (age < 60) {
+                if (income <= 250000) tax = 0;
+                else if (income <= 500000) tax = (income - 250000) * 0.05;
+                else if (income <= 1000000) tax = 12500 + (income - 500000) * 0.2;
+                else tax = 112500 + (income - 1000000) * 0.3;
+                if (income <= 500000) rebate = Math.min(tax, 12500);
+            } else if (age >= 60 && age < 80) {
+                if (income <= 300000) tax = 0;
+                else if (income <= 500000) tax = (income - 300000) * 0.05;
+                else if (income <= 1000000) tax = 10000 + (income - 500000) * 0.2;
+                else tax = 110000 + (income - 1000000) * 0.3;
+                if (income <= 500000) rebate = Math.min(tax, 12500);
             } else {
-                error.textContent = "Invalid username or password!";
-                console.log("Invalid username or password for:", username);
+                if (income <= 500000) tax = 0;
+                else if (income <= 1000000) tax = (income - 500000) * 0.2;
+                else tax = 100000 + (income - 1000000) * 0.3;
+                if (income <= 500000) rebate = Math.min(tax, 12500);
             }
+            return { tax: Math.max(0, tax - rebate), rebate };
         }
 
-        function freeServiceLogin() {
-            localStorage.setItem("loggedInUser", "freeServiceUser");
-            localStorage.setItem("isFreeService", "true"); // Free service flag
-            
-            showTool();
-            restrictFreeServiceFeatures(); // Restrictions apply karo
-            
-            document.getElementById("username").value = "";
-            document.getElementById("password").value = "";
-            document.getElementById("error").textContent = ""; // Clear error message if any
+        function calculateNewRegimeTax(income) {
+            let tax = 0, rebate = 0;
+            if (income <= 300000) tax = 0;
+            else if (income <= 700000) tax = (income - 300000) * 0.05;
+            else if (income <= 1000000) tax = 20000 + (income - 700000) * 0.1;
+            else if (income <= 1200000) tax = 50000 + (income - 1000000) * 0.15;
+            else if (income <= 1500000) tax = 80000 + (income - 1200000) * 0.2;
+            else tax = 140000 + (income - 1500000) * 0.3;
+            if (income <= 700000) rebate = Math.min(tax, 25000);
+            return { tax: Math.max(0, tax - rebate), rebate };
         }
 
-        function checkSubscription(username) {
-            const expiryDate = new Date(users[username].expiry);
-            const today = new Date();
-            return today <= expiryDate;
+        function calculateSurcharge(tax, income) {
+            if (income > 5000000 && income <= 10000000) return tax * 0.1;
+            if (income > 10000000 && income <= 20000000) return tax * 0.15;
+            if (income > 20000000) return tax * 0.25;
+            return 0;
         }
 
-        function logout() {
-            localStorage.removeItem("loggedInUser");
-            localStorage.removeItem("gstr2bData");
-            localStorage.removeItem("gstr3bData");
-            localStorage.removeItem("isFreeService"); // Free service flag clear karo
-            gstr2bData = [];
-            gstr3bData = [];
-            resetData();
-            showLogin();
-            
-            document.getElementById("username").value = "";
-            document.getElementById("password").value = "";
-            document.getElementById("error").textContent = ""; // Clear error message
-        }
+        // Calculate TDS
+        function calculateTDS() {
+            try {
+                // Get and validate inputs
+                const inputs = {
+                    taxRegime: document.getElementById('tax_scheme').value,
+                    basicSalary: Math.max(0, parseFloat(document.getElementById('basic_salary').value) || 0),
+                    hra: Math.max(0, parseFloat(document.getElementById('hra_salary').value) || 0),
+                    bonus: Math.max(0, parseFloat(document.getElementById('bonus_incentive').value) || 0),
+                    specialAllowance: Math.max(0, parseFloat(document.getElementById('special_allowance').value) || 0),
+                    otherAllowance: Math.max(0, parseFloat(document.getElementById('other_allowance').value) || 0),
+                    hraExemption: Math.max(0, parseFloat(document.getElementById('hra_exemption').value) || 0),
+                    exemptAllowance: Math.max(0, parseFloat(document.getElementById('exempt_allowance').value) || 0),
+                    professionalTax: Math.max(0, parseFloat(document.getElementById('professional_tax').value) || 0),
+                    housingLoanInterest: Math.max(0, parseFloat(document.getElementById('housing_loan_interest').value) || 0),
+                    otherIncome: Math.max(0, parseFloat(document.getElementById('other_income').value) || 0),
+                    age: Math.max(18, parseInt(document.getElementById('employee_age').value) || 18),
+                    section80C: Math.max(0, parseFloat(document.getElementById('section_80c').value) || 0),
+                    section80CCC: Math.max(0, parseFloat(document.getElementById('section_80ccc').value) || 0),
+                    section80CCD1: Math.max(0, parseFloat(document.getElementById('section_80ccd1').value) || 0),
+                    section80CCD1B: Math.max(0, parseFloat(document.getElementById('section_80ccd1b').value) || 0),
+                    section80CCD2: Math.max(0, parseFloat(document.getElementById('section_80ccd2').value) || 0),
+                    section80D: Math.max(0, parseFloat(document.getElementById('section_80d').value) || 0),
+                    section80E: Math.max(0, parseFloat(document.getElementById('section_80e').value) || 0),
+                    section80G: Math.max(0, parseFloat(document.getElementById('section_80g').value) || 0),
+                    section80TTA: Math.max(0, parseFloat(document.getElementById('section_80tta').value) || 0),
+                    tdsDeducted: [
+                        Math.max(0, parseFloat(document.getElementById('tds_apr').value) || 0),
+                        Math.max(0, parseFloat(document.getElementById('tds_may').value) || 0),
+                        Math.max(0, parseFloat(document.getElementById('tds_jun').value) || 0),
+                        Math.max(0, parseFloat(document.getElementById('tds_jul').value) || 0),
+                        Math.max(0, parseFloat(document.getElementById('tds_aug').value) || 0),
+                        Math.max(0, parseFloat(document.getElementById('tds_sep').value) || 0),
+                        Math.max(0, parseFloat(document.getElementById('tds_oct').value) || 0),
+                        Math.max(0, parseFloat(document.getElementById('tds_nov').value) || 0),
+                        Math.max(0, parseFloat(document.getElementById('tds_dec').value) || 0),
+                        Math.max(0, parseFloat(document.getElementById('tds_jan').value) || 0),
+                        Math.max(0, parseFloat(document.getElementById('tds_feb').value) || 0),
+                        Math.max(0, parseFloat(document.getElementById('tds_mar').value) || 0)
+                    ]
+                };
 
-        function showLogin() {
-            document.getElementById("login-section").classList.remove("hidden");
-            document.getElementById("tool-section").classList.add("hidden");
-        }
-
-        function showTool() {
-            document.getElementById("login-section").classList.add("hidden");
-            document.getElementById("tool-section").classList.remove("hidden");
-
-            const isFreeService = localStorage.getItem("isFreeService") === "true";
-
-            // Restore checkbox state only for normal users
-            const detailedReconciliationCheckbox = document.getElementById("detailed-reconciliation");
-            detailedReconciliationCheckbox.checked = localStorage.getItem('detailedReconciliation') === 'true' && !isFreeService;
-
-            // Add event listeners only once (avoid duplicates)
-            const reconcileBtn = document.getElementById('reconcile-btn');
-            const downloadSample = document.getElementById('download-sample');
-            const diffAllowed = document.getElementById('diff-allowed');
-            diffAllowed.value = "1"; // Default to 1 for all users
-            const resetBtn = document.getElementById('reset-btn');
-            const gstFile = document.getElementById('gst-file');
-
-            reconcileBtn.removeEventListener('click', reconcileData);
-            downloadSample.removeEventListener('click', generateSampleFile);
-            diffAllowed.removeEventListener('input', reconcileData);
-            resetBtn.removeEventListener('click', resetData);
-            gstFile.removeEventListener('change', handleFileUpload);
-
-            gstFile.addEventListener('change', handleFileUpload);
-            reconcileBtn.addEventListener('click', reconcileData);
-            downloadSample.addEventListener('click', generateSampleFile);
-            diffAllowed.addEventListener('input', reconcileData);
-            resetBtn.addEventListener('click', resetData);
-
-            detailedReconciliationCheckbox.removeEventListener('change', handleCheckboxChange);
-            detailedReconciliationCheckbox.addEventListener('change', handleCheckboxChange);
-            
-            function handleCheckboxChange() {
-                reconcileData();
-                localStorage.setItem('detailedReconciliation', detailedReconciliationCheckbox.checked);
-            }
-
-            // Restore previous data
-            if (gstr2bData.length > 0) {
-                displayData(gstr2bData, 'gstr2b-container', gstr2bHeaders(), 'gstr2b');
-            }
-            if (gstr3bData.length > 0) {
-                displayData(gstr3bData, 'gstr3b-container', gstr3bHeaders(), 'gstr3b');
-            }
-            if (gstr2bData.length > 0 || gstr3bData.length > 0) {
-                reconcileData();
-            }
-
-            // Reset restrictions for normal users and apply for free service users
-            const filterCheckbox = document.getElementById("enable-filter");
-            if (!isFreeService) {
-                detailedReconciliationCheckbox.disabled = false;
-                filterCheckbox.disabled = false;
-                diffAllowed.disabled = false;
-                document.getElementById("free-service-notice")?.remove(); // Remove notice if exists
-            }
-            restrictFreeServiceFeatures(); // Apply restrictions if free service mode
-        }
-
-        // Include all the GST tool functions here from your original code
-        function restrictFreeServiceFeatures() {
-            const isFreeService = localStorage.getItem("isFreeService") === "true";
-
-            if (isFreeService) {
-                // Disable Detailed Reconciliation
-                const detailedCheckbox = document.getElementById("detailed-reconciliation");
-                detailedCheckbox.checked = false;
-                detailedCheckbox.disabled = true;
-
-                // Disable Filter Option
-                const filterCheckbox = document.getElementById("enable-filter");
-                filterCheckbox.checked = false;
-                filterCheckbox.disabled = true;
-                filterEnabled = false;
-                toggleFilters(); // Filters ko hide karo
-
-                // Disable Difference Allowed with default value 1
-                const diffAllowedInput = document.getElementById("diff-allowed");
-                diffAllowedInput.value = "1"; // Default to 1 for free users
-                diffAllowedInput.disabled = true;
-
-                // Disable Editable Fields in Existing Tables
-                const tables = document.querySelectorAll("#gstr2b-container table, #gstr3b-container table");
-                tables.forEach(table => {
-                    const rows = table.querySelectorAll("tbody tr");
-                    rows.forEach(row => {
-                        const cells = row.querySelectorAll("td");
-                        cells.forEach(cell => {
-                            cell.setAttribute("contenteditable", "false"); // Force disable
-                        });
-                    });
-                });
-
-                // Apply colors for free service mode
-                applyFreeServiceColors();
-
-                // Add notice
-                const toolSection = document.getElementById("tool-section");
-                const notice = document.createElement("p");
-                notice.id = "free-service-notice";
-                notice.style.color = "#e53935";
-                notice.style.textAlign = "center";
-                notice.style.padding = "10px";
-                notice.style.margin = "10px 0";
-                notice.style.backgroundColor = "#ffebee";
-                notice.style.borderRadius = "8px";
-                notice.style.borderLeft = "4px solid #e53935";
-                notice.textContent = "In Free Service: Detailed Reconciliation feature, Enable Filter & sorting option, alteration of Difference Allowed limit and facility of editable fields are disabled.";
-                if (!document.getElementById("free-service-notice")) {
-                    toolSection.insertBefore(notice, toolSection.querySelector(".control-panel"));
+                // Validate inputs
+                for (let key in inputs) {
+                    if (key !== 'taxRegime' && key !== 'tdsDeducted' && (isNaN(inputs[key]) || inputs[key] < 0)) {
+                        throw new Error(`Invalid input for ${key}`);
+                    }
                 }
+                if (inputs.tdsDeducted.some(val => isNaN(val) || val < 0)) {
+                    throw new Error('Invalid TDS deducted values');
+                }
+
+                // Calculations
+                const totalTdsDeducted = inputs.tdsDeducted.reduce((sum, val) => sum + val, 0);
+                const grossSalary = inputs.basicSalary + inputs.hra + inputs.bonus + inputs.specialAllowance + inputs.otherAllowance;
+                const standardDeduction = inputs.taxRegime === 'new' ? 75000 : 50000;
+                const hraExemption = inputs.taxRegime === 'old' ? inputs.hraExemption : 0;
+                const totalExemptions = hraExemption + inputs.exemptAllowance + inputs.professionalTax + standardDeduction;
+                const netSalaryIncome = Math.max(0, grossSalary - totalExemptions);
+                const housingLoanInterest = Math.min(inputs.housingLoanInterest, 200000);
+                const grossTotalIncome = Math.max(0, netSalaryIncome - housingLoanInterest + inputs.otherIncome);
+
+                // Deductions (Old Regime)
+                let deductions = {
+                    combined80C: 0,
+                    section80CCD1B: 0,
+                    section80CCD2: 0,
+                    section80D: 0,
+                    section80E: 0,
+                    section80G: 0,
+                    section80TTA: 0
+                };
+                if (inputs.taxRegime === 'old') {
+                    deductions.combined80C = Math.min(inputs.section80C + inputs.section80CCC + inputs.section80CCD1, 150000);
+                    deductions.section80CCD1B = Math.min(inputs.section80CCD1B, 50000);
+                    deductions.section80CCD2 = Math.min(inputs.section80CCD2, inputs.basicSalary * 0.1);
+                    deductions.section80D = Math.min(inputs.section80D, inputs.age >= 60 ? 50000 : 25000);
+                    deductions.section80TTA = Math.min(inputs.section80TTA, inputs.age >= 60 ? 50000 : 10000);
+                    deductions.section80E = inputs.section80E;
+                    deductions.section80G = inputs.section80G;
+                }
+                const totalDeductions = Object.values(deductions).reduce((sum, val) => sum + val, 0);
+                const netTaxableIncome = Math.max(0, grossTotalIncome - totalDeductions);
+
+                // Tax calculation
+                let taxResult = inputs.taxRegime === 'old'
+                    ? calculateOldRegimeTax(netTaxableIncome, inputs.age)
+                    : calculateNewRegimeTax(netTaxableIncome);
+                let incomeTax = taxResult.tax;
+                const rebate = taxResult.rebate;
+                const surcharge = calculateSurcharge(incomeTax, netTaxableIncome);
+                const taxAfterSurcharge = incomeTax + surcharge;
+                const cess = taxAfterSurcharge * 0.04;
+                const totalTax = taxAfterSurcharge + cess;
+                const annualTaxLiability = Math.max(0, totalTax - totalTdsDeducted);
+                const monthsWithNoTDS = inputs.tdsDeducted.reduce((count, val) => count + (val === 0 ? 1 : 0), 0);
+                const monthlyTDS = monthsWithNoTDS > 0 ? annualTaxLiability / monthsWithNoTDS : 0;
+
+                // Display results
+                const displayFields = {
+                    basic_salary_result: inputs.basicSalary,
+                    hra_result: inputs.hra,
+                    bonus_result: inputs.bonus,
+                    special_allowance_result: inputs.specialAllowance,
+                    other_allowance_result: inputs.otherAllowance,
+                    gross_salary: grossSalary,
+                    hra_exemption_result: hraExemption,
+                    exempt_allowance_result: inputs.exemptAllowance,
+                    professional_tax_result: inputs.professionalTax,
+                    standard_deduction: standardDeduction,
+                    total_exemptions: totalExemptions,
+                    net_salary: netSalaryIncome,
+                    housing_loan_interest_result: housingLoanInterest,
+                    other_income_result: inputs.otherIncome,
+                    gross_total_income: grossTotalIncome,
+                    section_80c_result: inputs.section80C,
+                    section_80ccc_result: inputs.section80CCC,
+                    section_80ccd1_result: inputs.section80CCD1,
+                    section_80ccd1b_result: deductions.section80CCD1B,
+                    section_80ccd2_result: deductions.section80CCD2,
+                    section_80d_result: deductions.section80D,
+                    section_80e_result: deductions.section80E,
+                    section_80g_result: deductions.section80G,
+                    section_80tta_result: deductions.section80TTA,
+                    total_deductions: totalDeductions,
+                    gross_income_tax: grossTotalIncome,
+                    total_deductions_tax: totalDeductions,
+                    net_taxable_income: netTaxableIncome,
+                    income_tax: incomeTax,
+                    rebate: rebate,
+                    surcharge: surcharge,
+                    tax_after_rebate: taxAfterSurcharge,
+                    cess: cess,
+                    prior_tds_result: totalTdsDeducted,
+                    annual_tax_liability: annualTaxLiability,
+                    monthly_tds_amount: `₹ ${formatCurrency(monthlyTDS)}`
+                };
+                for (let id in displayFields) {
+                    document.getElementById(id).textContent = typeof displayFields[id] === 'number' ? formatCurrency(displayFields[id]) : displayFields[id];
+                }
+
+                // Generate monthly TDS table and chart
+                generateMonthlyTDSTable(annualTaxLiability, inputs.tdsDeducted, monthlyTDS);
+                generateTDSChart(annualTaxLiability, inputs.tdsDeducted, monthlyTDS);
+
+                // Show results
+                document.getElementById('results-section').style.display = 'block';
+                document.getElementById('results-section').scrollIntoView({ behavior: 'smooth' });
+            } catch (error) {
+                console.error('Error in calculateTDS:', error);
+                alert(`Error: ${error.message}. Please ensure all inputs are valid and non-negative.`);
             }
         }
-        
-        function resetData() {
-            gstr2bData = [];
-            gstr3bData = [];
-            localStorage.removeItem('gstr2bData');
-            localStorage.removeItem('gstr3bData');
-            localStorage.setItem('detailedReconciliation', false);
-            document.getElementById('gstr2b-container').innerHTML = '';
-            document.getElementById('gstr3b-container').innerHTML = '';
-            document.getElementById('summary-container').innerHTML = '';
-            document.getElementById('output-link').style.display = 'none';
-            document.getElementById('gst-file').value = ''; // Clear file input
-            document.getElementById('diff-allowed').value = '1';
-        }
-        
-        // Implement the rest of GST Tool functions here - you can copy all the needed functions from the original code
-        // Like parseAndFormatDate, formatDate, gstr2bHeaders, gstr3bHeaders, etc.
-        
-        function parseAndFormatDate(dateInput) {
-            // Placeholder function - implement with full functionality from original code
-            return dateInput;
-        }
-        
-        function formatDate(dateInput) {
-            return parseAndFormatDate(dateInput);
-        }
-        
-        const baseGstr2bHeaders = ['Match Criteria', 'GSTN', 'Name of Supplier', 'Invoice Number', 'Invoice type', 'Invoice Date', 'Invoice Value', 'Place of supply', 'Reverse Charge', 'Rate (%)', 'Taxable Value', 'IGST', 'CGST', 'SGST'];
-        const extendedGstr2bHeaders = ['Cess', 'GSTR-1/5 Period', 'GSTR-1/5 Filing Date', 'ITC Availability', 'Reason', 'Applicable % of Tax Rate', 'Source', 'IRN', 'IRN Date'];
-        function gstr2bHeaders() { return [...baseGstr2bHeaders, ...extendedGstr2bHeaders]; }
 
-        const baseGstr3bHeaders = ['Match Criteria', 'Invoice Date', 'GSTN', 'Name of Supplier', 'Invoice Number', 'Taxable Value', 'IGST', 'CGST', 'SGST'];
-        const extendedGstr3bHeaders = ['Invoice Value'];
-        function gstr3bHeaders() { return [...baseGstr3bHeaders, ...extendedGstr3bHeaders]; }
-        
-        // Note: These are just placeholder implementations
-        // In the real implementation, you would need to copy all relevant functions from the original code
-        
-        function applyFreeServiceColors() {
-            // Placeholder for the full function from the original code
+        // Generate Monthly TDS Table
+        function generateMonthlyTDSTable(annualTaxLiability, tdsDeducted, monthlyTDS) {
+            const monthlyTDSTable = document.getElementById('monthly_tds_table');
+            monthlyTDSTable.innerHTML = '';
+            const months = ['April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', 'January', 'February', 'March'];
+            let remainingTax = Math.max(0, annualTaxLiability);
+
+            for (let i = 0; i < 12; i++) {
+                const row = document.createElement('tr');
+                const monthCell = document.createElement('td');
+                const tdsDeductedCell = document.createElement('td');
+                const tdsLiabilityCell = document.createElement('td');
+
+                monthCell.textContent = months[i];
+                tdsDeductedCell.textContent = formatCurrency(tdsDeducted[i]);
+
+                let thisMonthTDS = tdsDeducted[i] > 0 ? 0 : monthlyTDS;
+                if (i === 11) thisMonthTDS = remainingTax;
+                thisMonthTDS = Math.max(0, Math.min(thisMonthTDS, remainingTax));
+                remainingTax = Math.max(0, remainingTax - thisMonthTDS);
+
+                tdsLiabilityCell.textContent = formatCurrency(thisMonthTDS);
+
+                row.appendChild(monthCell);
+                row.appendChild(tdsDeductedCell);
+                row.appendChild(tdsLiabilityCell);
+                monthlyTDSTable.appendChild(row);
+            }
         }
-        
-        let filterEnabled = false;
-        function toggleFilters() {
-            // Placeholder for the full function from the original code
+
+        // Generate TDS Chart
+        function generateTDSChart(annualTaxLiability, tdsDeducted, monthlyTDS) {
+            const months = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'];
+            const tdsData = [];
+            let remainingTax = Math.max(0, annualTaxLiability);
+
+            for (let i = 0; i < 12; i++) {
+                let thisMonthTDS = tdsDeducted[i] > 0 ? tdsDeducted[i] : (i === 11 ? remainingTax : monthlyTDS);
+                thisMonthTDS = Math.max(0, Math.min(thisMonthTDS, remainingTax));
+                tdsData.push(thisMonthTDS);
+                remainingTax = Math.max(0, remainingTax - thisMonthTDS);
+            }
+
+            const ctx = document.getElementById('tds-chart').getContext('2d');
+            if (window.tdsChart instanceof Chart) window.tdsChart.destroy();
+            window.tdsChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: months,
+                    datasets: [{
+                        label: 'Monthly TDS (₹)',
+                        data: tdsData,
+                        backgroundColor: 'rgba(26, 115, 232, 0.7)',
+                        borderColor: 'rgba(26, 115, 232, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true, ticks: { callback: value => '₹' + formatCurrency(value) } } },
+                    plugins: {
+                        tooltip: { callbacks: { label: context => '₹' + formatCurrency(context.raw) } },
+                        legend: { display: false }
+                    }
+                }
+            });
         }
-        
-        function reconcileData() {
-            // Placeholder for the full function from the original code
-        }
-        
-        function handleFileUpload(event) {
-            // Placeholder for the full function from the original code
-        }
-        
-        function displayData(data, containerId, headers, sheetType) {
-            // Placeholder for the full function from the original code
-        }
-        
-        function generateSampleFile(event) {
-            // Placeholder for the full function from the original code
-        }
-        
-        function handleCheckboxChange() {
-            // This function is already implemented above
+
+        // Format Currency
+        function formatCurrency(value) {
+            const parts = Math.max(0, value).toFixed(2).split('.');
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            return parts.join('.');
         }
     </script>
 </body>
 </html>
-
