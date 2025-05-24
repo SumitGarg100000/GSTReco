@@ -175,7 +175,7 @@
                 <div class="col">
                     <div class="form-group">
                         <label for="employee_age">Age</label>
-                        <input type="number" id="employee_age" placeholder="Enter age" min="18" value="30">
+                        <input type="number" id="age" placeholder="Enter age" min="18" value="30">
                     </div>
                 </div>
                 <div class="col">
@@ -527,321 +527,706 @@
         <p>© 2025 TDS Calculator. All rights reserved.</p>
     </footer>
 
-    <script>
-        // Initialize form
-        window.onload = function() {
-            document.getElementById('professional_tax').value = 2400;
-            document.getElementById('tax_scheme').value = 'new';
-            document.getElementById('old-regime-deductions').style.display = 'none';
-            document.getElementById('hra_exemption').disabled = true;
-            document.getElementById('hra_exemption').value = 0;
-            document.getElementById('employee_age').value = 30;
-        };
 
-        // Toggle old regime deductions and HRA exemption
-        document.getElementById('tax_scheme').addEventListener('change', function() {
-            const oldRegimeDeductions = document.getElementById('old-regime-deductions');
-            const hraExemptionField = document.getElementById('hra_exemption');
-            if (this.value === 'old') {
-                oldRegimeDeductions.style.display = 'block';
-                hraExemptionField.disabled = false;
-            } else {
-                oldRegimeDeductions.style.display = 'none';
-                hraExemptionField.disabled = true;
-                hraExemptionField.value = 0;
-            }
-        });
 
-        // Reset form
-        function resetValues() {
-            document.querySelectorAll('input[type="text"], input[type="number"]').forEach(input => input.value = '');
-            document.getElementById('tax_scheme').value = 'new';
-            document.getElementById('property_type').value = 'self-occupied';
-            document.getElementById('results-section').style.display = 'none';
-            document.getElementById('professional_tax').value = 2400;
-            document.getElementById('old-regime-deductions').style.display = 'none';
-            document.getElementById('hra_exemption').disabled = true;
-            document.getElementById('hra_exemption').value = 0;
-            document.getElementById('employee_age').value = 30;
-        }
+<script>
+     //  if (window.location.href.toLowerCase().includes("https://sumitgarg100000.github.io")) {
+      // Get the heading element
+      //       var heading = document.querySelector("h2");
+      // Check if the heading text content is equal to "abc"
+      //if(heading.textContent.trim() === "(Disclaimer- This Calculator is made after incorporating all the relevant provisions of income tax act applicable for FY 2024-25(AY 2025-26). If any query, Contact - Sumit Garg, Ph. No. - 9716804520, Email - SumitGarg100000@Gmail.com)")
+      // {
 
-        // Print as PDF
-        function printAsPDF() {
-            window.print();
-        }
+      // import json coding suru
+      // Data ko localStorage mein save karna
+function saveToLocalStorage() {
+  const inputs = document.querySelectorAll('input, select');
+  const data = {};
 
-        // Tax calculation functions
-        function calculateOldRegimeTax(income, age) {
-            let tax = 0, rebate = 0;
-            if (age < 60) {
-                if (income <= 250000) tax = 0;
-                else if (income <= 500000) tax = (income - 250000) * 0.05;
-                else if (income <= 1000000) tax = 12500 + (income - 500000) * 0.2;
-                else tax = 112500 + (income - 1000000) * 0.3;
-                if (income <= 500000) rebate = Math.min(tax, 12500);
-            } else if (age >= 60 && age < 80) {
-                if (income <= 300000) tax = 0;
-                else if (income <= 500000) tax = (income - 300000) * 0.05;
-                else if (income <= 1000000) tax = 10000 + (income - 500000) * 0.2;
-                else tax = 110000 + (income - 1000000) * 0.3;
-                if (income <= 500000) rebate = Math.min(tax, 12500);
-            } else {
-                if (income <= 500000) tax = 0;
-                else if (income <= 1000000) tax = (income - 500000) * 0.2;
-                else tax = 100000 + (income - 1000000) * 0.3;
-                if (income <= 500000) rebate = Math.min(tax, 12500);
-            }
-            return { tax: Math.max(0, tax - rebate), rebate };
-        }
+  inputs.forEach(input => {
+    data[input.id] = input.value;
+  });
+  
+  localStorage.setItem('taxCalculatorData', JSON.stringify(data));
 
-        function calculateNewRegimeTax(income) {
-            let tax = 0, rebate = 0;
-            if (income <= 300000) tax = 0;
-            else if (income <= 700000) tax = (income - 300000) * 0.05;
-            else if (income <= 1000000) tax = 20000 + (income - 700000) * 0.1;
-            else if (income <= 1200000) tax = 50000 + (income - 1000000) * 0.15;
-            else if (income <= 1500000) tax = 80000 + (income - 1200000) * 0.2;
-            else tax = 140000 + (income - 1500000) * 0.3;
-            if (income <= 700000) rebate = Math.min(tax, 25000);
-            return { tax: Math.max(0, tax - rebate), rebate };
-        }
+  // Event listeners for real-time updates
+  inputs.forEach(input => {
+    input.addEventListener('input', function() {
+      data[input.id] = input.value;
+      localStorage.setItem('taxCalculatorData', JSON.stringify(data));
+    });
 
-        function calculateSurcharge(tax, income) {
-            if (income > 5000000 && income <= 10000000) return tax * 0.1;
-            if (income > 10000000 && income <= 20000000) return tax * 0.15;
-            if (income > 20000000) return tax * 0.25;
-            return 0;
-        }
+    input.addEventListener('change', function() {
+      data[input.id] = input.value;
+      localStorage.setItem('taxCalculatorData', JSON.stringify(data));
+    });
+  });
+}
 
-        // Calculate TDS
-        function calculateTDS() {
-            try {
-                // Get and validate inputs
-                const inputs = {
-                    taxRegime: document.getElementById('tax_scheme').value,
-                    basicSalary: Math.max(0, parseFloat(document.getElementById('basic_salary').value) || 0),
-                    hra: Math.max(0, parseFloat(document.getElementById('hra_salary').value) || 0),
-                    bonus: Math.max(0, parseFloat(document.getElementById('bonus_incentive').value) || 0),
-                    specialAllowance: Math.max(0, parseFloat(document.getElementById('special_allowance').value) || 0),
-                    otherAllowance: Math.max(0, parseFloat(document.getElementById('other_allowance').value) || 0),
-                    hraExemption: Math.max(0, parseFloat(document.getElementById('hra_exemption').value) || 0),
-                    exemptAllowance: Math.max(0, parseFloat(document.getElementById('exempt_allowance').value) || 0),
-                    professionalTax: Math.max(0, parseFloat(document.getElementById('professional_tax').value) || 0),
-                    housingLoanInterest: Math.max(0, parseFloat(document.getElementById('housing_loan_interest').value) || 0),
-                    otherIncome: Math.max(0, parseFloat(document.getElementById('other_income').value) || 0),
-                    age: Math.max(18, parseInt(document.getElementById('employee_age').value) || 18),
-                    section80C: Math.max(0, parseFloat(document.getElementById('section_80c').value) || 0),
-                    section80CCC: Math.max(0, parseFloat(document.getElementById('section_80ccc').value) || 0),
-                    section80CCD1: Math.max(0, parseFloat(document.getElementById('section_80ccd1').value) || 0),
-                    section80CCD1B: Math.max(0, parseFloat(document.getElementById('section_80ccd1b').value) || 0),
-                    section80CCD2: Math.max(0, parseFloat(document.getElementById('section_80ccd2').value) || 0),
-                    section80D: Math.max(0, parseFloat(document.getElementById('section_80d').value) || 0),
-                    section80E: Math.max(0, parseFloat(document.getElementById('section_80e').value) || 0),
-                    section80G: Math.max(0, parseFloat(document.getElementById('section_80g').value) || 0),
-                    section80TTA: Math.max(0, parseFloat(document.getElementById('section_80tta').value) || 0),
-                    tdsDeducted: [
-                        Math.max(0, parseFloat(document.getElementById('tds_apr').value) || 0),
-                        Math.max(0, parseFloat(document.getElementById('tds_may').value) || 0),
-                        Math.max(0, parseFloat(document.getElementById('tds_jun').value) || 0),
-                        Math.max(0, parseFloat(document.getElementById('tds_jul').value) || 0),
-                        Math.max(0, parseFloat(document.getElementById('tds_aug').value) || 0),
-                        Math.max(0, parseFloat(document.getElementById('tds_sep').value) || 0),
-                        Math.max(0, parseFloat(document.getElementById('tds_oct').value) || 0),
-                        Math.max(0, parseFloat(document.getElementById('tds_nov').value) || 0),
-                        Math.max(0, parseFloat(document.getElementById('tds_dec').value) || 0),
-                        Math.max(0, parseFloat(document.getElementById('tds_jan').value) || 0),
-                        Math.max(0, parseFloat(document.getElementById('tds_feb').value) || 0),
-                        Math.max(0, parseFloat(document.getElementById('tds_mar').value) || 0)
-                    ]
-                };
+// LocalStorage se data load karna aur inputs mein set karna
+function loadFromLocalStorage() {
+  const savedData = localStorage.getItem('taxCalculatorData');
+  if (savedData) {
+    const data = JSON.parse(savedData);
+    const inputs = document.querySelectorAll('input, select');
+    inputs.forEach(input => {
+      if (data[input.id]) {
+        input.value = data[input.id];
+      }
+    });
+  }
+}
 
-                // Validate inputs
-                for (let key in inputs) {
-                    if (key !== 'taxRegime' && key !== 'tdsDeducted' && (isNaN(inputs[key]) || inputs[key] < 0)) {
-                        throw new Error(`Invalid input for ${key}`);
-                    }
-                }
-                if (inputs.tdsDeducted.some(val => isNaN(val) || val < 0)) {
-                    throw new Error('Invalid TDS deducted values');
-                }
+// Page refresh ya close hone se pehle data save karna
+window.addEventListener('beforeunload', function() {
+  const inputs = document.querySelectorAll('input, select');
+  const data = {};
+  inputs.forEach(input => {
+    data[input.id] = input.value;
+  });
+  localStorage.setItem('taxCalculatorData', JSON.stringify(data));
+});
 
-                // Calculations
-                const totalTdsDeducted = inputs.tdsDeducted.reduce((sum, val) => sum + val, 0);
-                const grossSalary = inputs.basicSalary + inputs.hra + inputs.bonus + inputs.specialAllowance + inputs.otherAllowance;
-                const standardDeduction = inputs.taxRegime === 'new' ? 75000 : 50000;
-                const hraExemption = inputs.taxRegime === 'old' ? inputs.hraExemption : 0;
-                const totalExemptions = hraExemption + inputs.exemptAllowance + inputs.professionalTax + standardDeduction;
-                const netSalaryIncome = Math.max(0, grossSalary - totalExemptions);
-                const housingLoanInterest = Math.min(inputs.housingLoanInterest, 200000);
-                const grossTotalIncome = Math.max(0, netSalaryIncome - housingLoanInterest + inputs.otherIncome);
+// Page load hone pe saved data ko load karna
+document.addEventListener('DOMContentLoaded', function() {
+  loadFromLocalStorage(); // Pehle saved data load karo
+  saveToLocalStorage();   // Phir event listeners set karo
+});
 
-                // Deductions (Old Regime)
-                let deductions = {
-                    combined80C: 0,
-                    section80CCD1B: 0,
-                    section80CCD2: 0,
-                    section80D: 0,
-                    section80E: 0,
-                    section80G: 0,
-                    section80TTA: 0
-                };
-                if (inputs.taxRegime === 'old') {
-                    deductions.combined80C = Math.min(inputs.section80C + inputs.section80CCC + inputs.section80CCD1, 150000);
-                    deductions.section80CCD1B = Math.min(inputs.section80CCD1B, 50000);
-                    deductions.section80CCD2 = Math.min(inputs.section80CCD2, inputs.basicSalary * 0.1);
-                    deductions.section80D = Math.min(inputs.section80D, inputs.age >= 60 ? 50000 : 25000);
-                    deductions.section80TTA = Math.min(inputs.section80TTA, inputs.age >= 60 ? 50000 : 10000);
-                    deductions.section80E = inputs.section80E;
-                    deductions.section80G = inputs.section80G;
-                }
-                const totalDeductions = Object.values(deductions).reduce((sum, val) => sum + val, 0);
-                const netTaxableIncome = Math.max(0, grossTotalIncome - totalDeductions);
+      
 
-                // Tax calculation
-                let taxResult = inputs.taxRegime === 'old'
-                    ? calculateOldRegimeTax(netTaxableIncome, inputs.age)
-                    : calculateNewRegimeTax(netTaxableIncome);
-                let incomeTax = taxResult.tax;
-                const rebate = taxResult.rebate;
-                const surcharge = calculateSurcharge(incomeTax, netTaxableIncome);
-                const taxAfterSurcharge = incomeTax + surcharge;
-                const cess = taxAfterSurcharge * 0.04;
-                const totalTax = taxAfterSurcharge + cess;
-                const annualTaxLiability = Math.max(0, totalTax - totalTdsDeducted);
-                const monthsWithNoTDS = inputs.tdsDeducted.reduce((count, val) => count + (val === 0 ? 1 : 0), 0);
-                const monthlyTDS = monthsWithNoTDS > 0 ? annualTaxLiability / monthsWithNoTDS : 0;
 
-                // Display results
-                const displayFields = {
-                    basic_salary_result: inputs.basicSalary,
-                    hra_result: inputs.hra,
-                    bonus_result: inputs.bonus,
-                    special_allowance_result: inputs.specialAllowance,
-                    other_allowance_result: inputs.otherAllowance,
-                    gross_salary: grossSalary,
-                    hra_exemption_result: hraExemption,
-                    exempt_allowance_result: inputs.exemptAllowance,
-                    professional_tax_result: inputs.professionalTax,
-                    standard_deduction: standardDeduction,
-                    total_exemptions: totalExemptions,
-                    net_salary: netSalaryIncome,
-                    housing_loan_interest_result: housingLoanInterest,
-                    other_income_result: inputs.otherIncome,
-                    gross_total_income: grossTotalIncome,
-                    section_80c_result: inputs.section80C,
-                    section_80ccc_result: inputs.section80CCC,
-                    section_80ccd1_result: inputs.section80CCD1,
-                    section_80ccd1b_result: deductions.section80CCD1B,
-                    section_80ccd2_result: deductions.section80CCD2,
-                    section_80d_result: deductions.section80D,
-                    section_80e_result: deductions.section80E,
-                    section_80g_result: deductions.section80G,
-                    section_80tta_result: deductions.section80TTA,
-                    total_deductions: totalDeductions,
-                    gross_income_tax: grossTotalIncome,
-                    total_deductions_tax: totalDeductions,
-                    net_taxable_income: netTaxableIncome,
-                    income_tax: incomeTax,
-                    rebate: rebate,
-                    surcharge: surcharge,
-                    tax_after_rebate: taxAfterSurcharge,
-                    cess: cess,
-                    prior_tds_result: totalTdsDeducted,
-                    annual_tax_liability: annualTaxLiability,
-                    monthly_tds_amount: `₹ ${formatCurrency(monthlyTDS)}`
-                };
-                for (let id in displayFields) {
-                    document.getElementById(id).textContent = typeof displayFields[id] === 'number' ? formatCurrency(displayFields[id]) : displayFields[id];
-                }
+// import json coding end
+      document.addEventListener("DOMContentLoaded", function() {
+   
+        // calculate all income function run
+   function CalculateAllIncome() {
+       
+    // Income from Salary   
+    let oldbasicsalary = Math.max(0, Number(document.getElementById('basicsalary').value));
+    let oldhra = Math.max(0, Number(document.getElementById('hra').value));
+    let oldbonus = Math.max(0, Number(document.getElementById('bonus').value));
+    let oldspecialallowance = Math.max(0, Number(document.getElementById('specialallowance').value));
+    let oldotherallowance = Math.max(0, Number(document.getElementById('otherallowance').value));
 
-                // Generate monthly TDS table and chart
-                generateMonthlyTDSTable(annualTaxLiability, inputs.tdsDeducted, monthlyTDS);
-                generateTDSChart(annualTaxLiability, inputs.tdsDeducted, monthlyTDS);
+    let oldgrosssalary = oldbasicsalary + oldhra + oldbonus + oldspecialallowance + oldotherallowance;
 
-                // Show results
-                document.getElementById('results-section').style.display = 'block';
-                document.getElementById('results-section').scrollIntoView({ behavior: 'smooth' });
-            } catch (error) {
-                console.error('Error in calculateTDS:', error);
-                alert(`Error: ${error.message}. Please ensure all inputs are valid and non-negative.`);
-            }
-        }
+    let oldexemptionsec13a = Math.min(Math.max(0, Number(document.getElementById('exemptionsec13a').value)), oldgrosssalary);
+    let oldotherexemption = Math.min(Math.max(0, Number(document.getElementById('otherexemption').value)), oldgrosssalary - oldexemptionsec13a);
+    let oldprofessionaltax = Math.min(Math.max(0, Number(document.getElementById('professionaltax').value)), oldgrosssalary - oldexemptionsec13a - oldotherexemption);
+    let oldstandarddeduction = Math.min((oldgrosssalary - (oldexemptionsec13a + oldotherexemption + oldprofessionaltax)), 50000);
 
-        // Generate Monthly TDS Table
-        function generateMonthlyTDSTable(annualTaxLiability, tdsDeducted, monthlyTDS) {
-            const monthlyTDSTable = document.getElementById('monthly_tds_table');
-            monthlyTDSTable.innerHTML = '';
-            const months = ['April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', 'January', 'February', 'March'];
-            let remainingTax = Math.max(0, annualTaxLiability);
+    let oldnetsalary = oldgrosssalary - (oldexemptionsec13a + oldotherexemption + oldprofessionaltax + oldstandarddeduction);
 
-            for (let i = 0; i < 12; i++) {
-                const row = document.createElement('tr');
-                const monthCell = document.createElement('td');
-                const tdsDeductedCell = document.createElement('td');
-                const tdsLiabilityCell = document.createElement('td');
+    let newbasicsalary = Math.max(0, Number(document.getElementById('basicsalary').value));
+    let newhra = Math.max(0, Number(document.getElementById('hra').value));
+    let newbonus = Math.max(0, Number(document.getElementById('bonus').value));
+    let newspecialallowance = Math.max(0, Number(document.getElementById('specialallowance').value));
+    let newotherallowance = Math.max(0, Number(document.getElementById('otherallowance').value));
 
-                monthCell.textContent = months[i];
-                tdsDeductedCell.textContent = formatCurrency(tdsDeducted[i]);
+    let newgrosssalary = newbasicsalary + newhra + newbonus + newspecialallowance + newotherallowance;
 
-                let thisMonthTDS = tdsDeducted[i] > 0 ? 0 : monthlyTDS;
-                if (i === 11) thisMonthTDS = remainingTax;
-                thisMonthTDS = Math.max(0, Math.min(thisMonthTDS, remainingTax));
-                remainingTax = Math.max(0, remainingTax - thisMonthTDS);
+    let newexemptionsec13a = 0;
+    let newotherexemption = 0;
+    let newprofessionaltax = 0;
+    let newstandarddeduction = Math.min((newgrosssalary - (newexemptionsec13a + newotherexemption + newprofessionaltax)), 75000);
 
-                tdsLiabilityCell.textContent = formatCurrency(thisMonthTDS);
+    let newnetsalary = newgrosssalary - (newexemptionsec13a + newotherexemption + newprofessionaltax + newstandarddeduction);
 
-                row.appendChild(monthCell);
-                row.appendChild(tdsDeductedCell);
-                row.appendChild(tdsLiabilityCell);
-                monthlyTDSTable.appendChild(row);
-            }
-        }
+    
+    // Income from House Property
+    
+    let oldinterestletout = Math.min(Math.max(0, Number(document.getElementById('interestletout').value)),oldnav*0.7+200000);
+    let oldinterestselfoccupied = Math.min(Math.max(0, Number(document.getElementById('interestselfoccupied').value)),200000);
+    
+    
+    
+    let newinterestletout = Math.min(Math.max(0, Number(document.getElementById('interestletout').value)),newnav*0.7);
+    let newinterestselfoccupied = 0;
+    let newnetincomehp = Math.max((newnav - newstandarddeductionhp) - newinterestletout - newinterestselfoccupied,0);
+    
+    
+    //Interest on Self-Occupied - Allowed upto 2Lakh in Old Scheme but not Allowed in New Scheme
+    //Interest on LetOut    - No Limit in Old & New Scheme from NAV Income
+    //Loss on Interest on LetOut    - Interhead Setoff Allowed in Old Scheme upto 2Lakh from other head of Income but not allowed in new scheme
+    //Old net income logic - Can be Nagative only upto 200000 for interhead setoff from the Interest on Self-Occupied & Letout both
+    //Net net income logic - Can not be Nagative Beacuse no interhead setoff allowed. So, Min Value will be Zero
+    
+    
+    
+    
+    //Income from Other Sources
+    // Retrieve values from input fields
+    let oldotherincome = Math.max(0, Number(document.getElementById('otherincome').value));
+    let newotherincome = Math.max(0, Number(document.getElementById('otherincome').value));
+    
+    let oldnetothersources = oldotherincome;
+    
+    let newnetothersources = newotherincome;
+    
 
-        // Generate TDS Chart
-        function generateTDSChart(annualTaxLiability, tdsDeducted, monthlyTDS) {
-            const months = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'];
-            const tdsData = [];
-            let remainingTax = Math.max(0, annualTaxLiability);
+    
+    
 
-            for (let i = 0; i < 12; i++) {
-                let thisMonthTDS = tdsDeducted[i] > 0 ? tdsDeducted[i] : (i === 11 ? remainingTax : monthlyTDS);
-                thisMonthTDS = Math.max(0, Math.min(thisMonthTDS, remainingTax));
-                tdsData.push(thisMonthTDS);
-                remainingTax = Math.max(0, remainingTax - thisMonthTDS);
-            }
+    
+     // Calculate Gross Total Income
+    
+    
 
-            const ctx = document.getElementById('tds-chart').getContext('2d');
-            if (window.tdsChart instanceof Chart) window.tdsChart.destroy();
-            window.tdsChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: months,
-                    datasets: [{
-                        label: 'Monthly TDS (₹)',
-                        data: tdsData,
-                        backgroundColor: 'rgba(26, 115, 232, 0.7)',
-                        borderColor: 'rgba(26, 115, 232, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: { y: { beginAtZero: true, ticks: { callback: value => '₹' + formatCurrency(value) } } },
-                    plugins: {
-                        tooltip: { callbacks: { label: context => '₹' + formatCurrency(context.raw) } },
-                        legend: { display: false }
-                    }
-                }
-            });
-        }
+    let oldgrosstotalincome = Math.max(oldnetsalary + oldnetincomehp + oldnetothersources,0);
+    let newgrosstotalincome = Math.max(newnetsalary + newnetincomehp + newnetothersources,0);
 
-        // Format Currency
-        function formatCurrency(value) {
-            const parts = Math.max(0, value).toFixed(2).split('.');
-            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-            return parts.join('.');
-        }
+    //Deductions
+
+
+// Get user input for deductions
+   // Retrieve values from the input fields and ensure each deduction does not exceed a certain value
+let olddeduction80c = Math.min(150000, Number(document.getElementById('deduction80c').value));
+let olddeduction80ccc = Math.min(150000, Number(document.getElementById('deduction80ccc').value)); // Adjust 'maximumValue' accordingly
+let olddeduction80ccd1 = Math.min(150000, Number(document.getElementById('deduction80ccd1').value)); // Adjust 'maximumValue' accordingly
+let oldrestrictdeduction = Math.min(150000, olddeduction80c + olddeduction80ccc + olddeduction80ccd1);
+let olddeduction80ccd1b = Math.min(50000, Number(document.getElementById('deduction80ccd1b').value)); // Adjust 'maximumValue' accordingly
+let olddeduction80ccd2 = Math.max(Number(document.getElementById('deduction80ccd2').value),0); 
+let olddeduction80d = Math.min(100000, Number(document.getElementById('deduction80d').value)); // Adjust 'maximumValue' accordingly
+let olddeduction80g = Math.max(Number(document.getElementById('deduction80g').value),0); 
+let olddeduction80e = Math.max(Number(document.getElementById('deduction80e').value),0); // Adjust 'maximumValue' accordingly
+let olddeduction80ee = Math.max(Number(document.getElementById('deduction80ee').value),0); // Adjust 'maximumValue' accordingly
+let olddeduction80tta = Math.min(10000, Number(document.getElementById('deduction80tta').value)); // Adjust 'maximumValue' according
+let oldanyotherdeduction = Math.max(Number(document.getElementById('anyotherdeduction').value),0); // Adjust 'maximumValue' accordingly
+
+let oldtotaldeduction = oldrestrictdeduction + olddeduction80ccd1b + olddeduction80ccd2 + olddeduction80d + olddeduction80g + olddeduction80e + olddeduction80ee + olddeduction80tta + oldanyotherdeduction;
+
+
+let oldeligiblededuction=Math.min(Math.max(oldgrosstotalincome,0),oldtotaldeduction);
+
+let oldnetincome = Math.max(oldgrosstotalincome - oldeligiblededuction,0);
+
+
+    
+// Retrieve values from the input fields and ensure each deduction does not exceed a certain valuelet newdeduction80c = Math.min(150000, Number(document.getElementById('deduction80c').value));
+
+let newdeduction80c = 0;
+let newdeduction80cCC = 0;
+let newdeduction80ccd1 = 0;
+let newrestrictdeduction = Math.min(0,150000, newdeduction80c + newdeduction80cCC + newdeduction80ccd1);
+let newdeduction80ccd1b = 0;
+let newdeduction80ccd2 = Math.max(Number(document.getElementById('deduction80ccd2').value), 0); 
+let newdeduction80d = 0;
+let newdeduction80g = 0;
+let newdeduction80e = 0;
+let newdeduction80ee = 0;
+let newdeduction80tta = 0;
+let newdeduction80ttb = 0;
+let newanyotherdeduction = 0;
+
+
+let newtotaldeduction = newrestrictdeduction + newdeduction80ccd1b + newdeduction80ccd2 + newdeduction80d + newdeduction80g + newdeduction80e + newdeduction80ee + newdeduction80tta + newanyotherdeduction;
+let neweligiblededuction=Math.min(Math.max(newgrosstotalincome,0),newtotaldeduction);
+let newnetincome = Math.max(newgrosstotalincome - neweligiblededuction, 0);
+
+
+
+
+   let oldroundoff = Math.round(oldnetincome/10)*10;
+   let newroundoff = Math.round(newnetincome/10)*10;
+   
+    
+    //Setoff & Carry Forward for old
+    
+    let oldstcgsec111income =0;
+    let oldstcgsec111aincome =0;
+    let oldstcgsec111aincome_jul =0;
+    let oldstcglossforltcg =0;
+    
+    let oldltcgsec112income =0;
+    let oldltcgsec112income_jul =0;
+    let oldltcgsec112aincome =0;
+    let oldltcgsec112aincome_jul =0;
+    
+    
+    
+    //oldltcgsec111income after setoff for clculation
+    if((oldstcgsec111 + oldstcgsec111_jul + oldstcgsec111a_minus + oldstcgsec111a_minus_jul)>0)
+    {
+        oldstcgsec111income = oldstcgsec111 + oldstcgsec111_jul + oldstcgsec111a_minus + oldstcgsec111a_minus_jul;
+    } else {
+        oldstcgsec111income = 0;
+    }
+    
+     
+    
+    if((oldstcgsec111a_jul + oldstcgsec111_minus + oldstcgsec111_minus_jul + oldstcgsec111a_minus)>0)
+    {
+        oldstcgsec111aincome_jul = oldstcgsec111a_jul + oldstcgsec111_minus + oldstcgsec111_minus_jul + oldstcgsec111a_minus;
+    } else {
+        oldstcgsec111aincome_jul = 0;
+    }
+    
+    
+    
+    
+    if((oldstcgsec111a + oldstcgsec111_minus + oldstcgsec111_minus_jul + oldstcgsec111a_minus_jul)>0)
+    {
+        oldstcgsec111aincome = oldstcgsec111a + oldstcgsec111_minus + oldstcgsec111_minus_jul + oldstcgsec111a_minus_jul;
+    } else {
+        oldstcgsec111aincome = 0;
+    }
+    
+    
+    
+    oldstcglossforltcg = Math.min(oldstcgsec111 + oldstcgsec111a + oldstcgsec111_jul + oldstcgsec111a_jul,0);
+   
+    
+    
+    //oldltcgsec112income after setoff for clculation
+    if((oldltcgsec112 + oldltcgsec112a_minus + oldltcgsec112_minus_jul + oldltcgsec112a_minus_jul + oldstcglossforltcg)>0)
+    {
+        oldltcgsec112income = oldltcgsec112 + oldltcgsec112a_minus + oldltcgsec112_minus_jul + oldltcgsec112a_minus_jul + oldstcglossforltcg;
+    } else {
+        oldltcgsec112income = 0;
+    }
+    
+    //oldltcgsec112income_jul after setoff for clculation
+    if((oldltcgsec112_jul + oldltcgsec112_minus + oldltcgsec112a_minus  + oldltcgsec112a_minus_jul + oldstcglossforltcg)>0)
+    {
+        oldltcgsec112income_jul = oldltcgsec112_jul + oldltcgsec112_minus + oldltcgsec112a_minus  + oldltcgsec112a_minus_jul + oldstcglossforltcg;
+    } else {
+        oldltcgsec112income_jul = 0;
+    }
+    
+    //oldltcgsec112aincome_jul after setoff for clculation
+    if((oldltcgsec112a_jul + oldltcgsec112_minus + oldltcgsec112a_minus  + oldltcgsec112_minus_jul + oldstcglossforltcg)>0)
+    {
+        oldltcgsec112aincome_jul = oldltcgsec112a_jul + oldltcgsec112_minus + oldltcgsec112a_minus  + oldltcgsec112_minus_jul + oldstcglossforltcg;
+    } else {
+        oldltcgsec112aincome_jul = 0;
+    }
+    
+    //oldltcgsec112income after setoff for clculation
+    if((oldltcgsec112a + oldltcgsec112_minus + oldltcgsec112a_minus_jul  + oldltcgsec112_minus_jul + oldstcglossforltcg)>0)
+    {
+        oldltcgsec112aincome = oldltcgsec112a + oldltcgsec112_minus + oldltcgsec112a_minus_jul  + oldltcgsec112_minus_jul + oldstcglossforltcg;
+    } else {
+        oldltcgsec112aincome = 0;
+    }
+ 
+
+
+    //Setoff & Carry Forward for new
+    
+    let newstcgsec111income =0;
+    let newstcgsec111aincome =0;
+    let newstcgsec111aincome_jul =0;
+    let newstcglossforltcg =0;
+    
+    let newltcgsec112income =0;
+    let newltcgsec112income_jul =0;
+    let newltcgsec112aincome =0;
+    let newltcgsec112aincome_jul =0;
+    
+    //newltcgsec111income after setoff for clculation
+    if((newstcgsec111 + newstcgsec111_jul + newstcgsec111a_minus + newstcgsec111a_minus_jul)>0)
+    {
+        newstcgsec111income = newstcgsec111 + newstcgsec111_jul + newstcgsec111a_minus + newstcgsec111a_minus_jul;
+    } else {
+        newstcgsec111income = 0;
+    }
+    
+    
+    if((newstcgsec111a_jul + newstcgsec111_minus + newstcgsec111_minus_jul + newstcgsec111a_minus)>0)
+    {
+        newstcgsec111aincome_jul = newstcgsec111a_jul + newstcgsec111_minus + newstcgsec111_minus_jul + newstcgsec111a_minus;
+    } else {
+        newstcgsec111aincome_jul = 0;
+    }
+    
+    
+    
+    if((newstcgsec111a + newstcgsec111_minus + newstcgsec111_minus_jul + newstcgsec111a_minus_jul)>0)
+    {
+        newstcgsec111aincome = newstcgsec111a + newstcgsec111_minus + newstcgsec111_minus_jul + newstcgsec111a_minus_jul;
+    } else {
+
+ 
+
+    //Old Normal Income & Special Income
+   let oldnormalincome = oldroundoff;
+   let oldtotalincome = oldnormalincome;
+   let oldtaxonnormalincome = 0;
+   let oldrebate = 0;
+   let oldsurcharge = 0;
+   let oldmarginalrelief = 0;
+   let age = Number(document.getElementById('age').value);
+   
+   
+   //Old Slab Rate benefit given to LTCG & STCG Special rates income not lottery
+    
+    if(oldnormalincome<250000 && age<60)
+    
+{       if(Math.max(oldltcgsec112,0)>250000){
+        oldtaxonspecialincome = Math.max(Math.max(oldltcgsec112,0)-Math.max(250000-oldnormalincome,0),0)*0.2 +  Math.max(oldstcgsec111aincome,0)*0.15 + Math.max(oldltcgsec112aincome-(125000-Math.min(oldltcgsec112aincome_jul,125000)),0)*0.1 + Math.max(oldstcgsec111aincome_jul,0)*0.2 + Math.max(oldltcgsec112income_jul,0)*0.125 + Math.max(oldltcgsec112aincome_jul-125000,0)*0.125 + Math.max(oldwinninglottery+oldvda,0)*0.3;
+    } else if(Math.max(oldltcgsec112,0)+Math.max(oldstcgsec111aincome_jul,0)>250000){
+       oldtaxonspecialincome = Math.max(Math.max(oldstcgsec111aincome_jul,0)-Math.max(oldltcgsec112,0)-Math.max(250000-oldnormalincome,0),0)*0.2 +  Math.max(oldstcgsec111aincome,0)*0.15 + Math.max(oldltcgsec112aincome-(125000-Math.min(oldltcgsec112aincome_jul,125000)),0)*0.1  + Math.max(oldltcgsec112income_jul,0)*0.125 + Math.max(oldltcgsec112aincome_jul-125000,0)*0.125 + Math.max(oldwinninglottery+oldvda,0)*0.3;
+    } else if(Math.max(oldltcgsec112,0)+Math.max(oldstcgsec111aincome_jul,0)+Math.max(oldstcgsec111aincome,0)>250000){
+       oldtaxonspecialincome = Math.max(Math.max(oldstcgsec111aincome,0)-Math.max(oldstcgsec111aincome_jul,0)-Math.max(oldltcgsec112,0)-Math.max(250000-oldnormalincome,0),0)*0.15 +  Math.max(oldltcgsec112aincome-(125000-Math.min(oldltcgsec112aincome_jul,125000)),0)*0.1  + Math.max(oldltcgsec112income_jul,0)*0.125 + Math.max(oldltcgsec112aincome_jul-125000,0)*0.125 + Math.max(oldwinninglottery+oldvda,0)*0.3;
+    }  else if(Math.max(oldltcgsec112income_jul,0)+Math.max(oldltcgsec112,0)+Math.max(oldstcgsec111aincome_jul,0)+Math.max(oldstcgsec111aincome,0)>250000){
+       oldtaxonspecialincome = Math.max(Math.max(oldltcgsec112income_jul,0)-Math.max(oldstcgsec111aincome,0)-Math.max(oldstcgsec111aincome_jul,0)-Math.max(oldltcgsec112,0)-Math.max(250000-oldnormalincome,0),0)*0.125 +  Math.max(oldltcgsec112aincome-(125000-Math.min(oldltcgsec112aincome_jul,125000)),0)*0.1  +  Math.max(oldltcgsec112aincome_jul-125000,0)*0.125 + Math.max(oldwinninglottery+oldvda,0)*0.3;
+    }  else if(Math.max(oldltcgsec112aincome_jul-125000,0)+Math.max(oldltcgsec112income_jul,0)+Math.max(oldltcgsec112,0)+Math.max(oldstcgsec111aincome_jul,0)+Math.max(oldstcgsec111aincome,0)>250000){
+       oldtaxonspecialincome = Math.max(Math.max(oldltcgsec112aincome_jul-125000,0)-Math.max(oldltcgsec112income_jul,0)-Math.max(oldstcgsec111aincome,0)-Math.max(oldstcgsec111aincome_jul,0)-Math.max(oldltcgsec112,0)-Math.max(250000-oldnormalincome,0),0)*0.125 +  Math.max(oldltcgsec112aincome-(125000-Math.min(oldltcgsec112aincome_jul,125000)),0)*0.1  +  Math.max(oldwinninglottery+oldvda,0)*0.3;
+    }  else {
+       oldtaxonspecialincome = Math.max(Math.max(oldltcgsec112aincome-(125000-Math.min(oldltcgsec112aincome_jul,125000)),0)-Math.max(oldltcgsec112aincome_jul-125000,0)-Math.max(oldltcgsec112income_jul,0)-Math.max(oldstcgsec111aincome,0)-Math.max(oldstcgsec111aincome_jul,0)-Math.max(oldltcgsec112,0)-Math.max(250000-oldnormalincome,0),0)*0.1 +    Math.max(oldwinninglottery+oldvda,0)*0.3;
+    } 
+    
+} else  if(oldnormalincome<300000 && age<80)
+    
+{       if(Math.max(oldltcgsec112,0)>300000){
+        oldtaxonspecialincome = Math.max(Math.max(oldltcgsec112,0)-Math.max(300000-oldnormalincome,0),0)*0.2 +  Math.max(oldstcgsec111aincome,0)*0.15 + Math.max(oldltcgsec112aincome-(125000-Math.min(oldltcgsec112aincome_jul,125000)),0)*0.1 + Math.max(oldstcgsec111aincome_jul,0)*0.2 + Math.max(oldltcgsec112income_jul,0)*0.125 + Math.max(oldltcgsec112aincome_jul-125000,0)*0.125 + Math.max(oldwinninglottery+oldvda,0)*0.3;
+    } else if(Math.max(oldltcgsec112,0)+Math.max(oldstcgsec111aincome_jul,0)>300000){
+       oldtaxonspecialincome = Math.max(Math.max(oldstcgsec111aincome_jul,0)-Math.max(oldltcgsec112,0)-Math.max(300000-oldnormalincome,0),0)*0.2 +  Math.max(oldstcgsec111aincome,0)*0.15 + Math.max(oldltcgsec112aincome-(125000-Math.min(oldltcgsec112aincome_jul,125000)),0)*0.1  + Math.max(oldltcgsec112income_jul,0)*0.125 + Math.max(oldltcgsec112aincome_jul-125000,0)*0.125 + Math.max(oldwinninglottery+oldvda,0)*0.3;
+    } else if(Math.max(oldltcgsec112,0)+Math.max(oldstcgsec111aincome_jul,0)+Math.max(oldstcgsec111aincome,0)>300000){
+       oldtaxonspecialincome = Math.max(Math.max(oldstcgsec111aincome,0)-Math.max(oldstcgsec111aincome_jul,0)-Math.max(oldltcgsec112,0)-Math.max(300000-oldnormalincome,0),0)*0.15 +  Math.max(oldltcgsec112aincome-(125000-Math.min(oldltcgsec112aincome_jul,125000)),0)*0.1  + Math.max(oldltcgsec112income_jul,0)*0.125 + Math.max(oldltcgsec112aincome_jul-125000,0)*0.125 + Math.max(oldwinninglottery+oldvda,0)*0.3;
+    }  else if(Math.max(oldltcgsec112income_jul,0)+Math.max(oldltcgsec112,0)+Math.max(oldstcgsec111aincome_jul,0)+Math.max(oldstcgsec111aincome,0)>300000){
+       oldtaxonspecialincome = Math.max(Math.max(oldltcgsec112income_jul,0)-Math.max(oldstcgsec111aincome,0)-Math.max(oldstcgsec111aincome_jul,0)-Math.max(oldltcgsec112,0)-Math.max(300000-oldnormalincome,0),0)*0.125 +  Math.max(oldltcgsec112aincome-(125000-Math.min(oldltcgsec112aincome_jul,125000)),0)*0.1  +  Math.max(oldltcgsec112aincome_jul-125000,0)*0.125 + Math.max(oldwinninglottery+oldvda,0)*0.3;
+    }  else if(Math.max(oldltcgsec112aincome_jul-125000,0)+Math.max(oldltcgsec112income_jul,0)+Math.max(oldltcgsec112,0)+Math.max(oldstcgsec111aincome_jul,0)+Math.max(oldstcgsec111aincome,0)>300000){
+       oldtaxonspecialincome = Math.max(Math.max(oldltcgsec112aincome_jul-125000,0)-Math.max(oldltcgsec112income_jul,0)-Math.max(oldstcgsec111aincome,0)-Math.max(oldstcgsec111aincome_jul,0)-Math.max(oldltcgsec112,0)-Math.max(300000-oldnormalincome,0),0)*0.125 +  Math.max(oldltcgsec112aincome-(125000-Math.min(oldltcgsec112aincome_jul,125000)),0)*0.1  +  Math.max(oldwinninglottery+oldvda,0)*0.3;
+    }  else {
+       oldtaxonspecialincome = Math.max(Math.max(oldltcgsec112aincome-(125000-Math.min(oldltcgsec112aincome_jul,125000)),0)-Math.max(oldltcgsec112aincome_jul-125000,0)-Math.max(oldltcgsec112income_jul,0)-Math.max(oldstcgsec111aincome,0)-Math.max(oldstcgsec111aincome_jul,0)-Math.max(oldltcgsec112,0)-Math.max(300000-oldnormalincome,0),0)*0.1 +    Math.max(oldwinninglottery+oldvda,0)*0.3;
+    } 
+    
+}
+
+else    if(oldnormalincome<500000 && age>80)
+    
+{       if(Math.max(oldltcgsec112,0)>500000){
+        oldtaxonspecialincome = Math.max(Math.max(oldltcgsec112,0)-Math.max(500000-oldnormalincome,0),0)*0.2 +  Math.max(oldstcgsec111aincome,0)*0.15 + Math.max(oldltcgsec112aincome-(125000-Math.min(oldltcgsec112aincome_jul,125000)),0)*0.1 + Math.max(oldstcgsec111aincome_jul,0)*0.2 + Math.max(oldltcgsec112income_jul,0)*0.125 + Math.max(oldltcgsec112aincome_jul-125000,0)*0.125 + Math.max(oldwinninglottery+oldvda,0)*0.3;
+    } else if(Math.max(oldltcgsec112,0)+Math.max(oldstcgsec111aincome_jul,0)>500000){
+       oldtaxonspecialincome = Math.max(Math.max(oldstcgsec111aincome_jul,0)-Math.max(oldltcgsec112,0)-Math.max(500000-oldnormalincome,0),0)*0.2 +  Math.max(oldstcgsec111aincome,0)*0.15 + Math.max(oldltcgsec112aincome-(125000-Math.min(oldltcgsec112aincome_jul,125000)),0)*0.1  + Math.max(oldltcgsec112income_jul,0)*0.125 + Math.max(oldltcgsec112aincome_jul-125000,0)*0.125 + Math.max(oldwinninglottery+oldvda,0)*0.3;
+    } else if(Math.max(oldltcgsec112,0)+Math.max(oldstcgsec111aincome_jul,0)+Math.max(oldstcgsec111aincome,0)>500000){
+       oldtaxonspecialincome = Math.max(Math.max(oldstcgsec111aincome,0)-Math.max(oldstcgsec111aincome_jul,0)-Math.max(oldltcgsec112,0)-Math.max(500000-oldnormalincome,0),0)*0.15 +  Math.max(oldltcgsec112aincome-(125000-Math.min(oldltcgsec112aincome_jul,125000)),0)*0.1  + Math.max(oldltcgsec112income_jul,0)*0.125 + Math.max(oldltcgsec112aincome_jul-125000,0)*0.125 + Math.max(oldwinninglottery+oldvda,0)*0.3;
+    }  else if(Math.max(oldltcgsec112income_jul,0)+Math.max(oldltcgsec112,0)+Math.max(oldstcgsec111aincome_jul,0)+Math.max(oldstcgsec111aincome,0)>500000){
+       oldtaxonspecialincome = Math.max(Math.max(oldltcgsec112income_jul,0)-Math.max(oldstcgsec111aincome,0)-Math.max(oldstcgsec111aincome_jul,0)-Math.max(oldltcgsec112,0)-Math.max(500000-oldnormalincome,0),0)*0.125 +  Math.max(oldltcgsec112aincome-(125000-Math.min(oldltcgsec112aincome_jul,125000)),0)*0.1  +  Math.max(oldltcgsec112aincome_jul-125000,0)*0.125 + Math.max(oldwinninglottery+oldvda,0)*0.3;
+    }  else if(Math.max(oldltcgsec112aincome_jul-125000,0)+Math.max(oldltcgsec112income_jul,0)+Math.max(oldltcgsec112,0)+Math.max(oldstcgsec111aincome_jul,0)+Math.max(oldstcgsec111aincome,0)>500000){
+       oldtaxonspecialincome = Math.max(Math.max(oldltcgsec112aincome_jul-125000,0)-Math.max(oldltcgsec112income_jul,0)-Math.max(oldstcgsec111aincome,0)-Math.max(oldstcgsec111aincome_jul,0)-Math.max(oldltcgsec112,0)-Math.max(500000-oldnormalincome,0),0)*0.125 +  Math.max(oldltcgsec112aincome-(125000-Math.min(oldltcgsec112aincome_jul,125000)),0)*0.1  +  Math.max(oldwinninglottery+oldvda,0)*0.3;
+    }  else {
+       oldtaxonspecialincome = Math.max(Math.max(oldltcgsec112aincome-(125000-Math.min(oldltcgsec112aincome_jul,125000)),0)-Math.max(oldltcgsec112aincome_jul-125000,0)-Math.max(oldltcgsec112income_jul,0)-Math.max(oldstcgsec111aincome,0)-Math.max(oldstcgsec111aincome_jul,0)-Math.max(oldltcgsec112,0)-Math.max(500000-oldnormalincome,0),0)*0.1 +    Math.max(oldwinninglottery+oldvda,0)*0.3;
+    } 
+    
+} else {
+   oldtaxonspecialincome  = Math.max(oldstcgsec111aincome,0)*0.15 + Math.max(oldltcgsec112income,0)*0.2 + Math.max(oldltcgsec112aincome-(125000-Math.min(oldltcgsec112aincome_jul,125000)),0)*0.1 + Math.max(oldstcgsec111aincome_jul,0)*0.2 + Math.max(oldltcgsec112income_jul,0)*0.125 + Math.max(oldltcgsec112aincome_jul-125000,0)*0.125 + Math.max(oldwinninglottery+oldvda,0)*0.3;
+ 
+}
+   
+   
+   
+   
+   
+    //Old Slab Rates
+    
+  if (age<60 || age ==="") {
+    
+    if (oldnormalincome <= 250000) {
+      oldtaxonnormalincome = 0;
+    } else if (oldnormalincome <= 500000) {
+      oldtaxonnormalincome = 0.05 * (oldnormalincome - 250000);
+    } else if (oldnormalincome <= 1000000) {
+      oldtaxonnormalincome = 12500 + 0.2 * (oldnormalincome - 500000);
+    } else {
+      oldtaxonnormalincome = 112500 + 0.3 * (oldnormalincome - 1000000);
+    }
+  } else if (age>=60 && age<80) {
+    if (oldnormalincome <= 300000) {
+      oldtaxonnormalincome = 0;
+    } else if (oldnormalincome <= 500000) {
+      oldtaxonnormalincome = 0.05 * (oldnormalincome - 300000);
+    } else if (oldnormalincome <= 1000000) {
+      oldtaxonnormalincome = 10000 + 0.2 * (oldnormalincome - 500000);
+    } else {
+      oldtaxonnormalincome = 110000 + 0.3 * (oldnormalincome - 1000000);
+    }
+  } else { // age 80 and above
+    if (oldnormalincome <= 500000) {
+      oldtaxonnormalincome = 0;
+    } else if (oldnormalincome <= 1000000) {
+      oldtaxonnormalincome = 0.2 * (oldnormalincome - 500000);
+    } else {
+      oldtaxonnormalincome = 100000 + 0.3 * (oldnormalincome - 1000000);
+    }
+  }
+  
+    let oldtaxbeforerebate = oldtaxonnormalincome + oldtaxonspecialincome;
+ 
+
+    //only LTCG112A benefit not given from rebate in old scheme but in new scheme no special income tax allowed
+    
+    if (oldtotalincome<= 500000) {
+        oldrebate = Math.max(Math.min(oldtaxbeforerebate,12500,oldtaxbeforerebate-Math.max(oldltcgsec112aincome-Math.min(125000,Math.max(oldltcgsec112aincome_jul,0)))*0.1 - Math.max(oldltcgsec112aincome_jul-125000,0)*0.125),0);
+     } else {
+        oldrebate = 0;
+     }
+    
+    
+
+     
+     let oldtaxbeforesurcharge=oldtaxbeforerebate-oldrebate;
+    
+     
+     let olddividend= Number(document.getElementById('oldregimedividendincome').textContent);
+     let olddividendtax =(olddividend*oldtaxonnormalincome)/oldnormalincome;
+     
+    
+    //Old Surcharge
+    
+     if ((oldnormalincome+oldwinninglottery-olddividendincome) > 50000000) {
+        // 37% surcharge for income exceeding Rs. 5 crore
+        oldsurcharge = (oldtaxonnormalincome+oldwinninglottery*0.3-olddividendtax) * 0.37+(oldtaxonspecialincome+olddividendtax-oldwinninglottery*0.3)*0.15;
+     }else   if ((oldnormalincome+oldwinninglottery-olddividendincome) > 20000000) {
+        // 25% surcharge for income exceeding Rs. 2 crore
+        oldsurcharge = (oldtaxonnormalincome+oldwinninglottery*0.3-olddividendtax) * 0.25+(oldtaxonspecialincome+olddividendtax-oldwinninglottery*0.3)*0.15;
+    } else if ((oldtotalincome) > 10000000) {
+        // 15% surcharge for income exceeding Rs. 1 crore
+        oldsurcharge = oldtaxbeforesurcharge * 0.15;
+    } else if ((oldtotalincome) > 5000000) {
+        // 10% surcharge for income exceeding Rs. 50 lakh
+        oldsurcharge = oldtaxbeforesurcharge * 0.10;
+    } else {
+        // No surcharge
+        oldsurcharge = 0;
+    }
+    
+    //Old Marginal Relief
+    
+    if (age<60 || age ==="") {
+    
+    if (oldtotalincome > 50000000) {
+    oldmarginalrelief = Math.max((oldtaxbeforesurcharge + oldsurcharge - 18515625) - (oldtotalincome - 50000000), 0);
+    } else if (oldtotalincome > 20000000) {
+    oldmarginalrelief = Math.max((oldtaxbeforesurcharge + oldsurcharge - 6684375) - (oldtotalincome - 20000000), 0);
+    } else if (oldtotalincome > 10000000) {
+    oldmarginalrelief = Math.max((oldtaxbeforesurcharge + oldsurcharge - 3093750) - (oldtotalincome - 10000000), 0);
+    } else if (oldtotalincome > 5000000) {
+    oldmarginalrelief = Math.max((oldtaxbeforesurcharge + oldsurcharge - 1312500) - (oldtotalincome - 5000000), 0);
+    } else {
+    oldmarginalrelief = 0;
+    }
+    
+    } else if(age>=60 && age<80){
+        if (oldtotalincome > 50000000) {
+    oldmarginalrelief = Math.max((oldtaxbeforesurcharge + oldsurcharge - 18512500) - (oldtotalincome - 50000000), 0);
+    } else if (oldtotalincome > 20000000) {
+    oldmarginalrelief = Math.max((oldtaxbeforesurcharge + oldsurcharge - 6681500) - (oldtotalincome - 20000000), 0);
+    } else if (oldtotalincome > 10000000) {
+    oldmarginalrelief = Math.max((oldtaxbeforesurcharge + oldsurcharge - 3091000) - (oldtotalincome - 10000000), 0);
+    } else if (oldtotalincome > 5000000) {
+    oldmarginalrelief = Math.max((oldtaxbeforesurcharge + oldsurcharge - 1310000) - (oldtotalincome - 5000000), 0);
+    } else {
+    oldmarginalrelief = 0;
+    }
+    } else{
+        if (oldtotalincome > 50000000) {
+    oldmarginalrelief = Math.max((oldtaxbeforesurcharge + oldsurcharge - 18500000) - (oldtotalincome - 50000000), 0);
+    } else if (oldtotalincome > 20000000) {
+    oldmarginalrelief = Math.max((oldtaxbeforesurcharge + oldsurcharge - 6670000) - (oldtotalincome - 20000000), 0);
+    } else if (oldtotalincome > 10000000) {
+    oldmarginalrelief = Math.max((oldtaxbeforesurcharge + oldsurcharge - 3080000) - (oldtotalincome - 10000000), 0);
+    } else if (oldtotalincome > 5000000) {
+    oldmarginalrelief = Math.max((oldtaxbeforesurcharge + oldsurcharge - 1300000) - (oldtotalincome - 5000000), 0);
+    } else {
+    oldmarginalrelief = 0;
+    }  
+    }
+    
+
+    let oldtaxbeforecess = oldtaxbeforesurcharge + oldsurcharge - oldmarginalrelief;
+    let oldcess = Math.max(0, oldtaxbeforecess * 0.04);
+    let oldgrosstaxpayable = Math.max(oldtaxbeforecess + oldcess, 0);
+
+    document.getElementById('oldregimenormalincometax').textContent = oldtaxonnormalincome.toFixed(2);
+    document.getElementById('oldregimespecialincometax').textContent = oldtaxonspecialincome.toFixed(2);
+    document.getElementById('oldregimetaxbeforerebate').textContent = oldtaxbeforerebate.toFixed(2);
+    document.getElementById('oldregimerebate87a').textContent = oldrebate.toFixed(2);
+    document.getElementById('oldregimetaxbeforesurcharge').textContent = oldtaxbeforesurcharge.toFixed(2);
+    document.getElementById('oldregimesurcharge').textContent = oldsurcharge.toFixed(2);
+    document.getElementById('oldregimemarginalrelief').textContent = oldmarginalrelief.toFixed(2);
+    document.getElementById('oldregimetaxbeforecess').textContent = oldtaxbeforecess.toFixed(2);
+    document.getElementById('oldregimecess').textContent = oldcess.toFixed(2);
+    document.getElementById('oldregimegrosstaxpayable').textContent = oldgrosstaxpayable.toFixed(2);
+    
+    
+    
+    
+    //new Normal Income & Special Income
+   let newspecialincome = newstcgsec111aincome + newltcgsec112income + newltcgsec112aincome + newstcgsec111aincome_jul + newltcgsec112income_jul + newltcgsec112aincome_jul + newwinninglottery+newvda;
+   let newnormalincome = newroundoff - newspecialincome;
+   let newtotalincome = newnormalincome + newspecialincome;
+   
+   let newtaxonspecialincome = 0;//Math.max(newstcgsec111aincome,0)*0.15 + Math.max(newltcgsec112income,0)*0.2 + Math.max(newltcgsec112aincome-(125000-Math.min(newltcgsec112aincome_jul,125000)),0)*0.1 + Math.max(newstcgsec111aincome_jul,0)*0.2 + Math.max(newltcgsec112income_jul,0)*0.125 + Math.max(newltcgsec112aincome_jul-125000,0)*0.125 + Math.max(newwinninglottery,0)*0.3;
+   let newtaxonnormalincome = 0;
+   let newrebate = 0;
+   let newsurcharge = 0;
+   let newmarginalrelief = 0;
+   
+    //Slab Rates
+    
+    if (newnormalincome <= 400000) {
+        newtaxonnormalincome = 0;
+    } else if (newnormalincome <= 800000) {
+        newtaxonnormalincome = 0.05 * (newnormalincome - 400000);   //20000
+    } else if (newnormalincome <= 1200000) {
+        newtaxonnormalincome = 20000 + 0.1 * (newnormalincome - 800000);
+    } else if (newnormalincome <= 1600000) {
+        newtaxonnormalincome = 60000+0.15 * (newnormalincome - 1200000);
+    } else if (newnormalincome <= 2000000) {
+        newtaxonnormalincome = 120000 + 0.2 * (newnormalincome - 1600000);
+    } else if (newnormalincome <= 2400000) {
+        newtaxonnormalincome = 200000 + 0.25 * (newnormalincome - 2000000);
+    }else {
+	newtaxonnormalincome = 300000 + 0.3 * (newnormalincome - 2400000);
+    }
+    
+    
+   // LTCG & STCG benefit from exemption limit will be given not lottery in new regime
+   
+  if(newnormalincome<400000)
+  
+  {
+  
+  
+      if(Math.max(newltcgsec112,0)>400000){
+        newtaxonspecialincome = Math.max(Math.max(newltcgsec112,0)-Math.max(400000-newnormalincome,0),0)*0.2 +  Math.max(newstcgsec111aincome,0)*0.15 + Math.max(newltcgsec112aincome-(125000-Math.min(newltcgsec112aincome_jul,125000)),0)*0.1 + Math.max(newstcgsec111aincome_jul,0)*0.2 + Math.max(newltcgsec112income_jul,0)*0.125 + Math.max(newltcgsec112aincome_jul-125000,0)*0.125 + Math.max(newwinninglottery+newvda,0)*0.3;
+    } else if(Math.max(newltcgsec112,0)+Math.max(newstcgsec111aincome_jul,0)>400000){
+       newtaxonspecialincome = Math.max(Math.max(newstcgsec111aincome_jul,0)-Math.max(newltcgsec112,0)-Math.max(400000-newnormalincome,0),0)*0.2 +  Math.max(newstcgsec111aincome,0)*0.15 + Math.max(newltcgsec112aincome-(125000-Math.min(newltcgsec112aincome_jul,125000)),0)*0.1  + Math.max(newltcgsec112income_jul,0)*0.125 + Math.max(newltcgsec112aincome_jul-125000,0)*0.125 + Math.max(newwinninglottery+newvda,0)*0.3;
+    } else if(Math.max(newltcgsec112,0)+Math.max(newstcgsec111aincome_jul,0)+Math.max(newstcgsec111aincome,0)>400000){
+       newtaxonspecialincome = Math.max(Math.max(newstcgsec111aincome,0)-Math.max(newstcgsec111aincome_jul,0)-Math.max(newltcgsec112,0)-Math.max(400000-newnormalincome,0),0)*0.15 +  Math.max(newltcgsec112aincome-(125000-Math.min(newltcgsec112aincome_jul,125000)),0)*0.1  + Math.max(newltcgsec112income_jul,0)*0.125 + Math.max(newltcgsec112aincome_jul-125000,0)*0.125 + Math.max(newwinninglottery+newvda,0)*0.3;
+    }  else if(Math.max(newltcgsec112income_jul,0)+Math.max(newltcgsec112,0)+Math.max(newstcgsec111aincome_jul,0)+Math.max(newstcgsec111aincome,0)>400000){
+       newtaxonspecialincome = Math.max(Math.max(newltcgsec112income_jul,0)-Math.max(newstcgsec111aincome,0)-Math.max(newstcgsec111aincome_jul,0)-Math.max(newltcgsec112,0)-Math.max(400000-newnormalincome,0),0)*0.125 +  Math.max(newltcgsec112aincome-(125000-Math.min(newltcgsec112aincome_jul,125000)),0)*0.1  +  Math.max(newltcgsec112aincome_jul-125000,0)*0.125 + Math.max(newwinninglottery+newvda,0)*0.3;
+    }  else if(Math.max(newltcgsec112aincome_jul-125000,0)+Math.max(newltcgsec112income_jul,0)+Math.max(newltcgsec112,0)+Math.max(newstcgsec111aincome_jul,0)+Math.max(newstcgsec111aincome,0)>400000){
+       newtaxonspecialincome = Math.max(Math.max(newltcgsec112aincome_jul-125000,0)-Math.max(newltcgsec112income_jul,0)-Math.max(newstcgsec111aincome,0)-Math.max(newstcgsec111aincome_jul,0)-Math.max(newltcgsec112,0)-Math.max(400000-newnormalincome,0),0)*0.125 +  Math.max(newltcgsec112aincome-(125000-Math.min(newltcgsec112aincome_jul,125000)),0)*0.1  +  Math.max(newwinninglottery+newvda,0)*0.3;
+    }  else {
+       newtaxonspecialincome = Math.max(Math.max(newltcgsec112aincome-(125000-Math.min(newltcgsec112aincome_jul,125000)),0)-Math.max(newltcgsec112aincome_jul-125000,0)-Math.max(newltcgsec112income_jul,0)-Math.max(newstcgsec111aincome,0)-Math.max(newstcgsec111aincome_jul,0)-Math.max(newltcgsec112,0)-Math.max(400000-newnormalincome),0)*0.1 +    Math.max(newwinninglottery+newvda,0)*0.3;
+    } 
+   
+  } else
+  { newtaxonspecialincome =  Math.max(newstcgsec111aincome,0)*0.15 + Math.max(newltcgsec112income,0)*0.2 + Math.max(newltcgsec112aincome-(125000-Math.min(newltcgsec112aincome_jul,125000)),0)*0.1 + Math.max(newstcgsec111aincome_jul,0)*0.2 + Math.max(newltcgsec112income_jul,0)*0.125 + Math.max(newltcgsec112aincome_jul-125000,0)*0.125 + Math.max(newwinninglottery+newvda,0)*0.3;
+  }
+    
+    
+    
+    let newtaxbeforerebate = newtaxonnormalincome + newtaxonspecialincome;
+    
+    const selectedValue = document.querySelector('select[name="combo_list"]').value;
+    
+     //LTCG112A benefit not given from rebate
+    
+  //  if (newtotalincome<= 700000) {
+    //    newrebate = Math.max(Math.min(newtotalincome,25000,newtaxbeforerebate-Math.max(newltcgsec112aincome-Math.min(125000,Math.max(newltcgsec112aincome_jul,0)))*0.1 - Math.max(newltcgsec112aincome_jul-125000,0)*0.125),0);
+    // } else {
+    
+    
+    if (selectedValue === "Govt_utility")
+    {
+         if (newnormalincome<=1200000)
+         {
+             newrebate = Math.max(Math.min(newtaxonnormalincome,60000),0);
+         }
+         else
+         {
+            newrebate = Math.max(Math.min(newtaxonnormalincome,60000) - (newnormalincome-1200000),0);
+            
+         }
+         
+    } else
+    {
+        if (newtotalincome<=1200000)
+         {
+             newrebate = Math.max(Math.min(newtaxbeforerebate,60000,newtaxbeforerebate-Math.max(newltcgsec112aincome-Math.min(125000,Math.max(newltcgsec112aincome_jul,0)))*0.1 - Math.max(newltcgsec112aincome_jul-125000,0)*0.125),0);
+         }
+         else
+         {
+            newrebate = Math.max(Math.max(Math.min(newtaxbeforerebate,newtaxbeforerebate-Math.max(newltcgsec112aincome-Math.min(125000,Math.max(newltcgsec112aincome_jul,0)))*0.1 - Math.max(newltcgsec112aincome_jul-125000,0)*0.125),0) - (newtotalincome-1200000),0);
+         }
+    }
+    
+     let newtaxbeforesurcharge=newtaxbeforerebate-newrebate;
+    
+     
+     let newdividend= Number(document.getElementById('newregimedividendincome').textContent);
+     let newdividendtax =(newdividend*newtaxonnormalincome)/newnormalincome;
+     
+    //new Surcharge
+    
+    if ((newnormalincome+newwinninglottery-newdividendincome) > 20000000) {
+        // 25% surcharge for income exceeding Rs. 2 crore
+        newsurcharge = (newtaxonnormalincome+newwinninglottery*0.3-newdividendtax) * 0.25+(newtaxonspecialincome+newdividendtax-newwinninglottery*0.3)*0.15;
+    } else if ((newtotalincome) > 10000000) {
+        // 15% surcharge for income exceeding Rs. 1 crore
+        newsurcharge = newtaxbeforesurcharge * 0.15;
+    } else if ((newtotalincome) > 5000000) {
+        // 10% surcharge for income exceeding Rs. 50 lakh
+        newsurcharge = newtaxbeforesurcharge * 0.10;
+    } else {
+        // No surcharge
+        newsurcharge = 0;
+    }
+    
+    
+    
+    //new Marginal Relief
+    
+    if (newtotalincome > 20000000) {
+    newmarginalrelief = Math.max((newtaxbeforesurcharge + newsurcharge - 5580000) - (newtotalincome - 20000000), 0);
+    } else if (newtotalincome > 10000000) {
+    newmarginalrelief = Math.max((newtaxbeforesurcharge + newsurcharge - 2580000) - (newtotalincome - 10000000), 0);
+    } else if (newtotalincome > 5000000) {
+    newmarginalrelief = Math.max((newtaxbeforesurcharge + newsurcharge - 1080000) - (newtotalincome - 5000000), 0);
+    } else {
+    newmarginalrelief = 0;
+    }
+
+    let newtaxbeforecess = newtaxbeforesurcharge + newsurcharge - newmarginalrelief;
+    let newcess = Math.max(0, newtaxbeforecess * 0.04);
+    let newgrosstaxpayable = Math.max(newtaxbeforecess + newcess, 0);
+
+    document.getElementById('newregimenormalincometax').textContent = newtaxonnormalincome.toFixed(2);
+    document.getElementById('newregimespecialincometax').textContent = newtaxonspecialincome.toFixed(2);
+    document.getElementById('newregimetaxbeforerebate').textContent = newtaxbeforerebate.toFixed(2);
+    document.getElementById('newregimerebate87a').textContent = newrebate.toFixed(2);
+    document.getElementById('newregimetaxbeforesurcharge').textContent = newtaxbeforesurcharge.toFixed(2);
+    document.getElementById('newregimesurcharge').textContent = newsurcharge.toFixed(2);
+    document.getElementById('newregimemarginalrelief').textContent = newmarginalrelief.toFixed(2);
+    document.getElementById('newregimetaxbeforecess').textContent = newtaxbeforecess.toFixed(2);
+    document.getElementById('newregimecess').textContent = newcess.toFixed(2);
+    document.getElementById('newregimegrosstaxpayable').textContent = newgrosstaxpayable.toFixed(2);
+    
+    
+    
+    
+}
+
+    document.querySelectorAll("input, select, textarea, radio, checkbox").forEach(element => {
+    element.addEventListener("input", function() {
+      CalculateAllIncome();
+      saveToLocalStorage(); // Save on every input
+    });
+    element.addEventListener("change", function() {
+      CalculateAllIncome();
+      saveToLocalStorage(); // Save on every change
+    });
+  });
+        document.querySelectorAll('input, select').forEach(input => {
+    // Clear all inputs
+    input.dispatchEvent(new Event('input')); // Ye event trigger karega
+  });
+       //Page Load hone par CalculateAllIncome function run kar rha h jis se value blank ki jgh zero show ho rhi h resulted fields m
+        CalculateAllIncome();
+        saveToLocalStorage(); 
+  loadFromLocalStorage(); // Load data when page loads
+});
+      //}else{
+      //  alert("Don't waste your time for copying. This file is fully secured by Sumit Garg. If any query, Contact - Sumit Garg, Ph. No. - 9716804520, Email - SumitGarg100000@Gmail.com ");
+      //    } 
+    //   }   else      {       alert("This file is fully secured by Sumit Garg. If you face any problem then contact me. Name - Sumit Garg, Ph. No. - 9716804520, Email - SumitGarg100000@Gmail.com ");     }
     </script>
+
+    
 </body>
 </html>
