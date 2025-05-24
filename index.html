@@ -257,22 +257,22 @@
             <div class="flex-row">
                 <div class="col">
                     <div class="form-group">
-                        <label for="gross_annual_value">Gross Annual Value</label>
-                        <input type="number" id="gross_annual_value" placeholder="Enter gross annual value" min="0">
+                        <label for="grossannualvalue">Gross Annual Value</label>
+                        <input type="number" id="grossannualvalue" placeholder="Enter gross annual value" min="0">
                     </div>
                 </div>
                 <div class="col">
                     <div class="form-group">
-                        <label for="municipal_tax">Municipal Tax Paid</label>
-                        <input type="number" id="municipal_tax" placeholder="Enter municipal tax paid" min="0">
+                        <label for="municipaltaxes">Municipal Tax Paid</label>
+                        <input type="number" id="municipaltaxes" placeholder="Enter municipal tax paid" min="0">
                     </div>
                 </div>
             </div>
             <div class="flex-row">
                 <div class="col">
                     <div class="form-group">
-                        <label for="interestself">Interest on Housing Loan (Self-Occupied)</label>
-                        <input type="number" id="interestself" placeholder="Enter interest (max 2 lakh)" min="0">
+                        <label for="interestselfoccupied">Interest on Housing Loan (Self-Occupied)</label>
+                        <input type="number" id="interestselfoccupied" placeholder="Enter interest (max 2 lakh)" min="0">
                     </div>
                 </div>
                 <div class="col">
@@ -290,14 +290,14 @@
             <div class="flex-row">
                 <div class="col">
                     <div class="form-group">
-                        <label for="dividend_income">Dividend Income</label>
-                        <input type="number" id="dividend_income" placeholder="Enter dividend income" min="0">
+                        <label for="dividendincome">Dividend Income</label>
+                        <input type="number" id="dividendincome" placeholder="Enter dividend income" min="0">
                     </div>
                 </div>
                 <div class="col">
                     <div class="form-group">
-                        <label for="other_income">Other Income (Excl. Dividend)</label>
-                        <input type="number" id="other_income" placeholder="Enter other income" min="0">
+                        <label for="otherincome">Other Income (Excl. Dividend)</label>
+                        <input type="number" id="otherincome" placeholder="Enter other income" min="0">
                     </div>
                 </div>
             </div>
@@ -666,11 +666,11 @@
             let newnetsalary = newgrosssalary - (newexemptionsec13a + newotherexemption + newprofessionaltax + newstandarddeduction);
 
             // Income from House Property
-            let grossAnnualValue = Math.max(0, Number(document.getElementById('gross_annual_value').value));
-            let municipalTax = Math.max(0, Number(document.getElementById('municipal_tax').value));
+            let grossAnnualValue = Math.max(0, Number(document.getElementById('grossannualvalue').value));
+            let municipalTax = Math.max(0, Number(document.getElementById('municipaltaxes').value));
             let nav = Math.max(0, grossAnnualValue - municipalTax);
             let standardDeduction24a = nav * 0.3;
-            let oldinterestself = Math.min(Math.max(0, Number(document.getElementById('interestself').value)), 200000);
+            let oldinterestself = Math.min(Math.max(0, Number(document.getElementById('interestselfoccupied').value)), 200000);
             let oldinterestletout = Math.min(Math.max(0, Number(document.getElementById('interestletout').value)), 200000);
             let oldnetincomehp = nav - standardDeduction24a - oldinterestself - oldinterestletout;
             let newinterestself = 0;
@@ -678,8 +678,8 @@
             let newnetincomehp = Math.max(0, nav - standardDeduction24a - newinterestletout);
 
             // Income from Other Sources
-            let olddividendincome = Math.max(0, Number(document.getElementById('dividend_income').value));
-            let oldotherincome = Math.max(0, Number(document.getElementById('other_income').value));
+            let olddividendincome = Math.max(0, Number(document.getElementById('dividendincome').value));
+            let oldotherincome = Math.max(0, Number(document.getElementById('otherincome').value));
             let oldnetothersources = olddividendincome + oldotherincome;
             let newdividendincome = Math.max(0, Number(document.getElementById('dividend_income').value));
             let newotherincome = Math.max(0, Number(document.getElementById('other_income').value));
