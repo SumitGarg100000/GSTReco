@@ -181,7 +181,7 @@
                 <div class="col">
                     <div class="form-group">
                         <label for="tax_scheme">Tax Regime</label>
-                        <select id="tax_scheme">
+                        <select id="tax_scheme" onchange="toggleDeductions()">
                             <option value="new">New Tax Regime (Default)</option>
                             <option value="old">Old Tax Regime</option>
                         </select>
@@ -224,7 +224,7 @@
             <div class="flex-row">
                 <div class="col">
                     <div class="form-group">
-                        <label for="otherallowance">Other Allowance</label>
+                        <label for="other_allowance">Other Allowance</label>
                         <input type="number" id="other_allowance" placeholder="Enter other allowance" min="0">
                     </div>
                 </div>
@@ -257,32 +257,46 @@
             <div class="flex-row">
                 <div class="col">
                     <div class="form-group">
-                        <label for="property_type">Property Type</label>
-                        <select id="property_type">
-                            <option value="self-occupied">Self-Occupied</option>
-                            <option value="let-out">Let-Out</option>
-                        </select>
+                        <label for="gross_annual_value">Gross Annual Value</label>
+                        <input type="number" id="grossannualvalue" placeholder="Enter gross annual value" min="0">
                     </div>
                 </div>
                 <div class="col">
                     <div class="form-group">
-                        <label for="interestself">Interest on Housing Loan(Self-occupied)</label>
+                        <label for="municipal_tax">Municipal Tax Paid</label>
+                        <input type="number" id="municipaltaxes" placeholder="Enter municipal tax paid" min="0">
+                    </div>
+                </div>
+            </div>
+            <div class="flex-row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="interestself">Interest on Housing Loan (Self-Occupied)</label>
                         <input type="number" id="interestself" placeholder="Enter interest (max 2 lakh)" min="0">
-                   <label for="interestletout">Interest on Housing Loan(Let out)</label>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="interestletout">Interest on Housing Loan (Let-Out)</label>
                         <input type="number" id="interestletout" placeholder="Enter interest (max 2 lakh)" min="0">
-                   
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Other Income -->
+        <!-- Income from Other Sources -->
         <div class="card">
             <div class="card-header"><h3>Income from Other Sources</h3></div>
             <div class="flex-row">
                 <div class="col">
                     <div class="form-group">
-                        <label for="other_income">Other Income (e.g., Interest, Dividends)</label>
+                        <label for="dividend_income">Dividend Income</label>
+                        <input type="number" id="dividendincome" placeholder="Enter dividend income" min="0">
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="other_income">Other Income (Excl. Dividend)</label>
                         <input type="number" id="otherincome" placeholder="Enter other income" min="0">
                     </div>
                 </div>
@@ -471,13 +485,39 @@
                     <tr><td>Standard Deduction</td><td id="standard_deduction">0</td></tr>
                     <tr><td><strong>Total Exemptions & Deductions</strong></td><td id="total_exemptions" class="font-bold">0</td></tr>
                     <tr><td><strong>Net Salary Income</strong></td><td id="net_salary" class="font-bold">0</td></tr>
-                    <tr><td>Loss from House Property (Interest)</td><td id="housing_loan_interest_result">0</td></tr>
-                    <tr><td>Income from Other Sources</td><td id="other_income_result">0</td></tr>
+                </tbody>
+            </table>
+            <h4 class="text-xl font-semibold mb-4 text-gray-700">House Property</h4>
+            <table class="result-table mb-6">
+                <thead><tr><th>Particulars</th><th>Amount (₹)</th></tr></thead>
+                <tbody>
+                    <tr><td>Gross Annual Value</td><td id="gross_annual_value_result">0</td></tr>
+                    <tr><td>Municipal Tax Paid</td><td id="municipal_tax_result">0</td></tr>
+                    <tr><td>Net Annual Value (NAV)</td><td id="nav_result">0</td></tr>
+                    <tr><td>Standard Deduction u/s 24(a) @ 30%</td><td id="standard_deduction_24a_result">0</td></tr>
+                    <tr><td>Interest on Housing Loan (Self-Occupied)</td><td id="interest_self_result">0</td></tr>
+                    <tr><td>Interest on Housing Loan (Let-Out)</td><td id="interest_letout_result">0</td></tr>
+                    <tr><td><strong>Net Income from House Property</strong></td><td id="net_income_hp_result" class="font-bold">0</td></tr>
+                </tbody>
+            </table>
+            <h4 class="text-xl font-semibold mb-4 text-gray-700">Income from Other Sources</h4>
+            <table class="result-table mb-6">
+                <thead><tr><th>Particulars</th><th>Amount (₹)</th></tr></thead>
+                <tbody>
+                    <tr><td>Dividend Income</td><td id="dividend_income_result">0</td></tr>
+                    <tr><td>Other Income (Excl. Dividend)</td><td id="other_income_result">0</td></tr>
+                    <tr><td><strong>Total Income from Other Sources</strong></td><td id="total_other_income_result" class="font-bold">0</td></tr>
+                </tbody>
+            </table>
+            <h4 class="text-xl font-semibold mb-4 text-gray-700">Gross Total Income</h4>
+            <table class="result-table mb-6">
+                <thead><tr><th>Particulars</th><th>Amount (₹)</th></tr></thead>
+                <tbody>
                     <tr><td><strong>Gross Total Income</strong></td><td id="gross_total_income" class="font-bold">0</td></tr>
                 </tbody>
             </table>
-            <h4 class="text-xl font-semibold mb-4 text-gray-700">Deductions (Old Regime)</h4>
-            <table class="result-table mb-6">
+            <h4 class="text-xl font-semibold mb-4 text-gray-700" id="deductions-header">Deductions (Old Regime)</h4>
+            <table class="result-table mb-6" id="deductions-table">
                 <thead><tr><th>Particulars</th><th>Amount (₹)</th></tr></thead>
                 <tbody>
                     <tr><td>Section 80C</td><td id="section_80c_result">0</td></tr>
@@ -497,7 +537,7 @@
                 <thead><tr><th>Particulars</th><th>Amount (₹)</th></tr></thead>
                 <tbody>
                     <tr><td>Gross Total Income</td><td id="gross_income_tax">0</td></tr>
-                    <tr><td>Total Deductions (Old Regime)</td><td id="total_deductions_tax">0</td></tr>
+                    <tr><td>Total Deductions</td><td id="total_deductions_tax">0</td></tr>
                     <tr><td><strong>Net Taxable Income</strong></td><td id="net_taxable_income" class="font-bold">0</td></tr>
                     <tr><td>Income Tax</td><td id="income_tax">0</td></tr>
                     <tr><td>Rebate u/s 87A</td><td id="rebate">0</td></tr>
@@ -516,6 +556,14 @@
                 <thead><tr><th>Month</th><th>TDS Deducted (₹)</th><th>TDS Liability (₹)</th></tr></thead>
                 <tbody id="monthly_tds_table"></tbody>
             </table>
+            <h4 class="text-xl font-semibold mb-4 text-gray-700">Total TDS Summary</h4>
+            <table class="result-table mb-6">
+                <thead><tr><th>Particulars</th><th>Amount (₹)</th></tr></thead>
+                <tbody>
+                    <tr><td>Total TDS Deducted</td><td id="total_tds_deducted">0</td></tr>
+                    <tr><td>Total TDS Liability</td><td id="total_tds_liability">0</td></tr>
+                </tbody>
+            </table>
             <div class="summary-box">
                 <h3>Average Monthly TDS (Remaining Months)</h3>
                 <div class="amount" id="monthly_tds_amount">₹ 0</div>
@@ -527,460 +575,456 @@
         <p>© 2025 TDS Calculator. All rights reserved.</p>
     </footer>
 
+    <script>
+        // Save data to localStorage
+        function saveToLocalStorage() {
+            const inputs = document.querySelectorAll('input, select');
+            const data = {};
+            inputs.forEach(input => {
+                data[input.id] = input.value;
+            });
+            localStorage.setItem('taxCalculatorData', JSON.stringify(data));
+        }
 
+        // Load data from localStorage
+        function loadFromLocalStorage() {
+            const savedData = localStorage.getItem('taxCalculatorData');
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                const inputs = document.querySelectorAll('input, select');
+                inputs.forEach(input => {
+                    if (data[input.id]) {
+                        input.value = data[input.id];
+                    }
+                });
+            }
+            toggleDeductions();
+        }
 
-<script>
-     //  if (window.location.href.toLowerCase().includes("https://sumitgarg100000.github.io")) {
-      // Get the heading element
-      //       var heading = document.querySelector("h2");
-      // Check if the heading text content is equal to "abc"
-      //if(heading.textContent.trim() === "(Disclaimer- This Calculator is made after incorporating all the relevant provisions of income tax act applicable for FY 2024-25(AY 2025-26). If any query, Contact - Sumit Garg, Ph. No. - 9716804520, Email - SumitGarg100000@Gmail.com)")
-      // {
+        // Toggle deductions section based on tax regime
+        function toggleDeductions() {
+            const taxScheme = document.getElementById('tax_scheme').value;
+            const deductionsSection = document.getElementById('old-regime-deductions');
+            const deductionsTable = document.getElementById('deductions-table');
+            const deductionsHeader = document.getElementById('deductions-header');
+            if (taxScheme === 'old') {
+                deductionsSection.style.display = 'block';
+                deductionsTable.style.display = 'table';
+                deductionsHeader.style.display = 'block';
+            } else {
+                deductionsSection.style.display = 'none';
+                deductionsTable.style.display = 'none';
+                deductionsHeader.style.display = 'none';
+            }
+        }
 
-      // import json coding suru
-      // Data ko localStorage mein save karna
-function saveToLocalStorage() {
-  const inputs = document.querySelectorAll('input, select');
-  const data = {};
+        // Reset all inputs and results
+        function resetValues() {
+            document.querySelectorAll('input, select').forEach(input => {
+                if (input.type === 'number') input.value = 0;
+                else if (input.type === 'text') input.value = '';
+                else if (input.id === 'tax_scheme') input.value = 'new';
+                else if (input.id === 'age') input.value = 30;
+                else if (input.id === 'professionaltax') input.value = 2400;
+            });
+            localStorage.removeItem('taxCalculatorData');
+            document.getElementById('results-section').style.display = 'none';
+            toggleDeductions();
+            if (window.tdsChart) window.tdsChart.destroy();
+        }
 
-  inputs.forEach(input => {
-    data[input.id] = input.value;
-  });
-  
-  localStorage.setItem('taxCalculatorData', JSON.stringify(data));
+        // Print page as PDF
+        function printAsPDF() {
+            window.print();
+        }
 
-  // Event listeners for real-time updates
-  inputs.forEach(input => {
-    input.addEventListener('input', function() {
-      data[input.id] = input.value;
-      localStorage.setItem('taxCalculatorData', JSON.stringify(data));
-    });
+        // Main calculation function
+        function CalculateAllIncome() {
+            // Income from Salary
+            let oldbasicsalary = Math.max(0, Number(document.getElementById('basicsalary').value));
+            let oldhra = Math.max(0, Number(document.getElementById('hra').value));
+            let oldbonus = Math.max(0, Number(document.getElementById('bonus').value));
+            let oldspecialallowance = Math.max(0, Number(document.getElementById('specialallowance').value));
+            let oldotherallowance = Math.max(0, Number(document.getElementById('other_allowance').value));
+            let oldgrosssalary = oldbasicsalary + oldhra + oldbonus + oldspecialallowance + oldotherallowance;
+            let oldexemptionsec13a = Math.min(Math.max(0, Number(document.getElementById('exemptionsec13a').value)), oldgrosssalary);
+            let oldotherexemption = Math.min(Math.max(0, Number(document.getElementById('otherexemption').value)), oldgrosssalary - oldexemptionsec13a);
+            let oldprofessionaltax = Math.min(Math.max(0, Number(document.getElementById('professionaltax').value)), oldgrosssalary - oldexemptionsec13a - oldotherexemption);
+            let oldstandarddeduction = Math.min((oldgrosssalary - (oldexemptionsec13a + oldotherexemption + oldprofessionaltax)), 50000);
+            let oldnetsalary = oldgrosssalary - (oldexemptionsec13a + oldotherexemption + oldprofessionaltax + oldstandarddeduction);
 
-    input.addEventListener('change', function() {
-      data[input.id] = input.value;
-      localStorage.setItem('taxCalculatorData', JSON.stringify(data));
-    });
-  });
-}
+            let newbasicsalary = Math.max(0, Number(document.getElementById('basicsalary').value));
+            let newhra = Math.max(0, Number(document.getElementById('hra').value));
+            let newbonus = Math.max(0, Number(document.getElementById('bonus').value));
+            let newspecialallowance = Math.max(0, Number(document.getElementById('specialallowance').value));
+            let newotherallowance = Math.max(0, Number(document.getElementById('other_allowance').value));
+            let newgrosssalary = newbasicsalary + newhra + newbonus + newspecialallowance + newotherallowance;
+            let newexemptionsec13a = 0;
+            let newotherexemption = 0;
+            let newprofessionaltax = 0;
+            let newstandarddeduction = Math.min((newgrosssalary - (newexemptionsec13a + newotherexemption + newprofessionaltax)), 75000);
+            let newnetsalary = newgrosssalary - (newexemptionsec13a + newotherexemption + newprofessionaltax + newstandarddeduction);
 
-// LocalStorage se data load karna aur inputs mein set karna
-function loadFromLocalStorage() {
-  const savedData = localStorage.getItem('taxCalculatorData');
-  if (savedData) {
-    const data = JSON.parse(savedData);
-    const inputs = document.querySelectorAll('input, select');
-    inputs.forEach(input => {
-      if (data[input.id]) {
-        input.value = data[input.id];
-      }
-    });
-  }
-}
+            // Income from House Property
+            let grossAnnualValue = Math.max(0, Number(document.getElementById('grossannualvalue').value));
+            let municipalTax = Math.max(0, Number(document.getElementById('municipaltaxes').value));
+            let nav = Math.max(0, grossAnnualValue - municipalTax);
+            let standardDeduction24a = nav * 0.3;
+            let oldinterestself = Math.min(Math.max(0, Number(document.getElementById('interestself').value)), 200000);
+            let oldinterestletout = Math.min(Math.max(0, Number(document.getElementById('interestletout').value)), 200000);
+            let oldnetincomehp = nav - standardDeduction24a - oldinterestself - oldinterestletout;
+            let newinterestself = 0;
+            let newinterestletout = Math.min(Math.max(0, Number(document.getElementById('interestletout').value)), 200000);
+            let newnetincomehp = Math.max(0, nav - standardDeduction24a - newinterestletout);
 
-// Page refresh ya close hone se pehle data save karna
-window.addEventListener('beforeunload', function() {
-  const inputs = document.querySelectorAll('input, select');
-  const data = {};
-  inputs.forEach(input => {
-    data[input.id] = input.value;
-  });
-  localStorage.setItem('taxCalculatorData', JSON.stringify(data));
-});
+            // Income from Other Sources
+            let olddividendincome = Math.max(0, Number(document.getElementById('dividendincome').value));
+            let oldotherincome = Math.max(0, Number(document.getElementById('otherincome').value));
+            let oldnetothersources = olddividendincome + oldotherincome;
+            let newdividendincome = Math.max(0, Number(document.getElementById('dividendincome').value));
+            let newotherincome = Math.max(0, Number(document.getElementById('otherincome').value));
+            let newnetothersources = newdividendincome + newotherincome;
 
-// Page load hone pe saved data ko load karna
-document.addEventListener('DOMContentLoaded', function() {
-  loadFromLocalStorage(); // Pehle saved data load karo
-  saveToLocalStorage();   // Phir event listeners set karo
-});
+            // Calculate Gross Total Income
+            let oldgrosstotalincome = Math.max(oldnetsalary + oldnetincomehp + oldnetothersources, 0);
+            let newgrosstotalincome = Math.max(newnetsalary + newnetincomehp + newnetothersources, 0);
 
-      
+            // Deductions
+            let olddeduction80c = Math.min(150000, Math.max(0, Number(document.getElementById('deduction80c').value)));
+            let olddeduction80ccc = Math.min(150000, Math.max(0, Number(document.getElementById('deduction80ccc').value)));
+            let olddeduction80ccd1 = Math.min(150000, Math.max(0, Number(document.getElementById('deduction80ccd1').value)));
+            let oldrestrictdeduction = Math.min(150000, olddeduction80c + olddeduction80ccc + olddeduction80ccd1);
+            let olddeduction80ccd1b = Math.min(50000, Math.max(0, Number(document.getElementById('deduction80ccd1b').value)));
+            let olddeduction80ccd2 = Math.max(0, Number(document.getElementById('deduction80ccd2').value));
+            let olddeduction80d = Math.min(100000, Math.max(0, Number(document.getElementById('deduction80d').value)));
+            let olddeduction80g = Math.max(0, Number(document.getElementById('deduction80g').value));
+            let olddeduction80e = Math.max(0, Number(document.getElementById('deduction80e').value));
+            let olddeduction80tta = Math.min(10000, Math.max(0, Number(document.getElementById('deduction80tta').value)));
+            let oldtotaldeduction = oldrestrictdeduction + olddeduction80ccd1b + olddeduction80ccd2 + olddeduction80d + olddeduction80g + olddeduction80e + olddeduction80tta;
+            let oldeligiblededuction = Math.min(Math.max(oldgrosstotalincome, 0), oldtotaldeduction);
+            let oldnetincome = Math.max(oldgrosstotalincome - oldeligiblededuction, 0);
 
+            let newdeduction80c = 0;
+            let newdeduction80ccc = 0;
+            let newdeduction80ccd1 = 0;
+            let newrestrictdeduction = 0;
+            let newdeduction80ccd1b = 0;
+            let newdeduction80ccd2 = Math.max(0, Number(document.getElementById('deduction80ccd2').value));
+            let newdeduction80d = 0;
+            let newdeduction80g = 0;
+            let newdeduction80e = 0;
+            let newdeduction80tta = 0;
+            let newtotaldeduction = newrestrictdeduction + newdeduction80ccd1b + newdeduction80ccd2 + newdeduction80d + newdeduction80g + newdeduction80e + newdeduction80tta;
+            let neweligiblededuction = Math.min(Math.max(newgrosstotalincome, 0), newtotaldeduction);
+            let newnetincome = Math.max(newgrosstotalincome - neweligiblededuction, 0);
 
-// import json coding end
-      document.addEventListener("DOMContentLoaded", function() {
-   
-        // calculate all income function run
-   function CalculateAllIncome() {
-       
-    // Income from Salary   
-    let oldbasicsalary = Math.max(0, Number(document.getElementById('basicsalary').value));
-    let oldhra = Math.max(0, Number(document.getElementById('hra').value));
-    let oldbonus = Math.max(0, Number(document.getElementById('bonus').value));
-    let oldspecialallowance = Math.max(0, Number(document.getElementById('specialallowance').value));
-    let oldotherallowance = Math.max(0, Number(document.getElementById('otherallowance').value));
+            let oldroundoff = Math.round(oldnetincome / 10) * 10;
+            let newroundoff = Math.round(newnetincome / 10) * 10;
 
-    let oldgrosssalary = oldbasicsalary + oldhra + oldbonus + oldspecialallowance + oldotherallowance;
+            // Old Regime Tax Calculation
+            let oldnormalincome = oldroundoff;
+            let oldtotalincome = oldnormalincome;
+            let oldtaxonnormalincome = 0;
+            let oldrebate = 0;
+            let oldsurcharge = 0;
+            let oldmarginalrelief = 0;
+            let age = Number(document.getElementById('age').value);
 
-    let oldexemptionsec13a = Math.min(Math.max(0, Number(document.getElementById('exemptionsec13a').value)), oldgrosssalary);
-    let oldotherexemption = Math.min(Math.max(0, Number(document.getElementById('otherexemption').value)), oldgrosssalary - oldexemptionsec13a);
-    let oldprofessionaltax = Math.min(Math.max(0, Number(document.getElementById('professionaltax').value)), oldgrosssalary - oldexemptionsec13a - oldotherexemption);
-    let oldstandarddeduction = Math.min((oldgrosssalary - (oldexemptionsec13a + oldotherexemption + oldprofessionaltax)), 50000);
+            if (age < 60 || age === "") {
+                if (oldnormalincome <= 250000) {
+                    oldtaxonnormalincome = 0;
+                } else if (oldnormalincome <= 500000) {
+                    oldtaxonnormalincome = 0.05 * (oldnormalincome - 250000);
+                } else if (oldnormalincome <= 1000000) {
+                    oldtaxonnormalincome = 12500 + 0.2 * (oldnormalincome - 500000);
+                } else {
+                    oldtaxonnormalincome = 112500 + 0.3 * (oldnormalincome - 1000000);
+                }
+            } else if (age >= 60 && age < 80) {
+                if (oldnormalincome <= 300000) {
+                    oldtaxonnormalincome = 0;
+                } else if (oldnormalincome <= 500000) {
+                    oldtaxonnormalincome = 0.05 * (oldnormalincome - 300000);
+                } else if (oldnormalincome <= 1000000) {
+                    oldtaxonnormalincome = 10000 + 0.2 * (oldnormalincome - 500000);
+                } else {
+                    oldtaxonnormalincome = 110000 + 0.3 * (oldnormalincome - 1000000);
+                }
+            } else {
+                if (oldnormalincome <= 500000) {
+                    oldtaxonnormalincome = 0;
+                } else if (oldnormalincome <= 1000000) {
+                    oldtaxonnormalincome = 0.2 * (oldnormalincome - 500000);
+                } else {
+                    oldtaxonnormalincome = 100000 + 0.3 * (oldnormalincome - 1000000);
+                }
+            }
 
-    let oldnetsalary = oldgrosssalary - (oldexemptionsec13a + oldotherexemption + oldprofessionaltax + oldstandarddeduction);
+            let oldtaxbeforerebate = oldtaxonnormalincome;
+            oldrebate = oldnormalincome <= 500000 ? Math.min(oldtaxbeforerebate, 12500) : 0;
+            let oldtaxbeforesurcharge = oldtaxbeforerebate - oldrebate;
 
-    let newbasicsalary = Math.max(0, Number(document.getElementById('basicsalary').value));
-    let newhra = Math.max(0, Number(document.getElementById('hra').value));
-    let newbonus = Math.max(0, Number(document.getElementById('bonus').value));
-    let newspecialallowance = Math.max(0, Number(document.getElementById('specialallowance').value));
-    let newotherallowance = Math.max(0, Number(document.getElementById('otherallowance').value));
+            if (oldnormalincome > 50000000) {
+                oldsurcharge = oldtaxbeforesurcharge * 0.37;
+            } else if (oldnormalincome > 20000000) {
+                oldsurcharge = oldtaxbeforesurcharge * 0.25;
+            } else if (oldtotalincome > 10000000) {
+                oldsurcharge = oldtaxbeforesurcharge * 0.15;
+            } else if (oldtotalincome > 5000000) {
+                oldsurcharge = oldtaxbeforesurcharge * 0.10;
+            } else {
+                oldsurcharge = 0;
+            }
 
-    let newgrosssalary = newbasicsalary + newhra + newbonus + newspecialallowance + newotherallowance;
+            if (age < 60 || age === "") {
+                if (oldtotalincome > 50000000) {
+                    oldmarginalrelief = Math.max((oldtaxbeforesurcharge + oldsurcharge - 18515625) - (oldtotalincome - 50000000), 0);
+                } else if (oldtotalincome > 20000000) {
+                    oldmarginalrelief = Math.max((oldtaxbeforesurcharge + oldsurcharge - 6684375) - (oldtotalincome - 20000000), 0);
+                } else if (oldtotalincome > 10000000) {
+                    oldmarginalrelief = Math.max((oldtaxbeforesurcharge + oldsurcharge - 3093750) - (oldtotalincome - 10000000), 0);
+                } else if (oldtotalincome > 5000000) {
+                    oldmarginalrelief = Math.max((oldtaxbeforesurcharge + oldsurcharge - 1312500) - (oldtotalincome - 5000000), 0);
+                } else {
+                    oldmarginalrelief = 0;
+                }
+            } else if (age >= 60 && age < 80) {
+                if (oldtotalincome > 50000000) {
+                    oldmarginalrelief = Math.max((oldtaxbeforesurcharge + oldsurcharge - 18512500) - (oldtotalincome - 50000000), 0);
+                } else if (oldtotalincome > 20000000) {
+                    oldmarginalrelief = Math.max((oldtaxbeforesurcharge + oldsurcharge - 6681500) - (oldtotalincome - 20000000), 0);
+                } else if (oldtotalincome > 10000000) {
+                    oldmarginalrelief = Math.max((oldtaxbeforesurcharge + oldsurcharge - 3091000) - (oldtotalincome - 10000000), 0);
+                } else if (oldtotalincome > 5000000) {
+                    oldmarginalrelief = Math.max((oldtaxbeforesurcharge + oldsurcharge - 1310000) - (oldtotalincome - 5000000), 0);
+                } else {
+                    oldmarginalrelief = 0;
+                }
+            } else {
+                if (oldtotalincome > 50000000) {
+                    oldmarginalrelief = Math.max((oldtaxbeforesurcharge + oldsurcharge - 18500000) - (oldtotalincome - 50000000), 0);
+                } else if (oldtotalincome > 20000000) {
+                    oldmarginalrelief = Math.max((oldtaxbeforesurcharge + oldsurcharge - 6670000) - (oldtotalincome - 20000000), 0);
+                } else if (oldtotalincome > 10000000) {
+                    oldmarginalrelief = Math.max((oldtaxbeforesurcharge + oldsurcharge - 3080000) - (oldtotalincome - 10000000), 0);
+                } else if (oldtotalincome > 5000000) {
+                    oldmarginalrelief = Math.max((oldtaxbeforesurcharge + oldsurcharge - 1300000) - (oldtotalincome - 5000000), 0);
+                } else {
+                    oldmarginalrelief = 0;
+                }
+            }
 
-    let newexemptionsec13a = 0;
-    let newotherexemption = 0;
-    let newprofessionaltax = 0;
-    let newstandarddeduction = Math.min((newgrosssalary - (newexemptionsec13a + newotherexemption + newprofessionaltax)), 75000);
+            let oldtaxbeforecess = oldtaxbeforesurcharge + oldsurcharge - oldmarginalrelief;
+            let oldcess = Math.max(0, oldtaxbeforecess * 0.04);
+            let oldgrosstaxpayable = Math.max(oldtaxbeforecess + oldcess, 0);
 
-    let newnetsalary = newgrosssalary - (newexemptionsec13a + newotherexemption + newprofessionaltax + newstandarddeduction);
+            // New Regime Tax Calculation
+            let newnormalincome = newroundoff;
+            let newtotalincome = newnormalincome;
+            let newtaxonnormalincome = 0;
+            let newrebate = 0;
+            let newsurcharge = 0;
+            let newmarginalrelief = 0;
 
-    
-    // Income from House Property
-    
-    let oldinterestletout = Math.min(Math.max(0, Number(document.getElementById('interestletout').value)),200000);
-    let oldinterestselfoccupied = Math.min(Math.max(0, Number(document.getElementById('interestselfoccupied').value)),200000);
-    
-    
-    
-    let newinterestletout = Math.min(Math.max(0, Number(document.getElementById('interestletout').value)),200000);
-    let newinterestselfoccupied = 0;
-    let newnetincomehp = -Math.max(newinterestletout + newinterestselfoccupied,0);
-    
-    
-    //Interest on Self-Occupied - Allowed upto 2Lakh in Old Scheme but not Allowed in New Scheme
-    //Interest on LetOut    - No Limit in Old & New Scheme from NAV Income
-    //Loss on Interest on LetOut    - Interhead Setoff Allowed in Old Scheme upto 2Lakh from other head of Income but not allowed in new scheme
-    //Old net income logic - Can be Nagative only upto 200000 for interhead setoff from the Interest on Self-Occupied & Letout both
-    //Net net income logic - Can not be Nagative Beacuse no interhead setoff allowed. So, Min Value will be Zero
-    
-    
-    
-    
-    //Income from Other Sources
-    // Retrieve values from input fields
-    let oldotherincome = Math.max(0, Number(document.getElementById('otherincome').value));
-    let newotherincome = Math.max(0, Number(document.getElementById('otherincome').value));
-    
-    let oldnetothersources = oldotherincome;
-    let newnetothersources = newotherincome;
+            if (newnormalincome <= 400000) {
+                newtaxonnormalincome = 0;
+            } else if (newnormalincome <= 800000) {
+                newtaxonnormalincome = 0.05 * (newnormalincome - 400000);
+            } else if (newnormalincome <= 1200000) {
+                newtaxonnormalincome = 20000 + 0.1 * (newnormalincome - 800000);
+            } else if (newnormalincome <= 1600000) {
+                newtaxonnormalincome = 60000 + 0.15 * (newnormalincome - 1200000);
+            } else if (newnormalincome <= 2000000) {
+                newtaxonnormalincome = 120000 + 0.2 * (newnormalincome - 1600000);
+            } else if (newnormalincome <= 2400000) {
+                newtaxonnormalincome = 200000 + 0.25 * (newnormalincome - 2000000);
+            } else {
+                newtaxonnormalincome = 300000 + 0.3 * (newnormalincome - 2400000);
+            }
 
-    
-     // Calculate Gross Total Income
-    
-    
+            let newtaxbeforerebate = newtaxonnormalincome;
+            if (newnormalincome <= 1200000) {
+                newrebate = Math.min(newtaxonnormalincome, 60000);
+            } else {
+                newrebate = Math.max(Math.min(newtaxonnormalincome, 60000) - (newnormalincome - 1200000), 0);
+            }
 
-    let oldgrosstotalincome = Math.max(oldnetsalary + oldnetincomehp + oldnetothersources,0);
-    let newgrosstotalincome = Math.max(newnetsalary + newnetincomehp + newnetothersources,0);
+            let newtaxbeforesurcharge = newtaxbeforerebate - newrebate;
 
-    //Deductions
+            if (newnormalincome > 20000000) {
+                newsurcharge = newtaxbeforesurcharge * 0.25;
+            } else if (newtotalincome > 10000000) {
+                newsurcharge = newtaxbeforesurcharge * 0.15;
+            } else if (newtotalincome > 5000000) {
+                newsurcharge = newtaxbeforesurcharge * 0.10;
+            } else {
+                newsurcharge = 0;
+            }
 
+            if (newtotalincome > 20000000) {
+                newmarginalrelief = Math.max((newtaxbeforesurcharge + newsurcharge - 5580000) - (newtotalincome - 20000000), 0);
+            } else if (newtotalincome > 10000000) {
+                newmarginalrelief = Math.max((newtaxbeforesurcharge + newsurcharge - 2580000) - (newtotalincome - 10000000), 0);
+            } else if (newtotalincome > 5000000) {
+                newmarginalrelief = Math.max((newtaxbeforesurcharge + newsurcharge - 1080000) - (newtotalincome - 5000000), 0);
+            } else {
+                newmarginalrelief = 0;
+            }
 
-// Get user input for deductions
-   // Retrieve values from the input fields and ensure each deduction does not exceed a certain value
-let olddeduction80c = Math.min(150000, Number(document.getElementById('deduction80c').value));
-let olddeduction80ccc = Math.min(150000, Number(document.getElementById('deduction80ccc').value)); // Adjust 'maximumValue' accordingly
-let olddeduction80ccd1 = Math.min(150000, Number(document.getElementById('deduction80ccd1').value)); // Adjust 'maximumValue' accordingly
-let oldrestrictdeduction = Math.min(150000, olddeduction80c + olddeduction80ccc + olddeduction80ccd1);
-let olddeduction80ccd1b = Math.min(50000, Number(document.getElementById('deduction80ccd1b').value)); // Adjust 'maximumValue' accordingly
-let olddeduction80ccd2 = Math.max(Number(document.getElementById('deduction80ccd2').value),0); 
-let olddeduction80d = Math.min(100000, Number(document.getElementById('deduction80d').value)); // Adjust 'maximumValue' accordingly
-let olddeduction80g = Math.max(Number(document.getElementById('deduction80g').value),0); 
-let olddeduction80e = Math.max(Number(document.getElementById('deduction80e').value),0); // Adjust 'maximumValue' accordingly
-let olddeduction80tta = Math.min(10000, Number(document.getElementById('deduction80tta').value)); // Adjust 'maximumValue' according
+            let newtaxbeforecess = newtaxbeforesurcharge + newsurcharge - newmarginalrelief;
+            let newcess = Math.max(0, newtaxbeforecess * 0.04);
+            let newgrosstaxpayable = Math.max(newtaxbeforecess + newcess, 0);
 
+            // Prior TDS Deducted
+            let tdsMonths = ['apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec', 'jan', 'feb', 'mar'];
+            let priorTDS = 0;
+            tdsMonths.forEach(month => {
+                priorTDS += Math.max(0, Number(document.getElementById(`tds_${month}`).value));
+            });
 
-let oldtotaldeduction = oldrestrictdeduction + olddeduction80ccd1b + olddeduction80ccd2 + olddeduction80d + olddeduction80g + olddeduction80e + olddeduction80tta;
+            // Select regime
+            let taxScheme = document.getElementById('tax_scheme').value;
+            let grossSalary = taxScheme === 'old' ? oldgrosssalary : newgrosssalary;
+            let hraExemption = taxScheme === 'old' ? oldexemptionsec13a : newexemptionsec13a;
+            let exemptAllowance = taxScheme === 'old' ? oldotherexemption : newotherexemption;
+            let professionalTax = taxScheme === 'old' ? oldprofessionaltax : newprofessionaltax;
+            let standardDeduction = taxScheme === 'old' ? oldstandarddeduction : newstandarddeduction;
+            let netSalary = taxScheme === 'old' ? oldnetsalary : newnetsalary;
+            let netIncomeHP = taxScheme === 'old' ? oldnetincomehp : newnetincomehp;
+            let dividendIncome = taxScheme === 'old' ? olddividendincome : newdividendincome;
+            let otherIncome = taxScheme === 'old' ? oldotherincome : newotherincome;
+            let netOtherSources = taxScheme === 'old' ? oldnetothersources : newnetothersources;
+            let grossTotalIncome = taxScheme === 'old' ? oldgrosstotalincome : newgrosstotalincome;
+            let totalDeduction = taxScheme === 'old' ? oldeligiblededuction : neweligiblededuction;
+            let netTaxableIncome = taxScheme === 'old' ? oldnetincome : newnetincome;
+            let incomeTax = taxScheme === 'old' ? oldtaxonnormalincome : newtaxonnormalincome;
+            let rebate = taxScheme === 'old' ? oldrebate : newrebate;
+            let surcharge = taxScheme === 'old' ? oldsurcharge : newsurcharge;
+            let taxBeforeCess = taxScheme === 'old' ? oldtaxbeforecess : newtaxbeforecess;
+            let cess = taxScheme === 'old' ? oldcess : newcess;
+            let grossTaxPayable = taxScheme === 'old' ? oldgrosstaxpayable : newgrosstaxpayable;
 
+            // Calculate remaining tax liability
+            let annualTaxLiability = Math.max(grossTaxPayable - priorTDS, 0);
 
-let oldeligiblededuction=Math.min(Math.max(oldgrosstotalincome,0),oldtotaldeduction);
+            // Update results
+            document.getElementById('basic_salary_result').textContent = oldbasicsalary.toFixed(2);
+            document.getElementById('hra_result').textContent = oldhra.toFixed(2);
+            document.getElementById('bonus_result').textContent = oldbonus.toFixed(2);
+            document.getElementById('special_allowance_result').textContent = oldspecialallowance.toFixed(2);
+            document.getElementById('other_allowance_result').textContent = oldotherallowance.toFixed(2);
+            document.getElementById('gross_salary').textContent = grossSalary.toFixed(2);
+            document.getElementById('hra_exemption_result').textContent = hraExemption.toFixed(2);
+            document.getElementById('exempt_allowance_result').textContent = exemptAllowance.toFixed(2);
+            document.getElementById('professional_tax_result').textContent = professionalTax.toFixed(2);
+            document.getElementById('standard_deduction').textContent = standardDeduction.toFixed(2);
+            document.getElementById('total_exemptions').textContent = (hraExemption + exemptAllowance + professionalTax + standardDeduction).toFixed(2);
+            document.getElementById('net_salary').textContent = netSalary.toFixed(2);
+            document.getElementById('gross_annual_value_result').textContent = grossAnnualValue.toFixed(2);
+            document.getElementById('municipal_tax_result').textContent = municipalTax.toFixed(2);
+            document.getElementById('nav_result').textContent = nav.toFixed(2);
+            document.getElementById('standard_deduction_24a_result').textContent = standardDeduction24a.toFixed(2);
+            document.getElementById('interest_self_result').textContent = (taxScheme === 'old' ? oldinterestself : newinterestself).toFixed(2);
+            document.getElementById('interest_letout_result').textContent = (taxScheme === 'old' ? oldinterestletout : newinterestletout).toFixed(2);
+            document.getElementById('net_income_hp_result').textContent = netIncomeHP.toFixed(2);
+            document.getElementById('dividend_income_result').textContent = dividendIncome.toFixed(2);
+            document.getElementById('other_income_result').textContent = otherIncome.toFixed(2);
+            document.getElementById('total_other_income_result').textContent = netOtherSources.toFixed(2);
+            document.getElementById('gross_total_income').textContent = grossTotalIncome.toFixed(2);
+            document.getElementById('section_80c_result').textContent = olddeduction80c.toFixed(2);
+            document.getElementById('section_80ccc_result').textContent = olddeduction80ccc.toFixed(2);
+            document.getElementById('section_80ccd1_result').textContent = olddeduction80ccd1.toFixed(2);
+            document.getElementById('section_80ccd1b_result').textContent = olddeduction80ccd1b.toFixed(2);
+            document.getElementById('section_80ccd2_result').textContent = (taxScheme === 'old' ? olddeduction80ccd2 : newdeduction80ccd2).toFixed(2);
+            document.getElementById('section_80d_result').textContent = olddeduction80d.toFixed(2);
+            document.getElementById('section_80e_result').textContent = olddeduction80e.toFixed(2);
+            document.getElementById('section_80g_result').textContent = olddeduction80g.toFixed(2);
+            document.getElementById('section_80tta_result').textContent = olddeduction80tta.toFixed(2);
+            document.getElementById('total_deductions').textContent = totalDeduction.toFixed(2);
+            document.getElementById('gross_income_tax').textContent = grossTotalIncome.toFixed(2);
+            document.getElementById('total_deductions_tax').textContent = totalDeduction.toFixed(2);
+            document.getElementById('net_taxable_income').textContent = netTaxableIncome.toFixed(2);
+            document.getElementById('income_tax').textContent = incomeTax.toFixed(2);
+            document.getElementById('rebate').textContent = rebate.toFixed(2);
+            document.getElementById('surcharge').textContent = surcharge.toFixed(2);
+            document.getElementById('tax_after_rebate').textContent = taxBeforeCess.toFixed(2);
+            document.getElementById('cess').textContent = cess.toFixed(2);
+            document.getElementById('prior_tds_result').textContent = priorTDS.toFixed(2);
+            document.getElementById('annual_tax_liability').textContent = annualTaxLiability.toFixed(2);
 
-let oldnetincome = Math.max(oldgrosstotalincome - oldeligiblededuction,0);
+            // Monthly TDS Breakdown
+            let monthlyTDS = annualTaxLiability / 12;
+            let totalTDSLiability = grossTaxPayable;
+            let tdsData = tdsMonths.map(month => ({
+                month: month.charAt(0).toUpperCase() + month.slice(1),
+                deducted: Math.max(0, Number(document.getElementById(`tds_${month}`).value)),
+                liability: monthlyTDS
+            }));
 
+            let monthlyTdsTable = document.getElementById('monthly_tds_table');
+            monthlyTdsTable.innerHTML = '';
+            tdsData.forEach(data => {
+                let row = document.createElement('tr');
+                row.innerHTML = `<td>${data.month}</td><td>${data.deducted.toFixed(2)}</td><td>${data.liability.toFixed(2)}</td>`;
+                monthlyTdsTable.appendChild(row);
+            });
 
-    
-// Retrieve values from the input fields and ensure each deduction does not exceed a certain valuelet newdeduction80c = Math.min(150000, Number(document.getElementById('deduction80c').value));
+            document.getElementById('total_tds_deducted').textContent = priorTDS.toFixed(2);
+            document.getElementById('total_tds_liability').textContent = totalTDSLiability.toFixed(2);
+            document.getElementById('monthly_tds_amount').textContent = `₹ ${monthlyTDS.toFixed(2)}`;
 
-let newdeduction80c = 0;
-let newdeduction80cCC = 0;
-let newdeduction80ccd1 = 0;
-let newrestrictdeduction = Math.min(0,150000, newdeduction80c + newdeduction80ccc + newdeduction80ccd1);
-let newdeduction80ccd1b = 0;
-let newdeduction80ccd2 = Math.max(Number(document.getElementById('deduction80ccd2').value), 0); 
-let newdeduction80d = 0;
-let newdeduction80g = 0;
-let newdeduction80e = 0;
-let newdeduction80tta = 0;
+            // Update Chart
+            if (window.tdsChart) window.tdsChart.destroy();
+            window.tdsChart = new Chart(document.getElementById('tds-chart'), {
+                type: 'bar',
+                data: {
+                    labels: tdsData.map(data => data.month),
+                    datasets: [
+                        {
+                            label: 'TDS Deducted',
+                            data: tdsData.map(data => data.deducted),
+                            backgroundColor: 'rgba(26, 115, 232, 0.5)',
+                            borderColor: 'rgba(26, 115, 232, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'TDS Liability',
+                            data: tdsData.map(data => data.liability),
+                            backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
 
+        // Calculate TDS and show results
+        function calculateTDS() {
+            CalculateAllIncome();
+            document.getElementById('results-section').style.display = 'block';
+            saveToLocalStorage();
+        }
 
-
-let newtotaldeduction = newrestrictdeduction + newdeduction80ccd1b + newdeduction80ccd2 + newdeduction80d + newdeduction80g + newdeduction80e + newdeduction80tta;
-let neweligiblededuction=Math.min(Math.max(newgrosstotalincome,0),newtotaldeduction);
-let newnetincome = Math.max(newgrosstotalincome - neweligiblededuction, 0);
-
-
-
-
-   let oldroundoff = Math.round(oldnetincome/10)*10;
-   let newroundoff = Math.round(newnetincome/10)*10;
-   
-
-    //Old Normal Income & Special Income
-   let oldnormalincome = oldroundoff;
-   let oldtotalincome = oldnormalincome;
-   let oldtaxonnormalincome = 0;
-   let oldrebate = 0;
-   let oldsurcharge = 0;
-   let oldmarginalrelief = 0;
-   let age = Number(document.getElementById('age').value); 
-   
-    //Old Slab Rates
-    
-  if (age<60 || age ==="") {
-    
-    if (oldnormalincome <= 250000) {
-      oldtaxonnormalincome = 0;
-    } else if (oldnormalincome <= 500000) {
-      oldtaxonnormalincome = 0.05 * (oldnormalincome - 250000);
-    } else if (oldnormalincome <= 1000000) {
-      oldtaxonnormalincome = 12500 + 0.2 * (oldnormalincome - 500000);
-    } else {
-      oldtaxonnormalincome = 112500 + 0.3 * (oldnormalincome - 1000000);
-    }
-  } else if (age>=60 && age<80) {
-    if (oldnormalincome <= 300000) {
-      oldtaxonnormalincome = 0;
-    } else if (oldnormalincome <= 500000) {
-      oldtaxonnormalincome = 0.05 * (oldnormalincome - 300000);
-    } else if (oldnormalincome <= 1000000) {
-      oldtaxonnormalincome = 10000 + 0.2 * (oldnormalincome - 500000);
-    } else {
-      oldtaxonnormalincome = 110000 + 0.3 * (oldnormalincome - 1000000);
-    }
-  } else { // age 80 and above
-    if (oldnormalincome <= 500000) {
-      oldtaxonnormalincome = 0;
-    } else if (oldnormalincome <= 1000000) {
-      oldtaxonnormalincome = 0.2 * (oldnormalincome - 500000);
-    } else {
-      oldtaxonnormalincome = 100000 + 0.3 * (oldnormalincome - 1000000);
-    }
-  }
-  
-    let oldtaxbeforerebate = oldtaxonnormalincome;
-
-
-   oldrebate = Math.max(Math.min(oldtaxbeforerebate,12500),0);
-     
-
-     
-     let oldtaxbeforesurcharge=oldtaxbeforerebate-oldrebate;
-    
-
-    
-    //Old Surcharge
-    
-     if (oldnormalincome > 50000000) {
-        // 37% surcharge for income exceeding Rs. 5 crore
-        oldsurcharge = oldtaxonnormalincome* 0.37;
-     }else   if (oldnormalincome> 20000000) {
-        // 25% surcharge for income exceeding Rs. 2 crore
-        oldsurcharge = oldtaxonnormalincome* 0.25;
-    } else if ((oldtotalincome) > 10000000) {
-        // 15% surcharge for income exceeding Rs. 1 crore
-        oldsurcharge = oldtaxbeforesurcharge * 0.15;
-    } else if ((oldtotalincome) > 5000000) {
-        // 10% surcharge for income exceeding Rs. 50 lakh
-        oldsurcharge = oldtaxbeforesurcharge * 0.10;
-    } else {
-        // No surcharge
-        oldsurcharge = 0;
-    }
-    
-    //Old Marginal Relief
-    
-    if (age<60 || age ==="") {
-    
-    if (oldtotalincome > 50000000) {
-    oldmarginalrelief = Math.max((oldtaxbeforesurcharge + oldsurcharge - 18515625) - (oldtotalincome - 50000000), 0);
-    } else if (oldtotalincome > 20000000) {
-    oldmarginalrelief = Math.max((oldtaxbeforesurcharge + oldsurcharge - 6684375) - (oldtotalincome - 20000000), 0);
-    } else if (oldtotalincome > 10000000) {
-    oldmarginalrelief = Math.max((oldtaxbeforesurcharge + oldsurcharge - 3093750) - (oldtotalincome - 10000000), 0);
-    } else if (oldtotalincome > 5000000) {
-    oldmarginalrelief = Math.max((oldtaxbeforesurcharge + oldsurcharge - 1312500) - (oldtotalincome - 5000000), 0);
-    } else {
-    oldmarginalrelief = 0;
-    }
-    
-    } else if(age>=60 && age<80){
-        if (oldtotalincome > 50000000) {
-    oldmarginalrelief = Math.max((oldtaxbeforesurcharge + oldsurcharge - 18512500) - (oldtotalincome - 50000000), 0);
-    } else if (oldtotalincome > 20000000) {
-    oldmarginalrelief = Math.max((oldtaxbeforesurcharge + oldsurcharge - 6681500) - (oldtotalincome - 20000000), 0);
-    } else if (oldtotalincome > 10000000) {
-    oldmarginalrelief = Math.max((oldtaxbeforesurcharge + oldsurcharge - 3091000) - (oldtotalincome - 10000000), 0);
-    } else if (oldtotalincome > 5000000) {
-    oldmarginalrelief = Math.max((oldtaxbeforesurcharge + oldsurcharge - 1310000) - (oldtotalincome - 5000000), 0);
-    } else {
-    oldmarginalrelief = 0;
-    }
-    } else{
-        if (oldtotalincome > 50000000) {
-    oldmarginalrelief = Math.max((oldtaxbeforesurcharge + oldsurcharge - 18500000) - (oldtotalincome - 50000000), 0);
-    } else if (oldtotalincome > 20000000) {
-    oldmarginalrelief = Math.max((oldtaxbeforesurcharge + oldsurcharge - 6670000) - (oldtotalincome - 20000000), 0);
-    } else if (oldtotalincome > 10000000) {
-    oldmarginalrelief = Math.max((oldtaxbeforesurcharge + oldsurcharge - 3080000) - (oldtotalincome - 10000000), 0);
-    } else if (oldtotalincome > 5000000) {
-    oldmarginalrelief = Math.max((oldtaxbeforesurcharge + oldsurcharge - 1300000) - (oldtotalincome - 5000000), 0);
-    } else {
-    oldmarginalrelief = 0;
-    }  
-    }
-    
-
-    let oldtaxbeforecess = oldtaxbeforesurcharge + oldsurcharge - oldmarginalrelief;
-    let oldcess = Math.max(0, oldtaxbeforecess * 0.04);
-    let oldgrosstaxpayable = Math.max(oldtaxbeforecess + oldcess, 0);
-
-    document.getElementById('oldregimenormalincometax').textContent = oldtaxonnormalincome.toFixed(2);
-    document.getElementById('oldregimespecialincometax').textContent = oldtaxonspecialincome.toFixed(2);
-    document.getElementById('oldregimetaxbeforerebate').textContent = oldtaxbeforerebate.toFixed(2);
-    document.getElementById('oldregimerebate87a').textContent = oldrebate.toFixed(2);
-    document.getElementById('oldregimetaxbeforesurcharge').textContent = oldtaxbeforesurcharge.toFixed(2);
-    document.getElementById('oldregimesurcharge').textContent = oldsurcharge.toFixed(2);
-    document.getElementById('oldregimemarginalrelief').textContent = oldmarginalrelief.toFixed(2);
-    document.getElementById('oldregimetaxbeforecess').textContent = oldtaxbeforecess.toFixed(2);
-    document.getElementById('oldregimecess').textContent = oldcess.toFixed(2);
-    document.getElementById('oldregimegrosstaxpayable').textContent = oldgrosstaxpayable.toFixed(2);
-    
-    
-    
-    
-    //new Normal Income & Special Income
-   
-   let newnormalincome = newroundoff;
-   let newtotalincome = newnormalincome;
-   
-     let newtaxonnormalincome = 0;
-   let newrebate = 0;
-   let newsurcharge = 0;
-   let newmarginalrelief = 0;
-   
-    //Slab Rates
-    
-    if (newnormalincome <= 400000) {
-        newtaxonnormalincome = 0;
-    } else if (newnormalincome <= 800000) {
-        newtaxonnormalincome = 0.05 * (newnormalincome - 400000);   //20000
-    } else if (newnormalincome <= 1200000) {
-        newtaxonnormalincome = 20000 + 0.1 * (newnormalincome - 800000);
-    } else if (newnormalincome <= 1600000) {
-        newtaxonnormalincome = 60000+0.15 * (newnormalincome - 1200000);
-    } else if (newnormalincome <= 2000000) {
-        newtaxonnormalincome = 120000 + 0.2 * (newnormalincome - 1600000);
-    } else if (newnormalincome <= 2400000) {
-        newtaxonnormalincome = 200000 + 0.25 * (newnormalincome - 2000000);
-    }else {
-	newtaxonnormalincome = 300000 + 0.3 * (newnormalincome - 2400000);
-    }
-    
- 
-    
-    
-    let newtaxbeforerebate = newtaxonnormalincome;
-    
-    
-    
-         if (newnormalincome<=1200000)
-         {
-             newrebate = Math.max(Math.min(newtaxonnormalincome,60000),0);
-         }
-         else
-         {
-            newrebate = Math.max(Math.min(newtaxonnormalincome,60000) - (newnormalincome-1200000),0);
-            
-         }
-         
-    
-    
-     let newtaxbeforesurcharge=newtaxbeforerebate-newrebate;
-    
-          
-    //new Surcharge
-    
-    if (newnormalincome> 20000000) {
-        // 25% surcharge for income exceeding Rs. 2 crore
-        newsurcharge = newtaxonnormalincome*0.25;
-    } else if ((newtotalincome) > 10000000) {
-        // 15% surcharge for income exceeding Rs. 1 crore
-        newsurcharge = newtaxbeforesurcharge * 0.15;
-    } else if ((newtotalincome) > 5000000) {
-        // 10% surcharge for income exceeding Rs. 50 lakh
-        newsurcharge = newtaxbeforesurcharge * 0.10;
-    } else {
-        // No surcharge
-        newsurcharge = 0;
-    }
-    
-    
-    
-    //new Marginal Relief
-    
-    if (newtotalincome > 20000000) {
-    newmarginalrelief = Math.max((newtaxbeforesurcharge + newsurcharge - 5580000) - (newtotalincome - 20000000), 0);
-    } else if (newtotalincome > 10000000) {
-    newmarginalrelief = Math.max((newtaxbeforesurcharge + newsurcharge - 2580000) - (newtotalincome - 10000000), 0);
-    } else if (newtotalincome > 5000000) {
-    newmarginalrelief = Math.max((newtaxbeforesurcharge + newsurcharge - 1080000) - (newtotalincome - 5000000), 0);
-    } else {
-    newmarginalrelief = 0;
-    }
-
-    let newtaxbeforecess = newtaxbeforesurcharge + newsurcharge - newmarginalrelief;
-    let newcess = Math.max(0, newtaxbeforecess * 0.04);
-    let newgrosstaxpayable = Math.max(newtaxbeforecess + newcess, 0);
-
-    document.getElementById('newregimenormalincometax').textContent = newtaxonnormalincome.toFixed(2);
-    document.getElementById('newregimespecialincometax').textContent = newtaxonspecialincome.toFixed(2);
-    document.getElementById('newregimetaxbeforerebate').textContent = newtaxbeforerebate.toFixed(2);
-    document.getElementById('newregimerebate87a').textContent = newrebate.toFixed(2);
-    document.getElementById('newregimetaxbeforesurcharge').textContent = newtaxbeforesurcharge.toFixed(2);
-    document.getElementById('newregimesurcharge').textContent = newsurcharge.toFixed(2);
-    document.getElementById('newregimemarginalrelief').textContent = newmarginalrelief.toFixed(2);
-    document.getElementById('newregimetaxbeforecess').textContent = newtaxbeforecess.toFixed(2);
-    document.getElementById('newregimecess').textContent = newcess.toFixed(2);
-    document.getElementById('newregimegrosstaxpayable').textContent = newgrosstaxpayable.toFixed(2);
-    
-    
-    
-    
-}
-
-    document.querySelectorAll("input, select, textarea, radio, checkbox").forEach(element => {
-    element.addEventListener("input", function() {
-      CalculateAllIncome();
-      saveToLocalStorage(); // Save on every input
-    });
-    element.addEventListener("change", function() {
-      CalculateAllIncome();
-      saveToLocalStorage(); // Save on every change
-    });
-  });
-        document.querySelectorAll('input, select').forEach(input => {
-    // Clear all inputs
-    input.dispatchEvent(new Event('input')); // Ye event trigger karega
-  });
-       //Page Load hone par CalculateAllIncome function run kar rha h jis se value blank ki jgh zero show ho rhi h resulted fields m
-        CalculateAllIncome();
-        saveToLocalStorage(); 
-  loadFromLocalStorage(); // Load data when page loads
-});
-      //}else{
-      //  alert("Don't waste your time for copying. This file is fully secured by Sumit Garg. If any query, Contact - Sumit Garg, Ph. No. - 9716804520, Email - SumitGarg100000@Gmail.com ");
-      //    } 
-    //   }   else      {       alert("This file is fully secured by Sumit Garg. If you face any problem then contact me. Name - Sumit Garg, Ph. No. - 9716804520, Email - SumitGarg100000@Gmail.com ");     }
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            loadFromLocalStorage();
+            document.querySelectorAll('input, select').forEach(element => {
+                element.addEventListener('input', function() {
+                    CalculateAllIncome();
+                    saveToLocalStorage();
+                });
+                element.addEventListener('change', function() {
+                    CalculateAllIncome();
+                    saveToLocalStorage();
+                });
+            });
+        });
     </script>
-
-    
 </body>
 </html>
