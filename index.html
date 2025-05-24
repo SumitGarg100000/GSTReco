@@ -767,18 +767,29 @@
             oldrebate = oldnormalincome <= 500000 ? Math.min(oldtaxbeforerebate, 12500) : 0;
             let oldtaxbeforesurcharge = oldtaxbeforerebate - oldrebate;
 
-            if (oldnormalincome > 50000000) {
-                oldsurcharge = oldtaxbeforesurcharge * 0.37;
-            } else if (oldnormalincome > 20000000) {
-                oldsurcharge = oldtaxbeforesurcharge * 0.25;
-            } else if (oldtotalincome > 10000000) {
-                oldsurcharge = oldtaxbeforesurcharge * 0.15;
-            } else if (oldtotalincome > 5000000) {
-                oldsurcharge = oldtaxbeforesurcharge * 0.10;
-            } else {
-                oldsurcharge = 0;
-            }
-
+                
+     let olddividend= Number(document.getElementById('dividendincome').value);
+     let olddividendtax =(olddividend*oldtaxonnormalincome)/oldnormalincome;
+     
+    
+    //Old Surcharge
+    
+     if ((oldnormalincome-olddividendincome) > 50000000) {
+        // 37% surcharge for income exceeding Rs. 5 crore
+        oldsurcharge = (oldtaxonnormalincome-olddividendtax)*0.37+olddividendtax*0.15;
+     }else   if ((oldnormalincome-olddividendincome) > 20000000) {
+        // 25% surcharge for income exceeding Rs. 2 crore
+        oldsurcharge = (oldtaxonnormalincome-olddividendtax) * 0.25+olddividendtax*0.15;
+    } else if ((oldtotalincome) > 10000000) {
+        // 15% surcharge for income exceeding Rs. 1 crore
+        oldsurcharge = oldtaxbeforesurcharge * 0.15;
+    } else if ((oldtotalincome) > 5000000) {
+        // 10% surcharge for income exceeding Rs. 50 lakh
+        oldsurcharge = oldtaxbeforesurcharge * 0.10;
+    } else {
+        // No surcharge
+        oldsurcharge = 0;
+    }
             if (age < 60 || age === "") {
                 if (oldtotalincome > 50000000) {
                     oldmarginalrelief = Math.max((oldtaxbeforesurcharge + oldsurcharge - 18515625) - (oldtotalincome - 50000000), 0);
