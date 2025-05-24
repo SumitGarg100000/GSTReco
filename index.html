@@ -774,7 +774,7 @@
             }
             let oldtaxbeforesurcharge = oldtaxbeforerebate - oldrebate;
 
-     let olddividend= Number(document.getElementById('oldregimedividendincome').textContent);
+     let olddividendincome= Number(document.getElementById('dividendincome').textContent);
      let olddividendtax =(olddividend*oldtaxonnormalincome)/oldnormalincome;
      
     
@@ -873,14 +873,14 @@
 
             let newtaxbeforesurcharge = newtaxbeforerebate - newrebate;
 
-                 let newdividend= Number(document.getElementById('newregimedividendincome').textContent);
+                 let newdividendincome= Number(document.getElementById('dividendincome').textContent);
      let newdividendtax =(newdividend*newtaxonnormalincome)/newnormalincome;
      
     //new Surcharge
     
-    if ((newnormalincome+newwinninglottery-newdividendincome) > 20000000) {
+    if ((newnormalincome-newdividendincome) > 20000000) {
         // 25% surcharge for income exceeding Rs. 2 crore
-        newsurcharge = (newtaxonnormalincome+newwinninglottery*0.3-newdividendtax) * 0.25+(newtaxonspecialincome+newdividendtax-newwinninglottery*0.3)*0.15;
+        newsurcharge = (newtaxonnormalincome-newdividendtax) * 0.25+newdividendtax*0.15;
     } else if ((newtotalincome) > 10000000) {
         // 15% surcharge for income exceeding Rs. 1 crore
         newsurcharge = newtaxbeforesurcharge * 0.15;
