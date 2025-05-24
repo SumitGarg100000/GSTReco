@@ -774,8 +774,8 @@
             }
             let oldtaxbeforesurcharge = oldtaxbeforerebate - oldrebate;
 
-     let olddividend= Number(document.getElementById('dividendincome').textContent);
-     let olddividendtax =(olddividend*oldtaxonnormalincome)/oldnormalincome;
+     let olddividend= Number(document.getElementById('dividendincome').value);
+     let olddividendtax =(olddividendincome*oldtaxonnormalincome)/oldnormalincome;
      
     
     //Old Surcharge
@@ -873,8 +873,8 @@
 
             let newtaxbeforesurcharge = newtaxbeforerebate - newrebate;
 
-                 let newdividend= Number(document.getElementById('dividendincome').textContent);
-     let newdividendtax =(newdividend*newtaxonnormalincome)/newnormalincome;
+                 let newdividend= Number(document.getElementById('dividendincome').value);
+     let newdividendtax =(newdividendincome*newtaxonnormalincome)/newnormalincome;
      
     //new Surcharge
     
