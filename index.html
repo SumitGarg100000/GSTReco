@@ -808,46 +808,6 @@ let newnetincome = Math.max(newgrosstotalincome - neweligiblededuction, 0);
         oldltcgsec112aincome = oldltcgsec112a + oldltcgsec112_minus + oldltcgsec112a_minus_jul  + oldltcgsec112_minus_jul + oldstcglossforltcg;
     } else {
         oldltcgsec112aincome = 0;
-    }
- 
-
-
-    //Setoff & Carry Forward for new
-    
-    let newstcgsec111income =0;
-    let newstcgsec111aincome =0;
-    let newstcgsec111aincome_jul =0;
-    let newstcglossforltcg =0;
-    
-    let newltcgsec112income =0;
-    let newltcgsec112income_jul =0;
-    let newltcgsec112aincome =0;
-    let newltcgsec112aincome_jul =0;
-    
-    //newltcgsec111income after setoff for clculation
-    if((newstcgsec111 + newstcgsec111_jul + newstcgsec111a_minus + newstcgsec111a_minus_jul)>0)
-    {
-        newstcgsec111income = newstcgsec111 + newstcgsec111_jul + newstcgsec111a_minus + newstcgsec111a_minus_jul;
-    } else {
-        newstcgsec111income = 0;
-    }
-    
-    
-    if((newstcgsec111a_jul + newstcgsec111_minus + newstcgsec111_minus_jul + newstcgsec111a_minus)>0)
-    {
-        newstcgsec111aincome_jul = newstcgsec111a_jul + newstcgsec111_minus + newstcgsec111_minus_jul + newstcgsec111a_minus;
-    } else {
-        newstcgsec111aincome_jul = 0;
-    }
-    
-    
-    
-    if((newstcgsec111a + newstcgsec111_minus + newstcgsec111_minus_jul + newstcgsec111a_minus_jul)>0)
-    {
-        newstcgsec111aincome = newstcgsec111a + newstcgsec111_minus + newstcgsec111_minus_jul + newstcgsec111a_minus_jul;
-    } else {
-
- 
 
     //Old Normal Income & Special Income
    let oldnormalincome = oldroundoff;
@@ -861,62 +821,7 @@ let newnetincome = Math.max(newgrosstotalincome - neweligiblededuction, 0);
    
    //Old Slab Rate benefit given to LTCG & STCG Special rates income not lottery
     
-    if(oldnormalincome<250000 && age<60)
     
-{       if(Math.max(oldltcgsec112,0)>250000){
-        oldtaxonspecialincome = Math.max(Math.max(oldltcgsec112,0)-Math.max(250000-oldnormalincome,0),0)*0.2 +  Math.max(oldstcgsec111aincome,0)*0.15 + Math.max(oldltcgsec112aincome-(125000-Math.min(oldltcgsec112aincome_jul,125000)),0)*0.1 + Math.max(oldstcgsec111aincome_jul,0)*0.2 + Math.max(oldltcgsec112income_jul,0)*0.125 + Math.max(oldltcgsec112aincome_jul-125000,0)*0.125 + Math.max(oldwinninglottery+oldvda,0)*0.3;
-    } else if(Math.max(oldltcgsec112,0)+Math.max(oldstcgsec111aincome_jul,0)>250000){
-       oldtaxonspecialincome = Math.max(Math.max(oldstcgsec111aincome_jul,0)-Math.max(oldltcgsec112,0)-Math.max(250000-oldnormalincome,0),0)*0.2 +  Math.max(oldstcgsec111aincome,0)*0.15 + Math.max(oldltcgsec112aincome-(125000-Math.min(oldltcgsec112aincome_jul,125000)),0)*0.1  + Math.max(oldltcgsec112income_jul,0)*0.125 + Math.max(oldltcgsec112aincome_jul-125000,0)*0.125 + Math.max(oldwinninglottery+oldvda,0)*0.3;
-    } else if(Math.max(oldltcgsec112,0)+Math.max(oldstcgsec111aincome_jul,0)+Math.max(oldstcgsec111aincome,0)>250000){
-       oldtaxonspecialincome = Math.max(Math.max(oldstcgsec111aincome,0)-Math.max(oldstcgsec111aincome_jul,0)-Math.max(oldltcgsec112,0)-Math.max(250000-oldnormalincome,0),0)*0.15 +  Math.max(oldltcgsec112aincome-(125000-Math.min(oldltcgsec112aincome_jul,125000)),0)*0.1  + Math.max(oldltcgsec112income_jul,0)*0.125 + Math.max(oldltcgsec112aincome_jul-125000,0)*0.125 + Math.max(oldwinninglottery+oldvda,0)*0.3;
-    }  else if(Math.max(oldltcgsec112income_jul,0)+Math.max(oldltcgsec112,0)+Math.max(oldstcgsec111aincome_jul,0)+Math.max(oldstcgsec111aincome,0)>250000){
-       oldtaxonspecialincome = Math.max(Math.max(oldltcgsec112income_jul,0)-Math.max(oldstcgsec111aincome,0)-Math.max(oldstcgsec111aincome_jul,0)-Math.max(oldltcgsec112,0)-Math.max(250000-oldnormalincome,0),0)*0.125 +  Math.max(oldltcgsec112aincome-(125000-Math.min(oldltcgsec112aincome_jul,125000)),0)*0.1  +  Math.max(oldltcgsec112aincome_jul-125000,0)*0.125 + Math.max(oldwinninglottery+oldvda,0)*0.3;
-    }  else if(Math.max(oldltcgsec112aincome_jul-125000,0)+Math.max(oldltcgsec112income_jul,0)+Math.max(oldltcgsec112,0)+Math.max(oldstcgsec111aincome_jul,0)+Math.max(oldstcgsec111aincome,0)>250000){
-       oldtaxonspecialincome = Math.max(Math.max(oldltcgsec112aincome_jul-125000,0)-Math.max(oldltcgsec112income_jul,0)-Math.max(oldstcgsec111aincome,0)-Math.max(oldstcgsec111aincome_jul,0)-Math.max(oldltcgsec112,0)-Math.max(250000-oldnormalincome,0),0)*0.125 +  Math.max(oldltcgsec112aincome-(125000-Math.min(oldltcgsec112aincome_jul,125000)),0)*0.1  +  Math.max(oldwinninglottery+oldvda,0)*0.3;
-    }  else {
-       oldtaxonspecialincome = Math.max(Math.max(oldltcgsec112aincome-(125000-Math.min(oldltcgsec112aincome_jul,125000)),0)-Math.max(oldltcgsec112aincome_jul-125000,0)-Math.max(oldltcgsec112income_jul,0)-Math.max(oldstcgsec111aincome,0)-Math.max(oldstcgsec111aincome_jul,0)-Math.max(oldltcgsec112,0)-Math.max(250000-oldnormalincome,0),0)*0.1 +    Math.max(oldwinninglottery+oldvda,0)*0.3;
-    } 
-    
-} else  if(oldnormalincome<300000 && age<80)
-    
-{       if(Math.max(oldltcgsec112,0)>300000){
-        oldtaxonspecialincome = Math.max(Math.max(oldltcgsec112,0)-Math.max(300000-oldnormalincome,0),0)*0.2 +  Math.max(oldstcgsec111aincome,0)*0.15 + Math.max(oldltcgsec112aincome-(125000-Math.min(oldltcgsec112aincome_jul,125000)),0)*0.1 + Math.max(oldstcgsec111aincome_jul,0)*0.2 + Math.max(oldltcgsec112income_jul,0)*0.125 + Math.max(oldltcgsec112aincome_jul-125000,0)*0.125 + Math.max(oldwinninglottery+oldvda,0)*0.3;
-    } else if(Math.max(oldltcgsec112,0)+Math.max(oldstcgsec111aincome_jul,0)>300000){
-       oldtaxonspecialincome = Math.max(Math.max(oldstcgsec111aincome_jul,0)-Math.max(oldltcgsec112,0)-Math.max(300000-oldnormalincome,0),0)*0.2 +  Math.max(oldstcgsec111aincome,0)*0.15 + Math.max(oldltcgsec112aincome-(125000-Math.min(oldltcgsec112aincome_jul,125000)),0)*0.1  + Math.max(oldltcgsec112income_jul,0)*0.125 + Math.max(oldltcgsec112aincome_jul-125000,0)*0.125 + Math.max(oldwinninglottery+oldvda,0)*0.3;
-    } else if(Math.max(oldltcgsec112,0)+Math.max(oldstcgsec111aincome_jul,0)+Math.max(oldstcgsec111aincome,0)>300000){
-       oldtaxonspecialincome = Math.max(Math.max(oldstcgsec111aincome,0)-Math.max(oldstcgsec111aincome_jul,0)-Math.max(oldltcgsec112,0)-Math.max(300000-oldnormalincome,0),0)*0.15 +  Math.max(oldltcgsec112aincome-(125000-Math.min(oldltcgsec112aincome_jul,125000)),0)*0.1  + Math.max(oldltcgsec112income_jul,0)*0.125 + Math.max(oldltcgsec112aincome_jul-125000,0)*0.125 + Math.max(oldwinninglottery+oldvda,0)*0.3;
-    }  else if(Math.max(oldltcgsec112income_jul,0)+Math.max(oldltcgsec112,0)+Math.max(oldstcgsec111aincome_jul,0)+Math.max(oldstcgsec111aincome,0)>300000){
-       oldtaxonspecialincome = Math.max(Math.max(oldltcgsec112income_jul,0)-Math.max(oldstcgsec111aincome,0)-Math.max(oldstcgsec111aincome_jul,0)-Math.max(oldltcgsec112,0)-Math.max(300000-oldnormalincome,0),0)*0.125 +  Math.max(oldltcgsec112aincome-(125000-Math.min(oldltcgsec112aincome_jul,125000)),0)*0.1  +  Math.max(oldltcgsec112aincome_jul-125000,0)*0.125 + Math.max(oldwinninglottery+oldvda,0)*0.3;
-    }  else if(Math.max(oldltcgsec112aincome_jul-125000,0)+Math.max(oldltcgsec112income_jul,0)+Math.max(oldltcgsec112,0)+Math.max(oldstcgsec111aincome_jul,0)+Math.max(oldstcgsec111aincome,0)>300000){
-       oldtaxonspecialincome = Math.max(Math.max(oldltcgsec112aincome_jul-125000,0)-Math.max(oldltcgsec112income_jul,0)-Math.max(oldstcgsec111aincome,0)-Math.max(oldstcgsec111aincome_jul,0)-Math.max(oldltcgsec112,0)-Math.max(300000-oldnormalincome,0),0)*0.125 +  Math.max(oldltcgsec112aincome-(125000-Math.min(oldltcgsec112aincome_jul,125000)),0)*0.1  +  Math.max(oldwinninglottery+oldvda,0)*0.3;
-    }  else {
-       oldtaxonspecialincome = Math.max(Math.max(oldltcgsec112aincome-(125000-Math.min(oldltcgsec112aincome_jul,125000)),0)-Math.max(oldltcgsec112aincome_jul-125000,0)-Math.max(oldltcgsec112income_jul,0)-Math.max(oldstcgsec111aincome,0)-Math.max(oldstcgsec111aincome_jul,0)-Math.max(oldltcgsec112,0)-Math.max(300000-oldnormalincome,0),0)*0.1 +    Math.max(oldwinninglottery+oldvda,0)*0.3;
-    } 
-    
-}
-
-else    if(oldnormalincome<500000 && age>80)
-    
-{       if(Math.max(oldltcgsec112,0)>500000){
-        oldtaxonspecialincome = Math.max(Math.max(oldltcgsec112,0)-Math.max(500000-oldnormalincome,0),0)*0.2 +  Math.max(oldstcgsec111aincome,0)*0.15 + Math.max(oldltcgsec112aincome-(125000-Math.min(oldltcgsec112aincome_jul,125000)),0)*0.1 + Math.max(oldstcgsec111aincome_jul,0)*0.2 + Math.max(oldltcgsec112income_jul,0)*0.125 + Math.max(oldltcgsec112aincome_jul-125000,0)*0.125 + Math.max(oldwinninglottery+oldvda,0)*0.3;
-    } else if(Math.max(oldltcgsec112,0)+Math.max(oldstcgsec111aincome_jul,0)>500000){
-       oldtaxonspecialincome = Math.max(Math.max(oldstcgsec111aincome_jul,0)-Math.max(oldltcgsec112,0)-Math.max(500000-oldnormalincome,0),0)*0.2 +  Math.max(oldstcgsec111aincome,0)*0.15 + Math.max(oldltcgsec112aincome-(125000-Math.min(oldltcgsec112aincome_jul,125000)),0)*0.1  + Math.max(oldltcgsec112income_jul,0)*0.125 + Math.max(oldltcgsec112aincome_jul-125000,0)*0.125 + Math.max(oldwinninglottery+oldvda,0)*0.3;
-    } else if(Math.max(oldltcgsec112,0)+Math.max(oldstcgsec111aincome_jul,0)+Math.max(oldstcgsec111aincome,0)>500000){
-       oldtaxonspecialincome = Math.max(Math.max(oldstcgsec111aincome,0)-Math.max(oldstcgsec111aincome_jul,0)-Math.max(oldltcgsec112,0)-Math.max(500000-oldnormalincome,0),0)*0.15 +  Math.max(oldltcgsec112aincome-(125000-Math.min(oldltcgsec112aincome_jul,125000)),0)*0.1  + Math.max(oldltcgsec112income_jul,0)*0.125 + Math.max(oldltcgsec112aincome_jul-125000,0)*0.125 + Math.max(oldwinninglottery+oldvda,0)*0.3;
-    }  else if(Math.max(oldltcgsec112income_jul,0)+Math.max(oldltcgsec112,0)+Math.max(oldstcgsec111aincome_jul,0)+Math.max(oldstcgsec111aincome,0)>500000){
-       oldtaxonspecialincome = Math.max(Math.max(oldltcgsec112income_jul,0)-Math.max(oldstcgsec111aincome,0)-Math.max(oldstcgsec111aincome_jul,0)-Math.max(oldltcgsec112,0)-Math.max(500000-oldnormalincome,0),0)*0.125 +  Math.max(oldltcgsec112aincome-(125000-Math.min(oldltcgsec112aincome_jul,125000)),0)*0.1  +  Math.max(oldltcgsec112aincome_jul-125000,0)*0.125 + Math.max(oldwinninglottery+oldvda,0)*0.3;
-    }  else if(Math.max(oldltcgsec112aincome_jul-125000,0)+Math.max(oldltcgsec112income_jul,0)+Math.max(oldltcgsec112,0)+Math.max(oldstcgsec111aincome_jul,0)+Math.max(oldstcgsec111aincome,0)>500000){
-       oldtaxonspecialincome = Math.max(Math.max(oldltcgsec112aincome_jul-125000,0)-Math.max(oldltcgsec112income_jul,0)-Math.max(oldstcgsec111aincome,0)-Math.max(oldstcgsec111aincome_jul,0)-Math.max(oldltcgsec112,0)-Math.max(500000-oldnormalincome,0),0)*0.125 +  Math.max(oldltcgsec112aincome-(125000-Math.min(oldltcgsec112aincome_jul,125000)),0)*0.1  +  Math.max(oldwinninglottery+oldvda,0)*0.3;
-    }  else {
-       oldtaxonspecialincome = Math.max(Math.max(oldltcgsec112aincome-(125000-Math.min(oldltcgsec112aincome_jul,125000)),0)-Math.max(oldltcgsec112aincome_jul-125000,0)-Math.max(oldltcgsec112income_jul,0)-Math.max(oldstcgsec111aincome,0)-Math.max(oldstcgsec111aincome_jul,0)-Math.max(oldltcgsec112,0)-Math.max(500000-oldnormalincome,0),0)*0.1 +    Math.max(oldwinninglottery+oldvda,0)*0.3;
-    } 
-    
-} else {
-   oldtaxonspecialincome  = Math.max(oldstcgsec111aincome,0)*0.15 + Math.max(oldltcgsec112income,0)*0.2 + Math.max(oldltcgsec112aincome-(125000-Math.min(oldltcgsec112aincome_jul,125000)),0)*0.1 + Math.max(oldstcgsec111aincome_jul,0)*0.2 + Math.max(oldltcgsec112income_jul,0)*0.125 + Math.max(oldltcgsec112aincome_jul-125000,0)*0.125 + Math.max(oldwinninglottery+oldvda,0)*0.3;
- 
-}
-   
-   
    
    
    
