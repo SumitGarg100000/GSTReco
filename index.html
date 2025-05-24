@@ -636,14 +636,14 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Income from House Property
     
-    let oldinterestletout = Math.min(Math.max(0, Number(document.getElementById('interestletout').value)),oldnav*0.7+200000);
+    let oldinterestletout = Math.min(Math.max(0, Number(document.getElementById('interestletout').value)),200000);
     let oldinterestselfoccupied = Math.min(Math.max(0, Number(document.getElementById('interestselfoccupied').value)),200000);
     
     
     
-    let newinterestletout = Math.min(Math.max(0, Number(document.getElementById('interestletout').value)),newnav*0.7);
+    let newinterestletout = Math.min(Math.max(0, Number(document.getElementById('interestletout').value)),200000);
     let newinterestselfoccupied = 0;
-    let newnetincomehp = Math.max((newnav - newstandarddeductionhp) - newinterestletout - newinterestselfoccupied,0);
+    let newnetincomehp = -Math.max(newinterestletout + newinterestselfoccupied,0);
     
     
     //Interest on Self-Occupied - Allowed upto 2Lakh in Old Scheme but not Allowed in New Scheme
@@ -661,12 +661,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let newotherincome = Math.max(0, Number(document.getElementById('otherincome').value));
     
     let oldnetothersources = oldotherincome;
-    
     let newnetothersources = newotherincome;
-    
-
-    
-    
 
     
      // Calculate Gross Total Income
@@ -690,11 +685,10 @@ let olddeduction80ccd2 = Math.max(Number(document.getElementById('deduction80ccd
 let olddeduction80d = Math.min(100000, Number(document.getElementById('deduction80d').value)); // Adjust 'maximumValue' accordingly
 let olddeduction80g = Math.max(Number(document.getElementById('deduction80g').value),0); 
 let olddeduction80e = Math.max(Number(document.getElementById('deduction80e').value),0); // Adjust 'maximumValue' accordingly
-let olddeduction80ee = Math.max(Number(document.getElementById('deduction80ee').value),0); // Adjust 'maximumValue' accordingly
 let olddeduction80tta = Math.min(10000, Number(document.getElementById('deduction80tta').value)); // Adjust 'maximumValue' according
-let oldanyotherdeduction = Math.max(Number(document.getElementById('anyotherdeduction').value),0); // Adjust 'maximumValue' accordingly
 
-let oldtotaldeduction = oldrestrictdeduction + olddeduction80ccd1b + olddeduction80ccd2 + olddeduction80d + olddeduction80g + olddeduction80e + olddeduction80ee + olddeduction80tta + oldanyotherdeduction;
+
+let oldtotaldeduction = oldrestrictdeduction + olddeduction80ccd1b + olddeduction80ccd2 + olddeduction80d + olddeduction80g + olddeduction80e + olddeduction80tta;
 
 
 let oldeligiblededuction=Math.min(Math.max(oldgrosstotalincome,0),oldtotaldeduction);
@@ -708,19 +702,17 @@ let oldnetincome = Math.max(oldgrosstotalincome - oldeligiblededuction,0);
 let newdeduction80c = 0;
 let newdeduction80cCC = 0;
 let newdeduction80ccd1 = 0;
-let newrestrictdeduction = Math.min(0,150000, newdeduction80c + newdeduction80cCC + newdeduction80ccd1);
+let newrestrictdeduction = Math.min(0,150000, newdeduction80c + newdeduction80ccc + newdeduction80ccd1);
 let newdeduction80ccd1b = 0;
 let newdeduction80ccd2 = Math.max(Number(document.getElementById('deduction80ccd2').value), 0); 
 let newdeduction80d = 0;
 let newdeduction80g = 0;
 let newdeduction80e = 0;
-let newdeduction80ee = 0;
 let newdeduction80tta = 0;
-let newdeduction80ttb = 0;
-let newanyotherdeduction = 0;
 
 
-let newtotaldeduction = newrestrictdeduction + newdeduction80ccd1b + newdeduction80ccd2 + newdeduction80d + newdeduction80g + newdeduction80e + newdeduction80ee + newdeduction80tta + newanyotherdeduction;
+
+let newtotaldeduction = newrestrictdeduction + newdeduction80ccd1b + newdeduction80ccd2 + newdeduction80d + newdeduction80g + newdeduction80e + newdeduction80tta;
 let neweligiblededuction=Math.min(Math.max(newgrosstotalincome,0),newtotaldeduction);
 let newnetincome = Math.max(newgrosstotalincome - neweligiblededuction, 0);
 
@@ -730,84 +722,6 @@ let newnetincome = Math.max(newgrosstotalincome - neweligiblededuction, 0);
    let oldroundoff = Math.round(oldnetincome/10)*10;
    let newroundoff = Math.round(newnetincome/10)*10;
    
-    
-    //Setoff & Carry Forward for old
-    
-    let oldstcgsec111income =0;
-    let oldstcgsec111aincome =0;
-    let oldstcgsec111aincome_jul =0;
-    let oldstcglossforltcg =0;
-    
-    let oldltcgsec112income =0;
-    let oldltcgsec112income_jul =0;
-    let oldltcgsec112aincome =0;
-    let oldltcgsec112aincome_jul =0;
-    
-    
-    
-    //oldltcgsec111income after setoff for clculation
-    if((oldstcgsec111 + oldstcgsec111_jul + oldstcgsec111a_minus + oldstcgsec111a_minus_jul)>0)
-    {
-        oldstcgsec111income = oldstcgsec111 + oldstcgsec111_jul + oldstcgsec111a_minus + oldstcgsec111a_minus_jul;
-    } else {
-        oldstcgsec111income = 0;
-    }
-    
-     
-    
-    if((oldstcgsec111a_jul + oldstcgsec111_minus + oldstcgsec111_minus_jul + oldstcgsec111a_minus)>0)
-    {
-        oldstcgsec111aincome_jul = oldstcgsec111a_jul + oldstcgsec111_minus + oldstcgsec111_minus_jul + oldstcgsec111a_minus;
-    } else {
-        oldstcgsec111aincome_jul = 0;
-    }
-    
-    
-    
-    
-    if((oldstcgsec111a + oldstcgsec111_minus + oldstcgsec111_minus_jul + oldstcgsec111a_minus_jul)>0)
-    {
-        oldstcgsec111aincome = oldstcgsec111a + oldstcgsec111_minus + oldstcgsec111_minus_jul + oldstcgsec111a_minus_jul;
-    } else {
-        oldstcgsec111aincome = 0;
-    }
-    
-    
-    
-    oldstcglossforltcg = Math.min(oldstcgsec111 + oldstcgsec111a + oldstcgsec111_jul + oldstcgsec111a_jul,0);
-   
-    
-    
-    //oldltcgsec112income after setoff for clculation
-    if((oldltcgsec112 + oldltcgsec112a_minus + oldltcgsec112_minus_jul + oldltcgsec112a_minus_jul + oldstcglossforltcg)>0)
-    {
-        oldltcgsec112income = oldltcgsec112 + oldltcgsec112a_minus + oldltcgsec112_minus_jul + oldltcgsec112a_minus_jul + oldstcglossforltcg;
-    } else {
-        oldltcgsec112income = 0;
-    }
-    
-    //oldltcgsec112income_jul after setoff for clculation
-    if((oldltcgsec112_jul + oldltcgsec112_minus + oldltcgsec112a_minus  + oldltcgsec112a_minus_jul + oldstcglossforltcg)>0)
-    {
-        oldltcgsec112income_jul = oldltcgsec112_jul + oldltcgsec112_minus + oldltcgsec112a_minus  + oldltcgsec112a_minus_jul + oldstcglossforltcg;
-    } else {
-        oldltcgsec112income_jul = 0;
-    }
-    
-    //oldltcgsec112aincome_jul after setoff for clculation
-    if((oldltcgsec112a_jul + oldltcgsec112_minus + oldltcgsec112a_minus  + oldltcgsec112_minus_jul + oldstcglossforltcg)>0)
-    {
-        oldltcgsec112aincome_jul = oldltcgsec112a_jul + oldltcgsec112_minus + oldltcgsec112a_minus  + oldltcgsec112_minus_jul + oldstcglossforltcg;
-    } else {
-        oldltcgsec112aincome_jul = 0;
-    }
-    
-    //oldltcgsec112income after setoff for clculation
-    if((oldltcgsec112a + oldltcgsec112_minus + oldltcgsec112a_minus_jul  + oldltcgsec112_minus_jul + oldstcglossforltcg)>0)
-    {
-        oldltcgsec112aincome = oldltcgsec112a + oldltcgsec112_minus + oldltcgsec112a_minus_jul  + oldltcgsec112_minus_jul + oldstcglossforltcg;
-    } else {
-        oldltcgsec112aincome = 0;
 
     //Old Normal Income & Special Income
    let oldnormalincome = oldroundoff;
@@ -816,14 +730,7 @@ let newnetincome = Math.max(newgrosstotalincome - neweligiblededuction, 0);
    let oldrebate = 0;
    let oldsurcharge = 0;
    let oldmarginalrelief = 0;
-   let age = Number(document.getElementById('age').value);
-   
-   
-   //Old Slab Rate benefit given to LTCG & STCG Special rates income not lottery
-    
-    
-   
-   
+   let age = Number(document.getElementById('age').value); 
    
     //Old Slab Rates
     
@@ -858,35 +765,25 @@ let newnetincome = Math.max(newgrosstotalincome - neweligiblededuction, 0);
     }
   }
   
-    let oldtaxbeforerebate = oldtaxonnormalincome + oldtaxonspecialincome;
- 
+    let oldtaxbeforerebate = oldtaxonnormalincome;
 
-    //only LTCG112A benefit not given from rebate in old scheme but in new scheme no special income tax allowed
-    
-    if (oldtotalincome<= 500000) {
-        oldrebate = Math.max(Math.min(oldtaxbeforerebate,12500,oldtaxbeforerebate-Math.max(oldltcgsec112aincome-Math.min(125000,Math.max(oldltcgsec112aincome_jul,0)))*0.1 - Math.max(oldltcgsec112aincome_jul-125000,0)*0.125),0);
-     } else {
-        oldrebate = 0;
-     }
-    
-    
+
+   oldrebate = Math.max(Math.min(oldtaxbeforerebate,12500),0);
+     
 
      
      let oldtaxbeforesurcharge=oldtaxbeforerebate-oldrebate;
     
-     
-     let olddividend= Number(document.getElementById('oldregimedividendincome').textContent);
-     let olddividendtax =(olddividend*oldtaxonnormalincome)/oldnormalincome;
-     
+
     
     //Old Surcharge
     
-     if ((oldnormalincome+oldwinninglottery-olddividendincome) > 50000000) {
+     if (oldnormalincome > 50000000) {
         // 37% surcharge for income exceeding Rs. 5 crore
-        oldsurcharge = (oldtaxonnormalincome+oldwinninglottery*0.3-olddividendtax) * 0.37+(oldtaxonspecialincome+olddividendtax-oldwinninglottery*0.3)*0.15;
-     }else   if ((oldnormalincome+oldwinninglottery-olddividendincome) > 20000000) {
+        oldsurcharge = oldtaxonnormalincome* 0.37;
+     }else   if (oldnormalincome> 20000000) {
         // 25% surcharge for income exceeding Rs. 2 crore
-        oldsurcharge = (oldtaxonnormalincome+oldwinninglottery*0.3-olddividendtax) * 0.25+(oldtaxonspecialincome+olddividendtax-oldwinninglottery*0.3)*0.15;
+        oldsurcharge = oldtaxonnormalincome* 0.25;
     } else if ((oldtotalincome) > 10000000) {
         // 15% surcharge for income exceeding Rs. 1 crore
         oldsurcharge = oldtaxbeforesurcharge * 0.15;
@@ -960,12 +857,11 @@ let newnetincome = Math.max(newgrosstotalincome - neweligiblededuction, 0);
     
     
     //new Normal Income & Special Income
-   let newspecialincome = newstcgsec111aincome + newltcgsec112income + newltcgsec112aincome + newstcgsec111aincome_jul + newltcgsec112income_jul + newltcgsec112aincome_jul + newwinninglottery+newvda;
-   let newnormalincome = newroundoff - newspecialincome;
-   let newtotalincome = newnormalincome + newspecialincome;
    
-   let newtaxonspecialincome = 0;//Math.max(newstcgsec111aincome,0)*0.15 + Math.max(newltcgsec112income,0)*0.2 + Math.max(newltcgsec112aincome-(125000-Math.min(newltcgsec112aincome_jul,125000)),0)*0.1 + Math.max(newstcgsec111aincome_jul,0)*0.2 + Math.max(newltcgsec112income_jul,0)*0.125 + Math.max(newltcgsec112aincome_jul-125000,0)*0.125 + Math.max(newwinninglottery,0)*0.3;
-   let newtaxonnormalincome = 0;
+   let newnormalincome = newroundoff;
+   let newtotalincome = newnormalincome;
+   
+     let newtaxonnormalincome = 0;
    let newrebate = 0;
    let newsurcharge = 0;
    let newmarginalrelief = 0;
@@ -988,47 +884,13 @@ let newnetincome = Math.max(newgrosstotalincome - neweligiblededuction, 0);
 	newtaxonnormalincome = 300000 + 0.3 * (newnormalincome - 2400000);
     }
     
+ 
     
-   // LTCG & STCG benefit from exemption limit will be given not lottery in new regime
-   
-  if(newnormalincome<400000)
-  
-  {
-  
-  
-      if(Math.max(newltcgsec112,0)>400000){
-        newtaxonspecialincome = Math.max(Math.max(newltcgsec112,0)-Math.max(400000-newnormalincome,0),0)*0.2 +  Math.max(newstcgsec111aincome,0)*0.15 + Math.max(newltcgsec112aincome-(125000-Math.min(newltcgsec112aincome_jul,125000)),0)*0.1 + Math.max(newstcgsec111aincome_jul,0)*0.2 + Math.max(newltcgsec112income_jul,0)*0.125 + Math.max(newltcgsec112aincome_jul-125000,0)*0.125 + Math.max(newwinninglottery+newvda,0)*0.3;
-    } else if(Math.max(newltcgsec112,0)+Math.max(newstcgsec111aincome_jul,0)>400000){
-       newtaxonspecialincome = Math.max(Math.max(newstcgsec111aincome_jul,0)-Math.max(newltcgsec112,0)-Math.max(400000-newnormalincome,0),0)*0.2 +  Math.max(newstcgsec111aincome,0)*0.15 + Math.max(newltcgsec112aincome-(125000-Math.min(newltcgsec112aincome_jul,125000)),0)*0.1  + Math.max(newltcgsec112income_jul,0)*0.125 + Math.max(newltcgsec112aincome_jul-125000,0)*0.125 + Math.max(newwinninglottery+newvda,0)*0.3;
-    } else if(Math.max(newltcgsec112,0)+Math.max(newstcgsec111aincome_jul,0)+Math.max(newstcgsec111aincome,0)>400000){
-       newtaxonspecialincome = Math.max(Math.max(newstcgsec111aincome,0)-Math.max(newstcgsec111aincome_jul,0)-Math.max(newltcgsec112,0)-Math.max(400000-newnormalincome,0),0)*0.15 +  Math.max(newltcgsec112aincome-(125000-Math.min(newltcgsec112aincome_jul,125000)),0)*0.1  + Math.max(newltcgsec112income_jul,0)*0.125 + Math.max(newltcgsec112aincome_jul-125000,0)*0.125 + Math.max(newwinninglottery+newvda,0)*0.3;
-    }  else if(Math.max(newltcgsec112income_jul,0)+Math.max(newltcgsec112,0)+Math.max(newstcgsec111aincome_jul,0)+Math.max(newstcgsec111aincome,0)>400000){
-       newtaxonspecialincome = Math.max(Math.max(newltcgsec112income_jul,0)-Math.max(newstcgsec111aincome,0)-Math.max(newstcgsec111aincome_jul,0)-Math.max(newltcgsec112,0)-Math.max(400000-newnormalincome,0),0)*0.125 +  Math.max(newltcgsec112aincome-(125000-Math.min(newltcgsec112aincome_jul,125000)),0)*0.1  +  Math.max(newltcgsec112aincome_jul-125000,0)*0.125 + Math.max(newwinninglottery+newvda,0)*0.3;
-    }  else if(Math.max(newltcgsec112aincome_jul-125000,0)+Math.max(newltcgsec112income_jul,0)+Math.max(newltcgsec112,0)+Math.max(newstcgsec111aincome_jul,0)+Math.max(newstcgsec111aincome,0)>400000){
-       newtaxonspecialincome = Math.max(Math.max(newltcgsec112aincome_jul-125000,0)-Math.max(newltcgsec112income_jul,0)-Math.max(newstcgsec111aincome,0)-Math.max(newstcgsec111aincome_jul,0)-Math.max(newltcgsec112,0)-Math.max(400000-newnormalincome,0),0)*0.125 +  Math.max(newltcgsec112aincome-(125000-Math.min(newltcgsec112aincome_jul,125000)),0)*0.1  +  Math.max(newwinninglottery+newvda,0)*0.3;
-    }  else {
-       newtaxonspecialincome = Math.max(Math.max(newltcgsec112aincome-(125000-Math.min(newltcgsec112aincome_jul,125000)),0)-Math.max(newltcgsec112aincome_jul-125000,0)-Math.max(newltcgsec112income_jul,0)-Math.max(newstcgsec111aincome,0)-Math.max(newstcgsec111aincome_jul,0)-Math.max(newltcgsec112,0)-Math.max(400000-newnormalincome),0)*0.1 +    Math.max(newwinninglottery+newvda,0)*0.3;
-    } 
-   
-  } else
-  { newtaxonspecialincome =  Math.max(newstcgsec111aincome,0)*0.15 + Math.max(newltcgsec112income,0)*0.2 + Math.max(newltcgsec112aincome-(125000-Math.min(newltcgsec112aincome_jul,125000)),0)*0.1 + Math.max(newstcgsec111aincome_jul,0)*0.2 + Math.max(newltcgsec112income_jul,0)*0.125 + Math.max(newltcgsec112aincome_jul-125000,0)*0.125 + Math.max(newwinninglottery+newvda,0)*0.3;
-  }
+    
+    let newtaxbeforerebate = newtaxonnormalincome;
     
     
     
-    let newtaxbeforerebate = newtaxonnormalincome + newtaxonspecialincome;
-    
-    const selectedValue = document.querySelector('select[name="combo_list"]').value;
-    
-     //LTCG112A benefit not given from rebate
-    
-  //  if (newtotalincome<= 700000) {
-    //    newrebate = Math.max(Math.min(newtotalincome,25000,newtaxbeforerebate-Math.max(newltcgsec112aincome-Math.min(125000,Math.max(newltcgsec112aincome_jul,0)))*0.1 - Math.max(newltcgsec112aincome_jul-125000,0)*0.125),0);
-    // } else {
-    
-    
-    if (selectedValue === "Govt_utility")
-    {
          if (newnormalincome<=1200000)
          {
              newrebate = Math.max(Math.min(newtaxonnormalincome,60000),0);
@@ -1039,29 +901,16 @@ let newnetincome = Math.max(newgrosstotalincome - neweligiblededuction, 0);
             
          }
          
-    } else
-    {
-        if (newtotalincome<=1200000)
-         {
-             newrebate = Math.max(Math.min(newtaxbeforerebate,60000,newtaxbeforerebate-Math.max(newltcgsec112aincome-Math.min(125000,Math.max(newltcgsec112aincome_jul,0)))*0.1 - Math.max(newltcgsec112aincome_jul-125000,0)*0.125),0);
-         }
-         else
-         {
-            newrebate = Math.max(Math.max(Math.min(newtaxbeforerebate,newtaxbeforerebate-Math.max(newltcgsec112aincome-Math.min(125000,Math.max(newltcgsec112aincome_jul,0)))*0.1 - Math.max(newltcgsec112aincome_jul-125000,0)*0.125),0) - (newtotalincome-1200000),0);
-         }
-    }
+    
     
      let newtaxbeforesurcharge=newtaxbeforerebate-newrebate;
     
-     
-     let newdividend= Number(document.getElementById('newregimedividendincome').textContent);
-     let newdividendtax =(newdividend*newtaxonnormalincome)/newnormalincome;
-     
+          
     //new Surcharge
     
-    if ((newnormalincome+newwinninglottery-newdividendincome) > 20000000) {
+    if (newnormalincome> 20000000) {
         // 25% surcharge for income exceeding Rs. 2 crore
-        newsurcharge = (newtaxonnormalincome+newwinninglottery*0.3-newdividendtax) * 0.25+(newtaxonspecialincome+newdividendtax-newwinninglottery*0.3)*0.15;
+        newsurcharge = newtaxonnormalincome*0.25;
     } else if ((newtotalincome) > 10000000) {
         // 15% surcharge for income exceeding Rs. 1 crore
         newsurcharge = newtaxbeforesurcharge * 0.15;
