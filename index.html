@@ -672,7 +672,7 @@
             let standardDeduction24a = nav * 0.3;
             let oldinterestself = Math.min(Math.max(0, Number(document.getElementById('interestselfoccupied').value)), 200000);
             let oldinterestletout = Math.min(Math.max(0, Number(document.getElementById('interestletout').value)), 200000);
-            let oldnetincomehp = nav - standardDeduction24a - oldinterestself - oldinterestletout;
+            
             let newinterestself = 0;
             let newinterestletout = Math.min(Math.max(0, Number(document.getElementById('interestletout').value)), 200000);
             let newnetincomehp = Math.max(0, nav - standardDeduction24a - newinterestletout);
@@ -684,6 +684,9 @@
             let newdividendincome = Math.max(0, Number(document.getElementById('dividendincome').value));
             let newotherincome = Math.max(0, Number(document.getElementById('otherincome').value));
             let newnetothersources = newdividendincome + newotherincome;
+
+            let oldnetincomehp = Math.max(Math.max((nav - standardDeduction24a) - oldinterestletout - oldinterestself,-200000),-(oldnetsalary + oldnetothersources));
+            
 
             // Calculate Gross Total Income
             let oldgrosstotalincome = Math.max(oldnetsalary + oldnetincomehp + oldnetothersources, 0);
