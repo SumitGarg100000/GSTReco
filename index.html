@@ -294,9 +294,10 @@
                         <input type="number" id="dividendincome" placeholder="Enter dividend income" min="0">
                     </div>
                 </div>
+                
                 <div class="col">
                     <div class="form-group">
-                        <label for="otherincome">Other Income (Excl. Dividend)</label>
+                        <label for="otherincome">Other Income</label>
                         <input type="number" id="otherincome" placeholder="Enter other income" min="0">
                     </div>
                 </div>
@@ -679,9 +680,11 @@
 
             // Income from Other Sources
             let olddividendincome = Math.max(0, Number(document.getElementById('dividendincome').value));
+            
             let oldotherincome = Math.max(0, Number(document.getElementById('otherincome').value));
             let oldnetothersources = olddividendincome + oldotherincome;
             let newdividendincome = Math.max(0, Number(document.getElementById('dividendincome').value));
+            
             let newotherincome = Math.max(0, Number(document.getElementById('otherincome').value));
             let newnetothersources = newdividendincome + newotherincome;
 
@@ -764,7 +767,12 @@
             }
 
             let oldtaxbeforerebate = oldtaxonnormalincome;
-            oldrebate = oldnormalincome <= 500000 ? Math.min(oldtaxbeforerebate, 12500) : 0;
+            if (oldtotalincome<= 500000) {
+        oldrebate = Math.max(Math.min(oldtaxbeforerebate,12500),0);
+     } else {
+        oldrebate = 0;
+     }
+        
             let oldtaxbeforesurcharge = oldtaxbeforerebate - oldrebate;
 
                 
