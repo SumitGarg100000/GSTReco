@@ -1033,8 +1033,7 @@
             // Update summary box to show average monthly TDS for remaining months
             let currentMonth = new Date().getMonth(); // 0-indexed (0 = January)
             let remainingMonthsData = tdsData.slice(currentMonth);
-            let avgMonthlyTDS = remainingMonthsData.length > 0 ? 
-                remainingMonthsData.reduce((sum, data) => sum + data.toBeDeducted, 0) / remainingMonthsData.length : 0;
+            let avgMonthlyTDS = annualTaxLiability / 12;
                 
             document.getElementById('total_tds_deducted').textContent = priorTDS.toFixed(2);
             document.getElementById('total_tds_liability').textContent = totalTDSLiability.toFixed(2);
