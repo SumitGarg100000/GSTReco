@@ -1002,8 +1002,8 @@ let tdsData = tdsMonths.map((month, index) => {
     }, 0);
     // Calculate TDS to be deducted: (remaining annual tax liability - cumulative TDS) / (12 - index)
     let remainingMonths = 12 - index;
-    let tdsToBeDeducted = (annualTaxLiability - cumulativeTDS) / remainingMonths;
-    tdsToBeDeducted = Math.max(0, tdsToBeDeducted); // Ensure non-negative
+    let remainingLiability = annualTaxLiability - cumulativeTDS;
+    let tdsToBeDeducted = remainingLiability <= 0 ? 0 : remainingLiability / remainingMonths;
     return {
         month: month.charAt(0).toUpperCase() + month.slice(1),
         liability: monthlyTDS,
@@ -1020,12 +1020,16 @@ tdsData.forEach(data => {
     monthlyTdsTable.appendChild(row);
 });
 
-            document.getElementById('total_tds_deducted').textContent = priorTDS.toFixed(2);
-            document.getElementById('total_tds_liability').textContent = totalTDSLiability.toFixed(2);
-            document.getElementById('monthly_tds_amount').textContent = `₹ ${monthlyTDS.toFixed(2)}`;
+// Update summary box to show TDS to be Deducted for the first month with zero TDS deducted
+let nextMonthTDS = tdsData.find(data => data.deducted === 0)?.toBeDeducted || tdsData[0].toBeDeducted;
+document.getElementById('total_tds_deducted').textContent = priorTDS.toFixed(2);
+document.getElementById('total_tds_liability').textContent = totalTDSLiability.toFixed(2);
+document.getElementById('monthly_tds_amount').textContent = `₹ ${nextMonthTDS.toFixed(2)}`;
 
+        
             // Update Chart
-            window.tdsChart = new Chart(document.getElementById('tds-chart'), {
+if (window.tdsChart) window.tdsChart.destroy();
+window.tdsChart = new Chart(document.getElementById('tds-chart'), {
     type: 'bar',
     data: {
         labels: tdsData.map(data => data.month),
@@ -1059,7 +1063,6 @@ tdsData.forEach(data => {
         }
     }
 });
-
         // Calculate TDS and show results
         function calculateTDS() {
             CalculateAllIncome();
