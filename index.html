@@ -373,6 +373,19 @@
             </div>
         </div>
 
+        <!-- TDS/TCS deducted(Other than current employer) -->
+        <div class="card">
+            <div class="card-header"><h3>TDS/TCS deducted(Other than current employer)</h3></div>
+            <div class="flex-row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="tdstcs">TDS/TCS</label>
+                        <input type="number" id="tdstcs" placeholder="Enter TDS/TCS" min="0">
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Month-Wise TDS Deducted -->
         <div class="card">
             <div class="card-header"><h3>Month-Wise TDS Deducted</h3></div>
@@ -506,7 +519,7 @@
                 <thead><tr><th>Particulars</th><th>Amount (₹)</th></tr></thead>
                 <tbody>
                     <tr><td>Dividend Income</td><td id="dividend_income_result">0</td></tr>
-                    <tr><td>Other Income (Excl. Dividend)</td><td id="other_income_result">0</td></tr>
+                    <tr><td>Other Income</td><td id="other_income_result">0</td></tr>
                     <tr><td><strong>Total Income from Other Sources</strong></td><td id="total_other_income_result" class="font-bold">0</td></tr>
                 </tbody>
             </table>
@@ -838,7 +851,8 @@
 
             let oldtaxbeforecess = oldtaxbeforesurcharge + oldsurcharge - oldmarginalrelief;
             let oldcess = Math.max(0, oldtaxbeforecess * 0.04);
-            let oldgrosstaxpayable = Math.max(oldtaxbeforecess + oldcess, 0);
+            let oldtdstcs = Math.max(0, Number(document.getElementById('tdstcs').value));
+            let oldgrosstaxpayable = Math.max(oldtaxbeforecess + oldcess - oldtdstcs, 0);
 
             // New Regime Tax Calculation
             let newnormalincome = newroundoff;
@@ -895,7 +909,8 @@
 
             let newtaxbeforecess = newtaxbeforesurcharge + newsurcharge - newmarginalrelief;
             let newcess = Math.max(0, newtaxbeforecess * 0.04);
-            let newgrosstaxpayable = Math.max(newtaxbeforecess + newcess, 0);
+            let newtdstcs = Math.max(0, Number(document.getElementById('tdstcs').value));
+            let newgrosstaxpayable = Math.max(newtaxbeforecess + newcess - newtdstcs, 0);
 
             // Prior TDS Deducted
             let tdsMonths = ['apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec', 'jan', 'feb', 'mar'];
@@ -971,7 +986,7 @@
             document.getElementById('surcharge').textContent = surcharge.toFixed(2);
             document.getElementById('tax_after_rebate').textContent = taxBeforeCess.toFixed(2);
             document.getElementById('cess').textContent = cess.toFixed(2);
-            document.getElementById('prior_tds_result').textContent = priorTDS.toFixed(2);
+            document.getElementById('prior_tds_result').textContent = tdstcs.toFixed(2);
             document.getElementById('annual_tax_liability').textContent = annualTaxLiability.toFixed(2);
 
             // Monthly TDS Breakdown
