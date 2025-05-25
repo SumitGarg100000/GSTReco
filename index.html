@@ -175,7 +175,7 @@
                 <div class="col">
                     <div class="form-group">
                         <label for="employee_age">Age</label>
-                        <input type="number" id="age" placeholder="Enter age" min="18" value="30">
+                        <input type="number" id="age" placeholder="Enter age" min="1">
                     </div>
                 </div>
                 <div class="col">
@@ -245,7 +245,7 @@
                 <div class="col">
                     <div class="form-group">
                         <label for="professional_tax">Professional Tax Paid</label>
-                        <input type="number" id="professionaltax" placeholder="Enter professional tax" min="0" value="2400">
+                        <input type="number" id="professionaltax" placeholder="Enter professional tax" min="0">
                     </div>
                 </div>
             </div>
@@ -621,11 +621,11 @@
         // Reset all inputs and results
         function resetValues() {
             document.querySelectorAll('input, select').forEach(input => {
-                if (input.type === 'number') input.value = 0;
+                if (input.type === 'number') input.value = '';
                 else if (input.type === 'text') input.value = '';
                 else if (input.id === 'tax_scheme') input.value = 'new';
-                else if (input.id === 'age') input.value = 30;
-                else if (input.id === 'professionaltax') input.value = 2400;
+                
+                
             });
             localStorage.removeItem('taxCalculatorData');
             document.getElementById('results-section').style.display = 'none';
