@@ -851,8 +851,8 @@
 
             let oldtaxbeforecess = oldtaxbeforesurcharge + oldsurcharge - oldmarginalrelief;
             let oldcess = Math.max(0, oldtaxbeforecess * 0.04);
-            let oldtdstcs = Math.max(0, Number(document.getElementById('tdstcs').value));
-            let oldgrosstaxpayable = Math.max(oldtaxbeforecess + oldcess - oldtdstcs, 0);
+            let tdstcs = Math.max(0, Number(document.getElementById('tdstcs').value));
+            let oldgrosstaxpayable = Math.max(oldtaxbeforecess + oldcess, 0);
 
             // New Regime Tax Calculation
             let newnormalincome = newroundoff;
@@ -909,8 +909,8 @@
 
             let newtaxbeforecess = newtaxbeforesurcharge + newsurcharge - newmarginalrelief;
             let newcess = Math.max(0, newtaxbeforecess * 0.04);
-            let newtdstcs = Math.max(0, Number(document.getElementById('tdstcs').value));
-            let newgrosstaxpayable = Math.max(newtaxbeforecess + newcess - newtdstcs, 0);
+        
+            let newgrosstaxpayable = Math.max(newtaxbeforecess + newcess, 0);
 
             // Prior TDS Deducted
             let tdsMonths = ['apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec', 'jan', 'feb', 'mar'];
@@ -942,7 +942,7 @@
             let grossTaxPayable = taxScheme === 'old' ? oldgrosstaxpayable : newgrosstaxpayable;
 
             // Calculate remaining tax liability
-            let annualTaxLiability = Math.max(grossTaxPayable - priorTDS, 0);
+            let annualTaxLiability = Math.max(grossTaxPayable - tdstcs, 0);
 
             // Update results
             document.getElementById('basic_salary_result').textContent = oldbasicsalary.toFixed(2);
