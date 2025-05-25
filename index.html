@@ -568,9 +568,9 @@
                 <canvas id="tds-chart"></canvas>
             </div>
             <table class="result-table mb-6">
-                <thead><tr><th>Month</th><th>TDS Deducted (₹)</th><th>TDS Liability (₹)</th></tr></thead>
-                <tbody id="monthly_tds_table"></tbody>
-            </table>
+    <thead><tr><th>Month</th><th>TDS Liability (₹)</th><th>TDS Deducted (₹)</th><th>TDS to be Deducted (₹)</th></tr></thead>
+    <tbody id="monthly_tds_table"></tbody>
+</table>
             <h4 class="text-xl font-semibold mb-4 text-gray-700">Total TDS Summary</h4>
             <table class="result-table mb-6">
                 <thead><tr><th>Particulars</th><th>Amount (₹)</th></tr></thead>
@@ -987,60 +987,78 @@
             document.getElementById('surcharge').textContent = surcharge.toFixed(2);
             document.getElementById('tax_after_rebate').textContent = taxBeforeCess.toFixed(2);
             document.getElementById('cess').textContent = cess.toFixed(2);
+            document.getElementById('grosstaxpayable').textContent = grossTaxPayable.toFixed(2);
             document.getElementById('prior_tds_result').textContent = tdstcs.toFixed(2);
             document.getElementById('annual_tax_liability').textContent = annualTaxLiability.toFixed(2);
-
+            
             // Monthly TDS Breakdown
-            let monthlyTDS = annualTaxLiability / 12;
-            let totalTDSLiability = grossTaxPayable;
-            let tdsData = tdsMonths.map(month => ({
-                month: month.charAt(0).toUpperCase() + month.slice(1),
-                deducted: Math.max(0, Number(document.getElementById(`tds_${month}`).value)),
-                liability: monthlyTDS
-            }));
+let monthlyTDS = annualTaxLiability / 12;
+let totalTDSLiability = grossTaxPayable;
+let tdsData = tdsMonths.map((month, index) => {
+    let deducted = Math.max(0, Number(document.getElementById(`tds_${month}`).value));
+    // Calculate cumulative TDS deducted up to the previous month
+    let cumulativeTDS = tdsMonths.slice(0, index).reduce((sum, prevMonth) => {
+        return sum + Math.max(0, Number(document.getElementById(`tds_${prevMonth}`).value));
+    }, 0);
+    // Calculate TDS to be deducted: (remaining annual tax liability - cumulative TDS) / (12 - index)
+    let remainingMonths = 12 - index;
+    let tdsToBeDeducted = (annualTaxLiability - cumulativeTDS) / remainingMonths;
+    tdsToBeDeducted = Math.max(0, tdsToBeDeducted); // Ensure non-negative
+    return {
+        month: month.charAt(0).toUpperCase() + month.slice(1),
+        liability: monthlyTDS,
+        deducted: deducted,
+        toBeDeducted: tdsToBeDeducted
+    };
+});
 
-            let monthlyTdsTable = document.getElementById('monthly_tds_table');
-            monthlyTdsTable.innerHTML = '';
-            tdsData.forEach(data => {
-                let row = document.createElement('tr');
-                row.innerHTML = `<td>${data.month}</td><td>${data.deducted.toFixed(2)}</td><td>${data.liability.toFixed(2)}</td>`;
-                monthlyTdsTable.appendChild(row);
-            });
+let monthlyTdsTable = document.getElementById('monthly_tds_table');
+monthlyTdsTable.innerHTML = '';
+tdsData.forEach(data => {
+    let row = document.createElement('tr');
+    row.innerHTML = `<td>${data.month}</td><td>${data.liability.toFixed(2)}</td><td>${data.deducted.toFixed(2)}</td><td>${data.toBeDeducted.toFixed(2)}</td>`;
+    monthlyTdsTable.appendChild(row);
+});
 
             document.getElementById('total_tds_deducted').textContent = priorTDS.toFixed(2);
             document.getElementById('total_tds_liability').textContent = totalTDSLiability.toFixed(2);
             document.getElementById('monthly_tds_amount').textContent = `₹ ${monthlyTDS.toFixed(2)}`;
 
             // Update Chart
-            if (window.tdsChart) window.tdsChart.destroy();
             window.tdsChart = new Chart(document.getElementById('tds-chart'), {
-                type: 'bar',
-                data: {
-                    labels: tdsData.map(data => data.month),
-                    datasets: [
-                        {
-                            label: 'TDS Deducted',
-                            data: tdsData.map(data => data.deducted),
-                            backgroundColor: 'rgba(26, 115, 232, 0.5)',
-                            borderColor: 'rgba(26, 115, 232, 1)',
-                            borderWidth: 1
-                        },
-                        {
-                            label: 'TDS Liability',
-                            data: tdsData.map(data => data.liability),
-                            backgroundColor: 'rgba(255, 99, 132, 0.5)',
-                            borderColor: 'rgba(255, 99, 132, 1)',
-                            borderWidth: 1
-                        }
-                    ]
-                },
-                options: {
-                    scales: {
-                        y: { beginAtZero: true }
-                    }
-                }
-            });
+    type: 'bar',
+    data: {
+        labels: tdsData.map(data => data.month),
+        datasets: [
+            {
+                label: 'TDS Liability',
+                data: tdsData.map(data => data.liability),
+                backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1
+            },
+            {
+                label: 'TDS Deducted',
+                data: tdsData.map(data => data.deducted),
+                backgroundColor: 'rgba(26, 115, 232, 0.5)',
+                borderColor: 'rgba(26, 115, 232, 1)',
+                borderWidth: 1
+            },
+            {
+                label: 'TDS to be Deducted',
+                data: tdsData.map(data => data.toBeDeducted),
+                backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }
+        ]
+    },
+    options: {
+        scales: {
+            y: { beginAtZero: true }
         }
+    }
+});
 
         // Calculate TDS and show results
         function calculateTDS() {
