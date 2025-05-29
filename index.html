@@ -3,916 +3,2901 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Explore our suite of financial tools including GST Reconciliation and Income Tax Calculator. Simplify your tax compliance with user-friendly solutions.">
-    <meta name="keywords" content="GST Reconciliation, Income Tax Calculator, Tax Tools, Financial Tools, Sumit Garg">
-    <meta name="robots" content="index, follow">
-    <meta property="og:title" content="Sumit Garg's Financial Tools">
-    <meta property="og:description" content="Simplify tax compliance with our GST Reconciliation and Income Tax Calculator tools.">
-    <meta property="og:image" content="">
-    <title>Sumit Garg's Financial Tools - Enhanced</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css">
+    <meta name="description" content="Advanced GST Reconciliation tool that compares GSTR-2B and GSTR-3B data with enhanced mailing and display capabilities.">
+    <meta name="keywords" content="GST, Reconciliation, GSTR-2B, GSTR-3B, GST Matching">
+    <title>GST Reconciliation Tool - Enhanced Edition</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+            font-family: 'Segoe UI', Arial, sans-serif;
         }
-
-        :root {
-            --primary-color: #1a73e8;
-            --primary-dark: #0d47a1;
-            --primary-light: #e6f3ff;
-            --accent-color: #ff6b6b;
-            --text-primary: #333333;
-            --text-secondary: #666666;
-            --bg-gradient-1: linear-gradient(135deg, #f5f7fa, #e4f1ff);
-            --bg-gradient-2: linear-gradient(135deg, #1a73e8, #0d47a1);
-            --card-gradient-1: linear-gradient(145deg, #ffffff, #f5f9ff);
-            --card-gradient-2: linear-gradient(145deg, #1f87ff, #0d47a1);
-        }
-
+        
         body {
-            background: var(--bg-gradient-1);
-            color: var(--text-primary);
+            background: #f0f8ff;
+            color: #333;
             padding: 20px;
             line-height: 1.6;
         }
-
+        
         .container {
-            max-width: 1200px;
+            max-width: 1300px;
             margin: 0 auto;
-            padding: 30px;
             background: #fff;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 61, 115, 0.1);
-            position: relative;
-            overflow: hidden;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
         }
-
-        .container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 8px;
-            background: var(--bg-gradient-2);
-        }
-
-        h1 {
-            text-align: center;
-            color: #0e4377;
-            font-size: 2.8em;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
-            position: relative;
-            width: 100%;
-            display: block;
-        }
-
-        h1::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100px;
-            height: 4px;
-            background: var(--bg-gradient-2);
-            border-radius: 2px;
-        }
-
-        .intro-text {
-            text-align: center;
-            font-size: 1.2rem;
-            color: var(--text-secondary);
-            margin-bottom: 3rem;
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .services-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 30px;
-            padding: 20px 10px;
-            perspective: 1000px;
-        }
-
-        .service-card {
-            background: var(--card-gradient-1);
-            border-radius: 20px;
-            padding: 30px;
-            text-align: center;
-            transition: all 0.4s ease;
-            cursor: pointer;
-            border: 1px solid rgba(204, 224, 255, 0.5);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
-            position: relative;
-            overflow: hidden;
-            z-index: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-            min-height: 320px;
-            transform-style: preserve-3d;
-        }
-
-        .service-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--card-gradient-2);
-            opacity: 0;
-            transition: opacity 0.4s ease;
-            z-index: -1;
-            border-radius: 20px;
-        }
-
-        .service-card:hover {
-            transform: translateY(-15px) rotateX(5deg) rotateY(-5deg);
-            box-shadow: 
-                0 20px 30px rgba(0, 61, 115, 0.2),
-                0 0 30px rgba(26, 115, 232, 0.2),
-                0 0 0 1px rgba(26, 115, 232, 0.1);
-            border-color: rgba(26, 115, 232, 0.3);
-        }
-
-        .service-card:hover::before {
-            opacity: 1;
-        }
-
-        .service-card .icon-wrapper {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-            background: rgba(26, 115, 232, 0.1);
-            transition: all 0.4s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .service-card:hover .icon-wrapper {
-            background: rgba(255, 255, 255, 0.2);
-            transform: scale(1.1) translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-        }
-
-        .service-card i {
-            font-size: 2.8em;
-            color: var(--primary-color);
-            margin-bottom: 1rem;
-            transition: all 0.4s ease;
-            transform: translateZ(20px);
-        }
-
-        .service-card:hover i {
-            color: white;
-            transform: translateZ(30px) scale(1.1);
-            animation: pulse 1.5s infinite;
-        }
-
-        .service-card h3 {
-            font-size: 1.8em;
-            font-weight: 600;
-            color: var(--primary-dark);
-            margin-bottom: 1rem;
-            transition: all 0.4s ease;
-            transform: translateZ(15px);
-        }
-
-        .service-card p {
-            font-size: 1.1em;
-            color: var(--text-secondary);
-            transition: all 0.4s ease;
-            transform: translateZ(10px);
-            line-height: 1.6;
-        }
-
-        .service-card:hover h3,
-        .service-card:hover p {
-            color: white;
-        }
-
-        .card-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(45deg, rgba(26, 115, 232, 0.3), rgba(13, 71, 161, 0.3));
-            opacity: 0;
-            transition: opacity 0.4s ease;
-            z-index: -1;
-            border-radius: 20px;
-            pointer-events: none;
-        }
-
-        .service-card:hover .card-overlay {
-            opacity: 1;
-        }
-
-        .btn-explore {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 30px;
-            font-weight: 500;
-            margin-top: 20px;
-            transition: all 0.3s ease;
-            opacity: 0;
-            transform: translateY(20px);
-            display: inline-block;
-        }
-
-        .service-card:hover .btn-explore {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .card-glow {
-            position: absolute;
-            width: 150%;
-            height: 150%;
-            top: -25%;
-            left: -25%;
-            background: radial-gradient(
-                circle,
-                rgba(255, 255, 255, 0.8) 0%,
-                rgba(255, 255, 255, 0) 70%
-            );
-            opacity: 0;
-            transition: opacity 0.6s ease;
-            pointer-events: none;
-            mix-blend-mode: overlay;
-        }
-
-        .service-card:hover .card-glow {
-            opacity: 0.8;
-            animation: rotate 8s linear infinite;
-        }
-
-        footer {
-            background: var(--bg-gradient-2);
-            color: #ffffff;
-            padding: 2.5rem;
-            border-radius: 20px;
-            margin-top: 50px;
-            text-align: center;
-            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        footer::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
-            animation: shimmer 3s infinite linear;
-        }
-
-        .footer-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            max-width: 1100px;
-            margin: 0 auto;
-        }
-
-        .footer-section {
-            flex: 1;
-            min-width: 250px;
-            margin-bottom: 20px;
-            padding: 0 15px;
-        }
-
-        .footer-section h4 {
-            font-size: 1.3rem;
-            margin-bottom: 15px;
-            position: relative;
-            display: inline-block;
-        }
-
-        .footer-section h4::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-            width: 50px;
-            height: 2px;
-            background: rgba(255, 255, 255, 0.5);
-        }
-
-        .footer-links {
-            display: flex;
-            flex-direction: column;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .footer-links a {
-            color: #ffffff;
-            text-decoration: none;
-            margin: 0.5rem 0;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-        }
-
-        .footer-links a i {
-            margin-right: 10px;
-            width: 20px;
-            text-align: center;
-        }
-
-        .footer-links a:hover {
-            color: rgba(255, 255, 255, 0.8);
-            transform: translateX(5px);
-        }
-
-        .whatsapp-btn {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: linear-gradient(145deg, #25d366, #128C7E);
-            color: white;
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 
-                0 5px 15px rgba(37, 211, 102, 0.4),
-                0 0 0 10px rgba(37, 211, 102, 0.1);
-            transition: all 0.3s ease;
-            z-index: 1000;
-            animation: float 3s ease-in-out infinite;
-        }
-
-        .whatsapp-btn:hover {
-            transform: scale(1.1) rotate(10deg);
-            box-shadow: 
-                0 8px 25px rgba(37, 211, 102, 0.6),
-                0 0 0 15px rgba(37, 211, 102, 0.2);
-        }
-
-        .whatsapp-btn i {
-            font-size: 2.2em;
-        }
-
-        .whatsapp-tooltip {
-            position: absolute;
-            right: 85px;
-            background: white;
-            padding: 8px 15px;
-            border-radius: 20px;
-            color: #333;
-            font-size: 14px;
-            font-weight: 500;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
-            opacity: 0;
-            transform: translateX(20px);
-            transition: all 0.3s ease;
-            pointer-events: none;
-            white-space: nowrap;
-        }
-
-        .whatsapp-btn:hover .whatsapp-tooltip {
-            opacity: 1;
-            transform: translateX(0);
-        }
-
-        .header-nav {
+        
+        .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
-            padding: 10px 0;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+            border-bottom: 2px solid #f2f2f2;
+            padding-bottom: 15px;
         }
-
+        
         .logo {
-            font-size: 1.8rem;
+            font-size: 24px;
             font-weight: 700;
-            color: var(--primary-dark);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
+            color: #1a73e8;
         }
-
-        .logo i {
-            margin-right: 10px;
-            color: var(--primary-color);
-        }
-
+        
         .nav-links {
             display: flex;
+            gap: 20px;
         }
-
+        
         .nav-links a {
-            margin-left: 25px;
-            color: var(--text-secondary);
+            color: #555;
             text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            position: relative;
+            transition: color 0.3s;
         }
-
+        
         .nav-links a:hover {
-            color: var(--primary-color);
+            color: #1a73e8;
         }
-
-        .nav-links a::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: var(--primary-color);
-            transition: width 0.3s ease;
-        }
-
-        .nav-links a:hover::after {
-            width: 100%;
-        }
-
-        .section-title {
+        
+        h1 {
+            font-size: 2em;
             text-align: center;
-            font-size: 2rem;
-            font-weight: 600;
-            color: var(--primary-dark);
-            margin: 3rem 0 2rem;
-            position: relative;
+            margin: 20px 0;
+            color: #1a73e8;
         }
-
-        .section-title::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 70px;
-            height: 3px;
-            background: var(--primary-color);
-            border-radius: 3px;
+        
+        h2 {
+            font-size: 1.5em;
+            margin: 15px 0;
+            color: #2c3e50;
         }
-
-        .highlight {
-            position: relative;
-            display: inline-block;
-            z-index: 1;
-        }
-
-        .highlight::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            bottom: 2px;
-            width: 100%;
-            height: 8px;
-            background: rgba(26, 115, 232, 0.2);
-            z-index: -1;
-            transition: height 0.3s ease;
-        }
-
-        h1:hover .highlight::before {
-            height: 15px;
-        }
-
-        .about-section {
-            padding: 3rem 0;
-            max-width: 800px;
+        
+        /* Login Form */
+        .login-form {
+            max-width: 400px;
             margin: 0 auto;
-            text-align: center;
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
-
-        .about-section p {
-            font-size: 1.1rem;
-            color: var(--text-secondary);
-            line-height: 1.8;
-            margin-bottom: 1.5rem;
+        
+        .form-group {
+            margin-bottom: 15px;
         }
-
-        .about-section .icon-wrapper {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            background: rgba(26, 115, 232, 0.1);
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
         }
-
-        .about-section i {
-            font-size: 2.5em;
-            color: var(--primary-color);
+        
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
         }
-
-        @keyframes pulse {
-            0%, 100% {
-                transform: translateZ(30px) scale(1);
-            }
-            50% {
-                transform: translateZ(30px) scale(1.15);
-            }
-        }
-
-        @keyframes float {
-            0%, 100% {
-                transform: translateY(0);
-            }
-            50% {
-                transform: translateY(-10px);
-            }
-        }
-
-        @keyframes shimmer {
-            0% {
-                transform: translateX(-100%);
-            }
-            100% {
-                transform: translateX(100%);
-            }
-        }
-
-        @keyframes rotate {
-            0% {
-                transform: rotate(0deg);
-            }
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-        .mobile-menu-btn {
-            display: none;
-            background: none;
+        
+        .btn {
+            display: inline-block;
+            background: #1a73e8;
+            color: #fff;
+            padding: 10px 20px;
             border: none;
-            font-size: 1.5rem;
-            color: var(--primary-dark);
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: #0d47a1;
+        }
+        
+        /* Tables */
+        .data-table-container {
+            margin: 20px 0;
+            overflow-x: auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+        }
+        
+        .data-table th {
+            background: #1a73e8;
+            color: #fff;
+            text-align: left;
+            padding: 12px;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
             cursor: pointer;
         }
-
-        @media (max-width: 1024px) {
-            .services-grid {
-                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-                gap: 20px;
+        
+        .data-table th.dragging {
+            opacity: 0.5;
+            background: #0d47a1;
+        }
+        
+        .data-table th .resizer {
+            position: absolute;
+            right: 0;
+            top: 0;
+            height: 100%;
+            width: 5px;
+            cursor: col-resize;
+            user-select: none;
+            z-index: 11;
+        }
+        
+        .data-table th .resizer:hover,
+        .data-table th .resizing {
+            background: rgba(255, 255, 255, 0.5);
+        }
+        
+        .data-table td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .data-table tbody tr:hover {
+            background: #f5f9ff;
+        }
+        
+        /* Match status colors */
+        .match-full {
+            background-color: #d4edda !important;
+            color: #155724;
+        }
+        
+        .match-partial {
+            background-color: #fff3cd !important;
+            color: #856404;
+        }
+        
+        .unmatch {
+            background-color: #f8d7da !important;
+            color: #721c24;
+        }
+        
+        /* Control Panel */
+        .control-panel {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .panel-section {
+            padding: 10px;
+            background: #fff;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .panel-section h3 {
+            margin-bottom: 10px;
+            color: #1a73e8;
+            font-size: 1.1em;
+        }
+        
+        /* File Upload */
+        .file-upload {
+            background: #e8f0fe;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px dashed #1a73e8;
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .file-upload:hover {
+            background: #d0e0fd;
+        }
+        
+        .file-upload input {
+            display: none;
+        }
+        
+        /* Custom Email Section */
+        .email-section {
+            background: #f0f7ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .email-fields {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        /* View Controls */
+        .view-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        /* Feature Button */
+        .feature-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #1a73e8;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+        
+        .feature-btn:hover {
+            background: #0d47a1;
+            transform: translateY(-2px);
+        }
+        
+        .feature-btn.secondary {
+            background: #34a853;
+        }
+        
+        .feature-btn.secondary:hover {
+            background: #2d8e47;
+        }
+        
+        .feature-btn.warning {
+            background: #fbbc05;
+            color: #333;
+        }
+        
+        .feature-btn.warning:hover {
+            background: #e5ac04;
+        }
+        
+        .feature-btn.danger {
+            background: #ea4335;
+        }
+        
+        .feature-btn.danger:hover {
+            background: #d33426;
+        }
+        
+        /* Summary Section */
+        .summary-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .summary-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .stat-card {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        
+        .stat-card .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a73e8;
+        }
+        
+        .stat-card .stat-label {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .modal-content {
+            background: #fff;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            position: relative;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        /* GSTN View Specific */
+        .gstn-group {
+            margin-bottom: 20px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .gstn-header {
+            background: #f0f7ff;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .gstn-content {
+            padding: 15px;
+            display: none;
+        }
+        
+        .gstn-content.open {
+            display: block;
+        }
+        
+        /* Column management panel */
+        .column-manager {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 10px;
+            z-index: 100;
+            min-width: 200px;
+            display: none;
+        }
+        
+        .column-manager.open {
+            display: block;
+        }
+        
+        .column-option {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .column-option input {
+            margin-right: 8px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
             }
             
-            .service-card {
-                min-height: 290px;
-                padding: 25px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 2.2em;
-            }
-
-            .container {
-                padding: 20px;
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
             }
             
             .nav-links {
-                display: none;
+                margin-top: 10px;
             }
             
-            .mobile-menu-btn {
-                display: block;
+            .control-panel {
+                grid-template-columns: 1fr;
             }
             
-            .mobile-menu-open .nav-links {
-                display: flex;
-                flex-direction: column;
-                position: absolute;
-                top: 70px;
-                right: 20px;
-                background: white;
-                padding: 20px;
-                border-radius: 10px;
-                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-                z-index: 100;
-            }
-            
-            .mobile-menu-open .nav-links a {
-                margin: 10px 0;
-            }
-            
-            .footer-container {
-                flex-direction: column;
-            }
-            
-            .footer-section {
-                margin-bottom: 30px;
+            .email-fields {
+                grid-template-columns: 1fr;
             }
         }
-
-        @media (max-width: 480px) {
-            h1 {
-                font-size: 1.8em;
-            }
-            
-            .intro-text {
-                font-size: 1rem;
-            }
-            
-            .service-card {
-                min-height: 260px;
-                padding: 20px 15px;
-            }
-            
-            .service-card h3 {
-                font-size: 1.5em;
-            }
-            
-            .service-card p {
-                font-size: 0.9em;
-            }
-            
-            .service-card .icon-wrapper {
-                width: 80px;
-                height: 80px;
-            }
-            
-            .service-card i {
-                font-size: 2.2em;
-            }
-            
-            .whatsapp-btn {
-                width: 60px;
-                height: 60px;
-                bottom: 20px;
-                right: 20px;
-            }
-            
-            .whatsapp-tooltip {
-                display: none;
-            }
+        
+        /* Drag-drop for column reordering */
+        .column-dragging {
+            opacity: 0.4;
+            background-color: #e0e0e0 !important;
         }
-
-        /* Additional Animations */
-        .fade-in {
-            animation: fadeIn 1s ease-in-out;
+        
+        .column-drop-indicator {
+            position: absolute;
+            width: 3px;
+            background-color: #1a73e8;
+            height: 100%;
+            top: 0;
+            z-index: 10;
         }
-
-        .slide-up {
-            animation: slideUp 0.8s ease-out forwards;
-            opacity: 0;
-            transform: translateY(30px);
+        
+        /* Loading spinner */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #1a73e8;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
         }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes slideUp {
-            from { 
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to { 
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Glass Morphism Effect */
-        .glass-card {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
-    <div class="container fade-in">
-        <header class="header-nav">
-            <a href="#" class="logo">
-                <i class="fas fa-chart-line"></i>
-                <span>Sumit Garg</span>
-            </a>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <i class="fas fa-file-invoice"></i> GST Reconciliation Tool
+            </div>
             <div class="nav-links">
-                <a href="https://sumitgarg100000.github.io/Home/" class="nav-home">Home</a>
-                <a href="#services" class="nav-services">Services</a>
-                <a href="#about" class="nav-about">About</a>
-                <a href="#contact" class="nav-contact">Contact</a>
+                <a href="#"><i class="fas fa-home"></i> Home</a>
+                <a href="#"><i class="fas fa-info-circle"></i> About</a>
+                <a href="#"><i class="fas fa-question-circle"></i> Help</a>
+                <a href="#"><i class="fas fa-envelope"></i> Contact</a>
             </div>
-            <button class="mobile-menu-btn">
-                <i class="fas fa-bars"></i>
-            </button>
-        </header>
-
-        <h1 class="slide-up" style="animation-delay: 0.2s">Welcome to <span class="highlight">Sumit Garg's</span> Financial Tools</h1>
-        <p class="intro-text slide-up" style="animation-delay: 0.4s">Simplify your tax compliance with our user-friendly tools designed for efficiency and accuracy. Our solutions help businesses and individuals manage their financial obligations with confidence.</p>
-
-        <div id="services" class="services-grid">
-            <!-- GST Reconciliation Card -->
-            <a href="https://sumitgarg100000.github.io/GSTReconciliation/" class="service-card" data-aos="fade-up" data-aos-delay="100">
-                <div class="icon-wrapper">
-                    <i class="fas fa-file-invoice-dollar"></i>
-                </div>
-                <h3>GST Reconciliation Tool</h3>
-                <p>Effortlessly compare and match your GSTR-2B and GSTR-3B data. Upload your Excel files, reconcile data, and download results with ease.</p>
-                <div class="btn-explore">Explore Tool</div>
-                <div class="card-overlay"></div>
-                <div class="card-glow"></div>
-            </a>
-
-            <!-- Income Tax Calculator Card -->
-            <a href="https://sumitgarg100000.github.io/IncometaxCalculator/" class="service-card" data-aos="fade-up" data-aos-delay="200">
-                <div class="icon-wrapper">
-                    <i class="fas fa-calculator"></i>
-                </div>
-                <h3>Income Tax Calculator</h3>
-                <p>Calculate your income tax liability quickly and accurately. Input your income details and get instant tax computations.</p>
-                <div class="btn-explore">Explore Tool</div>
-                <div class="card-overlay"></div>
-                <div class="card-glow"></div>
-            </a>
-
-            <!-- TDS on Salary Calculator Card -->
-            <a href="https://sumitgarg100000.github.io/Home/Salarytds.html" class="service-card" data-aos="fade-up" data-aos-delay="300">
-                <div class="icon-wrapper">
-                    <i class="fas fa-money-check-alt"></i>
-                </div>
-                <h3>TDS on Salary Calculator</h3>
-                <p>Calculate TDS on your salary with ease. Input your salary details and get accurate TDS computations instantly.</p>
-                <div class="btn-explore">Explore Tool</div>
-                <div class="card-overlay"></div>
-                <div class="card-glow"></div>
-            </a>
         </div>
-
-        <!-- About Section -->
-        <div id="about" class="about-section" data-aos="fade-up">
-            <div class="section-title">About Sumit Garg</div>
-            <div class="icon-wrapper">
-                <i class="fas fa-user-tie"></i>
-            </div>
-            <p>Sumit Garg is a seasoned financial expert with over 10 years of experience in providing top-notch tax consultancy and financial services. Specializing in GST, income tax, Excel, MIS preparation, and more, Sumit has helped countless businesses and individuals navigate complex financial landscapes with ease and confidence.</p>
-            <p>With a deep understanding of tax regulations and a commitment to delivering accurate and efficient solutions, Sumit Garg's Financial Tools are designed to simplify compliance and empower clients to focus on their core objectives.</p>
-        </div>
-
-        <div class="section-title" data-aos="fade-up">Why Choose Our Tools?</div>
-        <div class="services-grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
-            <div class="service-card glass-card" data-aos="fade-up" data-aos-delay="100" style="cursor: default;">
-                <div class="icon-wrapper" style="background: rgba(255, 107, 107, 0.1);">
-                    <i class="fas fa-bolt" style="color: #ff6b6b;"></i>
+        
+        <!-- Login Section -->
+        <div id="login-section">
+            <h1>GST Reconciliation Tool</h1>
+            <div class="login-form">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" class="form-control" placeholder="Enter your username">
                 </div>
-                <h3>Fast & Efficient</h3>
-                <p>Get quick results with our optimized calculation engines that process your data in seconds.</p>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" class="form-control" placeholder="Enter your password">
+                </div>
+                <div class="form-group" style="display: flex; gap: 10px; justify-content: space-between;">
+                    <button id="login-btn" class="btn" style="flex: 1;">Login</button>
+                    <button id="free-login-btn" class="btn" style="flex: 1; background-color: #34a853;">Free Login</button>
+                </div>
+                <p id="login-error" style="color: red; margin-top: 10px; text-align: center;"></p>
             </div>
             
-            <div class="service-card glass-card" data-aos="fade-up" data-aos-delay="200" style="cursor: default;">
-                <div class="icon-wrapper" style="background: rgba(46, 202, 127, 0.1);">
-                    <i class="fas fa-lock" style="color: #2eca7f;"></i>
+            <div style="margin-top: 30px; background: #f0f7ff; padding: 20px; border-radius: 8px;">
+                <h2>About This Tool</h2>
+                <p>This GST Reconciliation Tool helps you compare and match your GSTR-2B and GSTR-3B data efficiently. Upload your data, reconcile, and instantly see matches and discrepancies. The enhanced version includes improved mailing functionality and customizable display options.</p>
+                <div style="margin-top: 15px;">
+                    <h3 style="font-size: 18px; color: #1a73e8; margin-bottom: 10px;">Key Features:</h3>
+                    <ul style="list-style-type: disc; padding-left: 20px;">
+                        <li>Auto-matching of invoices based on GSTN, invoice number, date, and amount</li>
+                        <li>Detailed view of matched and unmatched entries</li>
+                        <li>GSTN-wise data analysis</li>
+                        <li>Enhanced email reporting with proper headers</li>
+                        <li>Customizable columns and display formats</li>
+                        <li>Data export in multiple formats</li>
+                    </ul>
                 </div>
-                <h3>Secure</h3>
-                <p>Your data stays private with our secure processing systems that don't store sensitive information.</p>
+            </div>
+        </div>
+        
+        <!-- Main Tool Section -->
+        <div id="tool-section" style="display: none;">
+            <div class="flex justify-between items-center">
+                <h1>GST Reconciliation Tool</h1>
+                <button id="logout-btn" class="btn" style="background-color: #ea4335;">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
             </div>
             
-            <div class="service-card glass-card" data-aos="fade-up" data-aos-delay="300" style="cursor: default;">
-                <div class="icon-wrapper" style="background: rgba(255, 177, 66, 0.1);">
-                    <i class="fas fa-clipboard-check" style="color: #ffb142;"></i>
+            <div id="subscription-notice" class="bg-blue-100 text-blue-800 p-3 rounded mb-4" style="display: none;"></div>
+            
+            <!-- Control Panel -->
+            <div class="control-panel">
+                <div class="panel-section">
+                    <h3>File Management</h3>
+                    <div class="mb-3">
+                        <button id="download-sample-btn" class="feature-btn">
+                            <i class="fas fa-download"></i> Download Sample
+                        </button>
+                    </div>
+                    <div class="file-upload" id="file-upload-area">
+                        <i class="fas fa-cloud-upload-alt text-3xl mb-2"></i>
+                        <p>Click to upload GSTR-2B & GSTR-3B data</p>
+                        <p class="text-sm text-gray-500">(Excel format only)</p>
+                        <input type="file" id="gst-file" accept=".xlsx">
+                    </div>
                 </div>
-                <h3>Accurate</h3>
-                <p>Our tools are constantly updated to reflect the latest tax regulations and compliance requirements.</p>
+                
+                <div class="panel-section">
+                    <h3>Reconciliation Settings</h3>
+                    <div class="mb-3">
+                        <label for="diff-allowed" class="block mb-1">Difference Allowed:</label>
+                        <input type="number" id="diff-allowed" value="1" min="0" class="form-control" placeholder="Default: 1">
+                    </div>
+                    <div class="flex items-center mb-3">
+                        <input type="checkbox" id="detailed-reconciliation" class="mr-2">
+                        <label for="detailed-reconciliation">Detailed Reconciliation</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="enable-filter" class="mr-2">
+                        <label for="enable-filter">Enable Filters</label>
+                    </div>
+                </div>
+                
+                <div class="panel-section">
+                    <h3>Actions</h3>
+                    <div class="flex flex-wrap gap-3">
+                        <button id="reconcile-btn" class="feature-btn">
+                            <i class="fas fa-sync-alt"></i> Reconcile Data
+                        </button>
+                        <button id="reset-btn" class="feature-btn danger">
+                            <i class="fas fa-trash-alt"></i> Reset Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- View Controls -->
+            <div class="view-controls">
+                <button id="custom-view-btn" class="feature-btn secondary">
+                    <i class="fas fa-table"></i> Custom View Format
+                </button>
+                <button id="gstn-view-btn" class="feature-btn warning">
+                    <i class="fas fa-th-large"></i> GSTN-wise View
+                </button>
+                <button id="toggle-column-manager-btn" class="feature-btn">
+                    <i class="fas fa-columns"></i> Manage Columns
+                </button>
+                <button id="download-output-btn" class="feature-btn secondary" style="display: none;">
+                    <i class="fas fa-file-download"></i> Download Result
+                </button>
+            </div>
+            
+            <!-- Data Display Section -->
+            <div class="data-container">
+                <h2>GSTR-2B Data</h2>
+                <div id="gstr2b-container" class="data-table-container">
+                    <p class="text-center text-gray-500 p-4">Upload your data file to start reconciliation</p>
+                </div>
+                
+                <h2>GSTR-3B Data</h2>
+                <div id="gstr3b-container" class="data-table-container">
+                    <p class="text-center text-gray-500 p-4">Upload your data file to start reconciliation</p>
+                </div>
+                
+                <h2>Summary</h2>
+                <div id="summary-container" class="data-table-container">
+                    <p class="text-center text-gray-500 p-4">Results will appear after reconciliation</p>
+                </div>
+            </div>
+            
+            <!-- Enhanced Email Section -->
+            <div class="email-section">
+                <h2><i class="fas fa-envelope"></i> Email Reconciliation Report</h2>
+                <div class="email-fields">
+                    <div>
+                        <label for="sender-email">Sender Email:</label>
+                        <input type="email" id="sender-email" class="form-control" placeholder="your-email@example.com">
+                    </div>
+                    <div>
+                        <label for="receiver-email">Receiver Email:</label>
+                        <input type="email" id="receiver-email" class="form-control" placeholder="recipient@example.com">
+                    </div>
+                    <div>
+                        <label for="email-subject">Subject:</label>
+                        <input type="text" id="email-subject" class="form-control" placeholder="GSTR Reconciliation Report" value="GSTR Reconciliation Report">
+                    </div>
+                    <div>
+                        <label for="filter-type">Report Type:</label>
+                        <select id="filter-type" class="form-control">
+                            <option value="all">All Entries</option>
+                            <option value="matched">Matched Entries Only</option>
+                            <option value="unmatched">Unmatched Entries Only</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex justify-center mt-4">
+                    <button id="send-email-btn" class="feature-btn">
+                        <i class="fas fa-paper-plane"></i> Send Email Report
+                    </button>
+                </div>
+                <p id="email-status" class="text-center mt-3"></p>
+            </div>
+        </div>
+        
+        <!-- Custom View Modal -->
+        <div id="custom-view-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-modal" id="close-custom-view">&times;</span>
+                <h2>Custom Display Format</h2>
+                <div class="mb-4">
+                    <p>Data displayed in the requested format:</p>
+                </div>
+                <div id="custom-view-container" class="data-table-container"></div>
+            </div>
+        </div>
+        
+        <!-- GSTN View Modal -->
+        <div id="gstn-view-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-modal" id="close-gstn-view">&times;</span>
+                <h2>GSTN-wise Data View</h2>
+                <div class="mb-4">
+                    <p>Data grouped by GSTN number:</p>
+                </div>
+                <div id="gstn-view-container"></div>
+            </div>
+        </div>
+        
+        <!-- Column Manager Modal -->
+        <div id="column-manager-modal" class="modal">
+            <div class="modal-content" style="max-width: 500px;">
+                <span class="close-modal" id="close-column-manager">&times;</span>
+                <h2>Manage Table Columns</h2>
+                <div class="mb-4">
+                    <p>Enable/disable columns and drag to reorder:</p>
+                </div>
+                <div class="flex gap-4">
+                    <div style="flex: 1;">
+                        <h3 class="text-lg font-semibold mb-2">GSTR-2B Columns</h3>
+                        <div id="gstr2b-column-list" class="column-list"></div>
+                    </div>
+                    <div style="flex: 1;">
+                        <h3 class="text-lg font-semibold mb-2">GSTR-3B Columns</h3>
+                        <div id="gstr3b-column-list" class="column-list"></div>
+                    </div>
+                </div>
+                <div class="mt-4 text-center">
+                    <button id="apply-column-settings" class="feature-btn">Apply Changes</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <footer id="contact" data-aos="fade-up">
-        <div class="footer-container">
-            <div class="footer-section">
-                <h4>Contact Us</h4>
-                <div class="footer-links">
-                    <a href="tel:+919716804520"><i class="fas fa-phone"></i> Ph: 9716804520</a>
-                    <a href="mailto:Sumitgarg100000@gmail.com"><i class="fas fa-envelope"></i> Email: Sumitgarg100000@gmail.com</a>
-                    <a href="https://maps.google.com/?q=Rohini,+Delhi-110086" target="_blank"><i class="fas fa-map-marker-alt"></i> Address: Rohini, Delhi-110086</a>
-                </div>
-            </div>
-            
-            <div class="footer-section">
-                <h4>Quick Links</h4>
-                <div class="footer-links">
-                    <a href="https://sumitgarg100000.github.io/Home/"><i class="fas fa-chevron-right"></i> Home</a>
-                    <a href="#services"><i class="fas fa-chevron-right"></i> Services</a>
-                    <a href="#about"><i class="fas fa-chevron-right"></i> About</a>
-                    <a href="#contact"><i class="fas fa-chevron-right"></i> Contact</a>
-                </div>
-            </div>
-            
-            <div class="footer-section">
-                <h4>Legal</h4>
-                <div class="footer-links">
-                    <a href="#"><i class="fas fa-gavel"></i> Privacy Policy</a>
-                    <a href="#"><i class="fas fa-file-contract"></i> Terms of Service</a>
-                    <a href="#"><i class="fas fa-shield-alt"></i> Data Protection</a>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <a href="https://wa.me/9716804520" class="whatsapp-btn" target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp">
-        <i class="fab fa-whatsapp"></i>
-        <div class="whatsapp-tooltip">Chat with us!</div>
-    </a>
-
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/exceljs@4.3.0/dist/exceljs.min.js"></script>
+    
     <script>
+        // User database simulation
+        const users = {
+            "admin": { password: "admin123", expiry: "2025-12-31", isAdmin: true },
+            "user1": { password: "pass123", expiry: "2025-05-15", isAdmin: false },
+            "user2": { password: "pass456", expiry: "2025-06-20", isAdmin: false }
+        };
+        
+        // Global data storage
+        let gstr2bData = [];
+        let gstr3bData = [];
+        let customViewData = [];
+        let gstnWiseData = {};
+        let columnOrder = {
+            gstr2b: [],
+            gstr3b: []
+        };
+        let visibleColumns = {
+            gstr2b: {},
+            gstr3b: {}
+        };
+        
+        // Default headers with required order
+        const gstr2bDefaultHeaders = [
+            'Match Criteria', 'Invoice Date', 'Invoice Number', 'Name of Supplier', 'GSTN', 
+            'Taxable Value', 'IGST', 'CGST', 'SGST', 'Invoice Value', 'Invoice type', 
+            'Place of supply', 'Reverse Charge', 'Rate (%)', 'Cess', 'GSTR-1/5 Period', 
+            'GSTR-1/5 Filing Date', 'ITC Availability', 'Reason', 'Applicable % of Tax Rate', 
+            'Source', 'IRN', 'IRN Date'
+        ];
+        
+        const gstr3bDefaultHeaders = [
+            'Match Criteria', 'Invoice Date', 'Invoice Number', 'Name of Supplier', 'GSTN', 
+            'Taxable Value', 'IGST', 'CGST', 'SGST', 'Invoice Value'
+        ];
+        
+        // Helper function to get current headers
+        function getGstr2bHeaders() {
+            return columnOrder.gstr2b.length > 0 ? columnOrder.gstr2b : gstr2bDefaultHeaders;
+        }
+        
+        function getGstr3bHeaders() {
+            return columnOrder.gstr3b.length > 0 ? columnOrder.gstr3b : gstr3bDefaultHeaders;
+        }
+        
+        // Mobile table scroll indicators
+        function addScrollIndicators() {
+            const tables = document.querySelectorAll('.data-table-container');
+            tables.forEach(table => {
+                table.addEventListener('scroll', function() {
+                    const maxScrollLeft = table.scrollWidth - table.clientWidth;
+                    if (maxScrollLeft > 0) {
+                        if (table.scrollLeft > 0 && table.scrollLeft < maxScrollLeft) {
+                            table.classList.add('scroll-both');
+                            table.classList.remove('scroll-right');
+                            table.classList.remove('scroll-left');
+                        } else if (table.scrollLeft === 0) {
+                            table.classList.add('scroll-right');
+                            table.classList.remove('scroll-both');
+                            table.classList.remove('scroll-left');
+                        } else {
+                            table.classList.add('scroll-left');
+                            table.classList.remove('scroll-both');
+                            table.classList.remove('scroll-right');
+                        }
+                    }
+                });
+            });
+        }
+        
+        // DOM Content Loaded
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize AOS animation library
-            AOS.init({
-                duration: 800,
-                easing: 'ease-in-out',
-                once: true
-            });
+            // Initialize login system
+            const loginBtn = document.getElementById('login-btn');
+            const freeLoginBtn = document.getElementById('free-login-btn');
+            const logoutBtn = document.getElementById('logout-btn');
+            const loginSection = document.getElementById('login-section');
+            const toolSection = document.getElementById('tool-section');
             
-            // Mobile menu toggle
-            const menuBtn = document.querySelector('.mobile-menu-btn');
-            const container = document.querySelector('.container');
+            // Check for existing session
+            const loggedInUser = localStorage.getItem('loggedInUser');
+            const isFreeLogin = localStorage.getItem('isFreeLogin') === 'true';
             
-            menuBtn.addEventListener('click', function(event) {
-                event.stopPropagation();
-                container.classList.toggle('mobile-menu-open');
-            });
+            if (loggedInUser) {
+                showToolSection();
+                
+                if (isFreeLogin) {
+                    applyFreeLoginRestrictions();
+                } else {
+                    const user = users[loggedInUser];
+                    if (user) {
+                        const expiryDate = new Date(user.expiry);
+                        const today = new Date();
+                        
+                        if (today <= expiryDate) {
+                            const subscriptionNotice = document.getElementById('subscription-notice');
+                            subscriptionNotice.textContent = `Subscription valid until: ${user.expiry}`;
+                            subscriptionNotice.style.display = 'block';
+                            
+                            setTimeout(() => {
+                                subscriptionNotice.style.display = 'none';
+                            }, 5000);
+                        } else {
+                            // Subscription expired
+                            logout();
+                            document.getElementById('login-error').textContent = 'Your subscription has expired.';
+                        }
+                    } else {
+                        logout();
+                    }
+                }
+                
+                // Restore any data
+                restoreData();
+            } else {
+                showLoginSection();
+            }
             
-            // Close mobile menu when clicking outside
-            document.addEventListener('click', function(event) {
-                if (!event.target.closest('.mobile-menu-btn') && !event.target.closest('.nav-links')) {
-                    container.classList.remove('mobile-menu-open');
+            // Login button event
+            loginBtn.addEventListener('click', function() {
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                const errorElement = document.getElementById('login-error');
+                
+                if (!username || !password) {
+                    errorElement.textContent = 'Please enter both username and password.';
+                    return;
+                }
+                
+                const user = users[username];
+                if (user && user.password === password) {
+                    // Check subscription
+                    const expiryDate = new Date(user.expiry);
+                    const today = new Date();
+                    
+                    if (today <= expiryDate) {
+                        localStorage.setItem('loggedInUser', username);
+                        localStorage.setItem('isFreeLogin', 'false');
+                        localStorage.setItem('isAdmin', user.isAdmin);
+                        
+                        showToolSection();
+                        
+                        const subscriptionNotice = document.getElementById('subscription-notice');
+                        subscriptionNotice.textContent = `Subscription valid until: ${user.expiry}`;
+                        subscriptionNotice.style.display = 'block';
+                        
+                        setTimeout(() => {
+                            subscriptionNotice.style.display = 'none';
+                        }, 5000);
+                    } else {
+                        errorElement.textContent = 'Your subscription has expired.';
+                    }
+                } else {
+                    errorElement.textContent = 'Invalid username or password.';
                 }
             });
-
-            // Smooth scroll for navigation links
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const targetId = this.getAttribute('href');
-                    const targetElement = document.querySelector(targetId);
-                    if (targetElement) {
-                        targetElement.scrollIntoView({ behavior: 'smooth' });
-                    }
-                    // Close mobile menu after clicking a link
-                    container.classList.remove('mobile-menu-open');
-                });
+            
+            // Free login button event
+            freeLoginBtn.addEventListener('click', function() {
+                localStorage.setItem('loggedInUser', 'free-user');
+                localStorage.setItem('isFreeLogin', 'true');
+                
+                showToolSection();
+                applyFreeLoginRestrictions();
             });
             
-            // Add 3D effect to service cards based on mouse position
-            const cards = document.querySelectorAll('.service-card');
+            // Logout button event
+            logoutBtn.addEventListener('click', logout);
             
-            cards.forEach(card => {
-                card.addEventListener('mousemove', function(e) {
-                    const rect = card.getBoundingClientRect();
-                    const x = e.clientX - rect.left; // x position within the element
-                    const y = e.clientY - rect.top;  // y position within the element
-                    
-                    const centerX = rect.width / 2;
-                    const centerY = rect.height / 2;
-                    
-                    const angleX = (y - centerY) / 20;
-                    const angleY = (centerX - x) / 20;
-                    
-                    card.style.transform = `perspective(1000px) rotateX(${angleX}deg) rotateY(${angleY}deg) translateZ(10px)`;
+            // File upload
+            const fileUploadArea = document.getElementById('file-upload-area');
+            const fileInput = document.getElementById('gst-file');
+            
+            fileUploadArea.addEventListener('click', function() {
+                fileInput.click();
+            });
+            
+            fileInput.addEventListener('change', handleFileUpload);
+            
+            // Button events
+            document.getElementById('download-sample-btn').addEventListener('click', generateSampleFile);
+            document.getElementById('reconcile-btn').addEventListener('click', reconcileData);
+            document.getElementById('reset-btn').addEventListener('click', resetData);
+            document.getElementById('detailed-reconciliation').addEventListener('change', function() {
+                if (gstr2bData.length > 0 && gstr3bData.length > 0) {
+                    reconcileData();
+                }
+            });
+            
+            document.getElementById('enable-filter').addEventListener('change', function() {
+                toggleFilters(this.checked);
+            });
+            
+            // Custom view button
+            document.getElementById('custom-view-btn').addEventListener('click', showCustomView);
+            document.getElementById('close-custom-view').addEventListener('click', function() {
+                document.getElementById('custom-view-modal').style.display = 'none';
+            });
+            
+            // GSTN view button
+            document.getElementById('gstn-view-btn').addEventListener('click', showGstnView);
+            document.getElementById('close-gstn-view').addEventListener('click', function() {
+                document.getElementById('gstn-view-modal').style.display = 'none';
+            });
+            
+            // Column manager
+            document.getElementById('toggle-column-manager-btn').addEventListener('click', showColumnManager);
+            document.getElementById('close-column-manager').addEventListener('click', function() {
+                document.getElementById('column-manager-modal').style.display = 'none';
+            });
+            document.getElementById('apply-column-settings').addEventListener('click', applyColumnSettings);
+            
+            // Download button
+            document.getElementById('download-output-btn').addEventListener('click', downloadReconciled);
+            
+            // Email button
+            document.getElementById('send-email-btn').addEventListener('click', sendEmailReport);
+            
+            // Close modals when clicking outside
+            window.addEventListener('click', function(event) {
+                const customViewModal = document.getElementById('custom-view-modal');
+                const gstnViewModal = document.getElementById('gstn-view-modal');
+                const columnManagerModal = document.getElementById('column-manager-modal');
+                
+                if (event.target === customViewModal) {
+                    customViewModal.style.display = 'none';
+                }
+                if (event.target === gstnViewModal) {
+                    gstnViewModal.style.display = 'none';
+                }
+                if (event.target === columnManagerModal) {
+                    columnManagerModal.style.display = 'none';
+                }
+            });
+            
+            // Initialize table scroll indicators
+            addScrollIndicators();
+        });
+        
+        // Show login section
+        function showLoginSection() {
+            document.getElementById('login-section').style.display = 'block';
+            document.getElementById('tool-section').style.display = 'none';
+        }
+        
+        // Show tool section
+        function showToolSection() {
+            document.getElementById('login-section').style.display = 'none';
+            document.getElementById('tool-section').style.display = 'block';
+        }
+        
+        // Logout function
+        function logout() {
+            localStorage.removeItem('loggedInUser');
+            localStorage.removeItem('isFreeLogin');
+            localStorage.removeItem('isAdmin');
+            localStorage.removeItem('gstr2bData');
+            localStorage.removeItem('gstr3bData');
+            localStorage.removeItem('columnOrder');
+            localStorage.removeItem('visibleColumns');
+            
+            gstr2bData = [];
+            gstr3bData = [];
+            
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('login-error').textContent = '';
+            
+            showLoginSection();
+        }
+        
+        // Apply free login restrictions
+        function applyFreeLoginRestrictions() {
+            const subscriptionNotice = document.getElementById('subscription-notice');
+            subscriptionNotice.textContent = 'You are using the free version with limited features.';
+            subscriptionNotice.style.display = 'block';
+            
+            // Disable detailed reconciliation
+            document.getElementById('detailed-reconciliation').checked = false;
+            document.getElementById('detailed-reconciliation').disabled = true;
+            
+            // Limit other features as needed
+        }
+        
+        // Handle file upload
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                
+                // Process GSTR-2B sheet
+                const gstr2bSheet = workbook.Sheets['GST Portal'];
+                if (gstr2bSheet) {
+                    const sheetData = XLSX.utils.sheet_to_json(gstr2bSheet, { header: 1, defval: '' });
+                    if (sheetData.length > 1) {
+                        const headers = sheetData[0].map(header => header.toString().trim());
+                        
+                        // Initialize column order if not already set
+                        if (columnOrder.gstr2b.length === 0) {
+                            columnOrder.gstr2b = headers;
+                        }
+                        
+                        // Initialize visible columns
+                        if (Object.keys(visibleColumns.gstr2b).length === 0) {
+                            headers.forEach(header => {
+                                visibleColumns.gstr2b[header] = true;
+                            });
+                        }
+                        
+                        gstr2bData = sheetData.slice(1).map(row => {
+                            const rowData = {};
+                            headers.forEach((header, index) => {
+                                rowData[header] = row[index] !== undefined ? row[index] : '';
+                            });
+                            return rowData;
+                        });
+                        
+                        localStorage.setItem('gstr2bData', JSON.stringify(gstr2bData));
+                    }
+                }
+                
+                // Process GSTR-3B sheet
+                const gstr3bSheet = workbook.Sheets['Client Data'];
+                if (gstr3bSheet) {
+                    const sheetData = XLSX.utils.sheet_to_json(gstr3bSheet, { header: 1, defval: '' });
+                    if (sheetData.length > 1) {
+                        const headers = sheetData[0].map(header => header.toString().trim());
+                        
+                        // Initialize column order if not already set
+                        if (columnOrder.gstr3b.length === 0) {
+                            columnOrder.gstr3b = headers;
+                        }
+                        
+                        // Initialize visible columns
+                        if (Object.keys(visibleColumns.gstr3b).length === 0) {
+                            headers.forEach(header => {
+                                visibleColumns.gstr3b[header] = true;
+                            });
+                        }
+                        
+                        gstr3bData = sheetData.slice(1).map(row => {
+                            const rowData = {};
+                            headers.forEach((header, index) => {
+                                rowData[header] = row[index] !== undefined ? row[index] : '';
+                            });
+                            return rowData;
+                        });
+                        
+                        localStorage.setItem('gstr3bData', JSON.stringify(gstr3bData));
+                    }
+                }
+                
+                // Display data
+                displayData();
+                
+                // Enable download button
+                document.getElementById('download-output-btn').style.display = 'inline-flex';
+                
+                // Auto-reconcile if both datasets are loaded
+                if (gstr2bData.length > 0 && gstr3bData.length > 0) {
+                    reconcileData();
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+        
+        // Restore data from localStorage
+        function restoreData() {
+            const storedGstr2b = localStorage.getItem('gstr2bData');
+            const storedGstr3b = localStorage.getItem('gstr3bData');
+            const storedColumnOrder = localStorage.getItem('columnOrder');
+            const storedVisibleColumns = localStorage.getItem('visibleColumns');
+            
+            if (storedGstr2b) {
+                gstr2bData = JSON.parse(storedGstr2b);
+            }
+            
+            if (storedGstr3b) {
+                gstr3bData = JSON.parse(storedGstr3b);
+            }
+            
+            if (storedColumnOrder) {
+                columnOrder = JSON.parse(storedColumnOrder);
+            }
+            
+            if (storedVisibleColumns) {
+                visibleColumns = JSON.parse(storedVisibleColumns);
+            }
+            
+            if (gstr2bData.length > 0 || gstr3bData.length > 0) {
+                displayData();
+                document.getElementById('download-output-btn').style.display = 'inline-flex';
+            }
+            
+            if (gstr2bData.length > 0 && gstr3bData.length > 0) {
+                reconcileData();
+            }
+        }
+        
+        // Generate sample file
+        function generateSampleFile() {
+            const workbook = new ExcelJS.Workbook();
+            
+            // GSTR-2B Sheet
+            const ws1 = workbook.addWorksheet('GST Portal');
+            
+            // Add headers
+            const headers1 = gstr2bDefaultHeaders.slice(1); // Remove Match Criteria
+            ws1.addRow(headers1);
+            
+            // Format header row
+            ws1.getRow(1).font = { bold: true };
+            ws1.getRow(1).fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: 'FFE0FFFF' }
+            };
+            
+            // Add sample data
+            const sampleData1 = [
+                ['01-Mar-2023', 'INV001', 'Supplier A', '27AABCU9603R1ZM', 10000, 1800, 0, 0, 11800, 'Regular', 'Delhi', 'N', 18, 0, 'Mar-2023', '15-Mar-2023', 'Yes', '', 0, 'GSTR-1', 'IRN001', '02-Mar-2023'],
+                ['02-Mar-2023', 'INV002', 'Supplier B', '29XYZ1234P1ZQ', 20000, 0, 1800, 1800, 23600, 'Regular', 'Karnataka', 'N', 18, 0, 'Mar-2023', '16-Mar-2023', 'Yes', '', 0, 'GSTR-1', 'IRN002', '03-Mar-2023']
+            ];
+            
+            sampleData1.forEach(row => ws1.addRow(row));
+            
+            // GSTR-3B Sheet
+            const ws2 = workbook.addWorksheet('Client Data');
+            
+            // Add headers
+            const headers2 = gstr3bDefaultHeaders.slice(1); // Remove Match Criteria
+            ws2.addRow(headers2);
+            
+            // Format header row
+            ws2.getRow(1).font = { bold: true };
+            ws2.getRow(1).fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: 'FFE0FFFF' }
+            };
+            
+            // Add sample data
+            const sampleData2 = [
+                ['01-Mar-2023', 'INV001', 'Supplier A', '27AABCU9603R1ZM', 10000, 1800, 0, 0, 11800],
+                ['02-Mar-2023', 'INV002', 'Supplier B', '29XYZ1234P1ZQ', 20000, 0, 1800, 1800, 23600]
+            ];
+            
+            sampleData2.forEach(row => ws2.addRow(row));
+            
+            // Generate and download
+            workbook.xlsx.writeBuffer().then(buffer => {
+                const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'GST_Reconciliation_Sample.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+        }
+        
+        // Display data in tables
+        function displayData() {
+            if (gstr2bData.length > 0) {
+                displayTableData('gstr2b-container', gstr2bData, columnOrder.gstr2b, visibleColumns.gstr2b);
+            }
+            
+            if (gstr3bData.length > 0) {
+                displayTableData('gstr3b-container', gstr3bData, columnOrder.gstr3b, visibleColumns.gstr3b);
+            }
+        }
+        
+        // Display table data
+        function displayTableData(containerId, data, headers, visibleCols) {
+            const container = document.getElementById(containerId);
+            if (!headers || headers.length === 0) {
+                headers = Object.keys(data[0] || {});
+            }
+            
+            let html = '<table class="data-table">';
+            
+            // Table header
+            html += '<thead><tr>';
+            headers.forEach(header => {
+                if (!visibleCols || visibleCols[header]) {
+                    html += `<th data-column="${header}" draggable="true">${header}`;
+                    html += '<div class="resizer"></div></th>';
+                }
+            });
+            html += '</tr></thead>';
+            
+            // Table body
+            html += '<tbody>';
+            data.forEach((row, index) => {
+                html += `<tr data-index="${index}">`;
+                headers.forEach(header => {
+                    if (!visibleCols || visibleCols[header]) {
+                        const cellValue = row[header] !== undefined ? row[header] : '';
+                        html += `<td data-column="${header}">${cellValue}</td>`;
+                    }
+                });
+                html += '</tr>';
+            });
+            html += '</tbody></table>';
+            
+            container.innerHTML = html;
+            
+            // Add column drag and drop functionality
+            setupColumnDragDrop(container);
+            
+            // Add column resizing
+            setupColumnResizing(container);
+            
+            // Make cells editable
+            setupEditableCells(container);
+        }
+        
+        // Setup column drag and drop
+        function setupColumnDragDrop(container) {
+            const headers = container.querySelectorAll('th');
+            let draggedColumn = null;
+            let dropTarget = null;
+            let dropIndicator = document.createElement('div');
+            dropIndicator.className = 'column-drop-indicator';
+            dropIndicator.style.display = 'none';
+            container.appendChild(dropIndicator);
+            
+            headers.forEach(header => {
+                header.addEventListener('dragstart', function(e) {
+                    draggedColumn = this;
+                    this.classList.add('column-dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/plain', this.getAttribute('data-column'));
                 });
                 
-                card.addEventListener('mouseleave', function() {
-                    card.style.transform = '';
-                    setTimeout(() => {
-                        if (card.matches(':hover')) return;
-                        card.style.transition = 'transform 0.5s ease';
-                        card.style.transform = '';
-                    }, 100);
+                header.addEventListener('dragend', function() {
+                    this.classList.remove('column-dragging');
+                    dropIndicator.style.display = 'none';
+                    draggedColumn = null;
+                    
+                    if (dropTarget) {
+                        const tableId = container.id;
+                        const sourceIndex = Array.from(headers).indexOf(this);
+                        const targetIndex = Array.from(headers).indexOf(dropTarget);
+                        
+                        // Update column order
+                        if (tableId === 'gstr2b-container') {
+                            moveColumn(columnOrder.gstr2b, sourceIndex, targetIndex);
+                        } else if (tableId === 'gstr3b-container') {
+                            moveColumn(columnOrder.gstr3b, sourceIndex, targetIndex);
+                        }
+                        
+                        // Save updated column order
+                        localStorage.setItem('columnOrder', JSON.stringify(columnOrder));
+                        
+                        // Redisplay data
+                        displayData();
+                    }
+                    
+                    dropTarget = null;
+                });
+                
+                header.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    if (!draggedColumn || this === draggedColumn) return;
+                    
+                    const rect = this.getBoundingClientRect();
+                    const mouseX = e.clientX;
+                    const midPoint = rect.left + rect.width / 2;
+                    
+                    dropIndicator.style.display = 'block';
+                    
+                    if (mouseX < midPoint) {
+                        // Drop to the left
+                        dropIndicator.style.left = rect.left + 'px';
+                    } else {
+                        // Drop to the right
+                        dropIndicator.style.left = (rect.right) + 'px';
+                    }
+                    
+                    dropIndicator.style.top = rect.top + 'px';
+                    dropIndicator.style.height = rect.height + 'px';
+                    
+                    dropTarget = this;
+                });
+                
+                header.addEventListener('dragleave', function() {
+                    if (dropTarget === this) {
+                        dropIndicator.style.display = 'none';
+                        dropTarget = null;
+                    }
                 });
             });
-        });
+        }
+        
+        // Move column in array
+        function moveColumn(arr, fromIndex, toIndex) {
+            if (fromIndex === toIndex) return arr;
+            
+            const element = arr[fromIndex];
+            arr.splice(fromIndex, 1);
+            arr.splice(toIndex, 0, element);
+            
+            return arr;
+        }
+        
+        // Setup column resizing
+        function setupColumnResizing(container) {
+            const table = container.querySelector('table');
+            const headers = container.querySelectorAll('th');
+            let resizingColumn = null;
+            let startX, startWidth;
+            
+            // Setup resizers
+            headers.forEach(header => {
+                const resizer = header.querySelector('.resizer');
+                
+                resizer.addEventListener('mousedown', function(e) {
+                    resizingColumn = header;
+                    startX = e.pageX;
+                    startWidth = header.offsetWidth;
+                    
+                    document.addEventListener('mousemove', resize);
+                    document.addEventListener('mouseup', stopResize);
+                    
+                    resizer.classList.add('resizing');
+                    e.preventDefault();
+                });
+            });
+            
+            // Resize function
+            function resize(e) {
+                if (!resizingColumn) return;
+                
+                const newWidth = startWidth + (e.pageX - startX);
+                if (newWidth > 50) { // Minimum width
+                    resizingColumn.style.width = newWidth + 'px';
+                }
+            }
+            
+            // Stop resize function
+            function stopResize() {
+                if (!resizingColumn) return;
+                
+                document.removeEventListener('mousemove', resize);
+                document.removeEventListener('mouseup', stopResize);
+                
+                const resizer = resizingColumn.querySelector('.resizer');
+                resizer.classList.remove('resizing');
+                
+                resizingColumn = null;
+            }
+        }
+        
+        // Setup editable cells
+        function setupEditableCells(container) {
+            const cells = container.querySelectorAll('td');
+            
+            cells.forEach(cell => {
+                cell.addEventListener('dblclick', function() {
+                    const isFreeLogin = localStorage.getItem('isFreeLogin') === 'true';
+                    if (isFreeLogin) return; // Disable editing for free users
+                    
+                    const value = this.textContent;
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.value = value;
+                    input.style.width = '100%';
+                    input.style.height = '100%';
+                    input.style.border = 'none';
+                    input.style.padding = '5px';
+                    input.style.boxSizing = 'border-box';
+                    
+                    this.innerHTML = '';
+                    this.appendChild(input);
+                    input.focus();
+                    
+                    input.addEventListener('blur', function() {
+                        const newValue = this.value;
+                        cell.textContent = newValue;
+                        
+                        // Update data
+                        const row = cell.parentElement;
+                        const rowIndex = parseInt(row.getAttribute('data-index'));
+                        const columnName = cell.getAttribute('data-column');
+                        const tableId = container.id;
+                        
+                        if (tableId === 'gstr2b-container' && rowIndex < gstr2bData.length) {
+                            gstr2bData[rowIndex][columnName] = newValue;
+                            localStorage.setItem('gstr2bData', JSON.stringify(gstr2bData));
+                        } else if (tableId === 'gstr3b-container' && rowIndex < gstr3bData.length) {
+                            gstr3bData[rowIndex][columnName] = newValue;
+                            localStorage.setItem('gstr3bData', JSON.stringify(gstr3bData));
+                        }
+                    });
+                    
+                    input.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter') {
+                            this.blur();
+                        }
+                    });
+                });
+            });
+        }
+        
+        // Toggle filters
+        function toggleFilters(enabled) {
+            const tables = document.querySelectorAll('.data-table');
+            
+            tables.forEach(table => {
+                const headers = table.querySelectorAll('th');
+                
+                if (enabled) {
+                    // Add filter dropdowns
+                    headers.forEach(header => {
+                        if (header.querySelector('.filter-dropdown')) return; // Skip if already has filter
+                        
+                        const columnName = header.getAttribute('data-column');
+                        const filterBtn = document.createElement('span');
+                        filterBtn.className = 'filter-btn';
+                        filterBtn.innerHTML = ' <i class="fas fa-filter" style="font-size: 12px;"></i>';
+                        filterBtn.style.cursor = 'pointer';
+                        filterBtn.style.marginLeft = '5px';
+                        
+                        filterBtn.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            createFilterDropdown(header, columnName, table);
+                        });
+                        
+                        header.appendChild(filterBtn);
+                    });
+                } else {
+                    // Remove filter dropdowns
+                    headers.forEach(header => {
+                        const filterBtn = header.querySelector('.filter-btn');
+                        if (filterBtn) {
+                            header.removeChild(filterBtn);
+                        }
+                    });
+                    
+                    // Reset all filters
+                    const rows = table.querySelectorAll('tbody tr');
+                    rows.forEach(row => {
+                        row.style.display = '';
+                    });
+                }
+            });
+        }
+        
+        // Create filter dropdown
+        function createFilterDropdown(header, columnName, table) {
+            // Remove any existing dropdown
+            const existingDropdown = document.querySelector('.filter-dropdown');
+            if (existingDropdown) {
+                document.body.removeChild(existingDropdown);
+            }
+            
+            // Create filter dropdown
+            const dropdown = document.createElement('div');
+            dropdown.className = 'filter-dropdown';
+            dropdown.style.position = 'absolute';
+            dropdown.style.backgroundColor = 'white';
+            dropdown.style.border = '1px solid #ccc';
+            dropdown.style.borderRadius = '4px';
+            dropdown.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
+            dropdown.style.padding = '10px';
+            dropdown.style.zIndex = '1000';
+            dropdown.style.minWidth = '200px';
+            dropdown.style.maxHeight = '300px';
+            dropdown.style.overflowY = 'auto';
+            
+            // Position dropdown
+            const rect = header.getBoundingClientRect();
+            dropdown.style.top = (rect.bottom + window.scrollY) + 'px';
+            dropdown.style.left = (rect.left + window.scrollX) + 'px';
+            
+            // Get unique values
+            const uniqueValues = new Set();
+            const rows = table.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                const cell = row.querySelector(`td[data-column="${columnName}"]`);
+                if (cell) {
+                    uniqueValues.add(cell.textContent);
+                }
+            });
+            
+            // Create filter options
+            dropdown.innerHTML = `
+                <div style="margin-bottom: 10px;">
+                    <input type="text" placeholder="Search..." class="filter-search" style="width: 100%; padding: 5px; border: 1px solid #ccc; border-radius: 4px;">
+                </div>
+                <div class="filter-options" style="margin-bottom: 10px;"></div>
+                <div style="display: flex; justify-content: space-between;">
+                    <button class="select-all" style="padding: 5px; background: #1a73e8; color: white; border: none; border-radius: 4px; cursor: pointer;">Select All</button>
+                    <button class="clear-all" style="padding: 5px; background: #ea4335; color: white; border: none; border-radius: 4px; cursor: pointer;">Clear All</button>
+                </div>
+            `;
+            
+            document.body.appendChild(dropdown);
+            
+            const optionsContainer = dropdown.querySelector('.filter-options');
+            const searchInput = dropdown.querySelector('.filter-search');
+            const selectAllBtn = dropdown.querySelector('.select-all');
+            const clearAllBtn = dropdown.querySelector('.clear-all');
+            
+            // Add options
+            Array.from(uniqueValues).sort().forEach(value => {
+                const option = document.createElement('div');
+                option.style.marginBottom = '5px';
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.value = value;
+                checkbox.checked = true;
+                checkbox.style.marginRight = '5px';
+                
+                const label = document.createElement('label');
+                label.textContent = value || '(Blank)';
+                label.style.fontSize = '14px';
+                
+                option.appendChild(checkbox);
+                option.appendChild(label);
+                optionsContainer.appendChild(option);
+                
+                checkbox.addEventListener('change', applyFilter);
+            });
+            
+            // Search functionality
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const options = optionsContainer.querySelectorAll('div');
+                
+                options.forEach(option => {
+                    const label = option.querySelector('label');
+                    const text = label.textContent.toLowerCase();
+                    option.style.display = text.includes(searchTerm) ? '' : 'none';
+                });
+            });
+            
+            // Select all button
+            selectAllBtn.addEventListener('click', function() {
+                const checkboxes = optionsContainer.querySelectorAll('input[type="checkbox"]');
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = true;
+                });
+                applyFilter();
+            });
+            
+            // Clear all button
+            clearAllBtn.addEventListener('click', function() {
+                const checkboxes = optionsContainer.querySelectorAll('input[type="checkbox"]');
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                applyFilter();
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function closeFilter(e) {
+                if (!dropdown.contains(e.target) && e.target !== header && !header.contains(e.target)) {
+                    dropdown.parentNode.removeChild(dropdown);
+                    document.removeEventListener('click', closeFilter);
+                }
+            });
+            
+            // Apply filter function
+            function applyFilter() {
+                const checkedValues = Array.from(
+                    optionsContainer.querySelectorAll('input[type="checkbox"]:checked')
+                ).map(checkbox => checkbox.value);
+                
+                rows.forEach(row => {
+                    const cell = row.querySelector(`td[data-column="${columnName}"]`);
+                    if (cell) {
+                        const value = cell.textContent;
+                        row.style.display = checkedValues.includes(value) ? '' : 'none';
+                    }
+                });
+            }
+        }
+        
+        // Reset data function
+        function resetData() {
+            // Confirm reset
+            if (!confirm('Are you sure you want to reset all data? This action cannot be undone.')) return;
+            
+            // Clear data
+            gstr2bData = [];
+            gstr3bData = [];
+            
+            // Clear localStorage
+            localStorage.removeItem('gstr2bData');
+            localStorage.removeItem('gstr3bData');
+            
+            // Clear DOM
+            document.getElementById('gstr2b-container').innerHTML = '<p class="text-center text-gray-500 p-4">Upload your data file to start reconciliation</p>';
+            document.getElementById('gstr3b-container').innerHTML = '<p class="text-center text-gray-500 p-4">Upload your data file to start reconciliation</p>';
+            document.getElementById('summary-container').innerHTML = '<p class="text-center text-gray-500 p-4">Results will appear after reconciliation</p>';
+            
+            // Hide download button
+            document.getElementById('download-output-btn').style.display = 'none';
+            
+            // Reset file input
+            document.getElementById('gst-file').value = '';
+            
+            // Reset other fields
+            document.getElementById('diff-allowed').value = '1';
+        }
+        
+        // Reconcile data function
+        function reconcileData() {
+            if (gstr2bData.length === 0 || gstr3bData.length === 0) {
+                alert('Please upload both GSTR-2B and GSTR-3B data files first.');
+                return;
+            }
+            
+            const diffAllowed = parseFloat(document.getElementById('diff-allowed').value) || 1;
+            const isDetailedReconciliation = document.getElementById('detailed-reconciliation').checked;
+            
+            // Process GSTR-2B data
+            gstr2bData.forEach(row => {
+                const matchResult = findMatch(row, 'gstr2b', diffAllowed, isDetailedReconciliation);
+                row['Match Criteria'] = matchResult;
+            });
+            
+            // Process GSTR-3B data
+            gstr3bData.forEach(row => {
+                const matchResult = findMatch(row, 'gstr3b', diffAllowed, isDetailedReconciliation);
+                row['Match Criteria'] = matchResult;
+            });
+            
+            // Save updated data
+            localStorage.setItem('gstr2bData', JSON.stringify(gstr2bData));
+            localStorage.setItem('gstr3bData', JSON.stringify(gstr3bData));
+            
+            // Redisplay data
+            displayData();
+            
+            // Display summary
+            displaySummary();
+            
+            // Prepare data for custom view and GSTN view
+            prepareCustomViewData();
+            prepareGstnWiseData();
+        }
+        
+        // Find match function
+        function findMatch(row, sourceType, diffAllowed, isDetailedReconciliation) {
+            const compareData = sourceType === 'gstr2b' ? gstr3bData : gstr2bData;
+            
+            // Get GSTN, invoice number and date
+            const gstn = String(row['GSTN'] || '').toLowerCase().trim();
+            const invNum = String(row['Invoice Number'] || '').toLowerCase().trim().replace(/\s+/g, '');
+            const invDate = String(row['Invoice Date'] || '').toLowerCase().trim();
+            
+            // Find matches by different criteria
+            const exactMatches = compareData.filter(cmpRow => {
+                const cmpGstn = String(cmpRow['GSTN'] || '').toLowerCase().trim();
+                const cmpInvNum = String(cmpRow['Invoice Number'] || '').toLowerCase().trim().replace(/\s+/g, '');
+                const cmpInvDate = String(cmpRow['Invoice Date'] || '').toLowerCase().trim();
+                
+                return gstn === cmpGstn && invNum === cmpInvNum && invDate === cmpInvDate;
+            });
+            
+            // If exact matches found, check amount differences
+            if (exactMatches.length > 0) {
+                // Check if amounts match within allowed difference
+                const taxableValue = Number(row['Taxable Value'] || 0);
+                const igst = Number(row['IGST'] || 0);
+                const cgst = Number(row['CGST'] || 0);
+                const sgst = Number(row['SGST'] || 0);
+                
+                const amountMatch = exactMatches.some(match => {
+                    const matchTaxable = Number(match['Taxable Value'] || 0);
+                    const matchIgst = Number(match['IGST'] || 0);
+                    const matchCgst = Number(match['CGST'] || 0);
+                    const matchSgst = Number(match['SGST'] || 0);
+                    
+                    return Math.abs(taxableValue - matchTaxable) <= diffAllowed &&
+                           Math.abs(igst - matchIgst) <= diffAllowed &&
+                           Math.abs(cgst - matchCgst) <= diffAllowed &&
+                           Math.abs(sgst - matchSgst) <= diffAllowed;
+                });
+                
+                if (amountMatch) {
+                    return isDetailedReconciliation ? 'Match - GSTN, Invoice No., Date' : 'Match';
+                } else {
+                    return 'Unmatch - Amt Diff';
+                }
+            }
+            
+            // Check for GSTN and invoice number match only
+            const invMatches = compareData.filter(cmpRow => {
+                const cmpGstn = String(cmpRow['GSTN'] || '').toLowerCase().trim();
+                const cmpInvNum = String(cmpRow['Invoice Number'] || '').toLowerCase().trim().replace(/\s+/g, '');
+                
+                return gstn === cmpGstn && invNum === cmpInvNum;
+            });
+            
+            if (invMatches.length > 0) {
+                // Check amounts
+                const taxableValue = Number(row['Taxable Value'] || 0);
+                const igst = Number(row['IGST'] || 0);
+                const cgst = Number(row['CGST'] || 0);
+                const sgst = Number(row['SGST'] || 0);
+                
+                const amountMatch = invMatches.some(match => {
+                    const matchTaxable = Number(match['Taxable Value'] || 0);
+                    const matchIgst = Number(match['IGST'] || 0);
+                    const matchCgst = Number(match['CGST'] || 0);
+                    const matchSgst = Number(match['SGST'] || 0);
+                    
+                    return Math.abs(taxableValue - matchTaxable) <= diffAllowed &&
+                           Math.abs(igst - matchIgst) <= diffAllowed &&
+                           Math.abs(cgst - matchCgst) <= diffAllowed &&
+                           Math.abs(sgst - matchSgst) <= diffAllowed;
+                });
+                
+                if (amountMatch) {
+                    return isDetailedReconciliation ? 'Match - GSTN, Invoice No.' : 'Match';
+                } else {
+                    return 'Unmatch - Amt Diff';
+                }
+            }
+            
+            // Check for GSTN and date match only
+            const dateMatches = compareData.filter(cmpRow => {
+                const cmpGstn = String(cmpRow['GSTN'] || '').toLowerCase().trim();
+                const cmpInvDate = String(cmpRow['Invoice Date'] || '').toLowerCase().trim();
+                
+                return gstn === cmpGstn && invDate === cmpInvDate;
+            });
+            
+            if (dateMatches.length > 0) {
+                // Check amounts
+                const taxableValue = Number(row['Taxable Value'] || 0);
+                const igst = Number(row['IGST'] || 0);
+                const cgst = Number(row['CGST'] || 0);
+                const sgst = Number(row['SGST'] || 0);
+                
+                const amountMatch = dateMatches.some(match => {
+                    const matchTaxable = Number(match['Taxable Value'] || 0);
+                    const matchIgst = Number(match['IGST'] || 0);
+                    const matchCgst = Number(match['CGST'] || 0);
+                    const matchSgst = Number(match['SGST'] || 0);
+                    
+                    return Math.abs(taxableValue - matchTaxable) <= diffAllowed &&
+                           Math.abs(igst - matchIgst) <= diffAllowed &&
+                           Math.abs(cgst - matchCgst) <= diffAllowed &&
+                           Math.abs(sgst - matchSgst) <= diffAllowed;
+                });
+                
+                if (amountMatch) {
+                    return isDetailedReconciliation ? 'Match - GSTN, Date' : 'Match';
+                }
+            }
+            
+            // Check for GSTN match only
+            const gstnMatches = compareData.filter(cmpRow => {
+                const cmpGstn = String(cmpRow['GSTN'] || '').toLowerCase().trim();
+                return gstn === cmpGstn;
+            });
+            
+            if (gstnMatches.length > 0) {
+                // Check if total amounts match
+                let totalTaxableValue = 0;
+                let totalIgst = 0;
+                let totalCgst = 0;
+                let totalSgst = 0;
+                
+                gstnMatches.forEach(match => {
+                    totalTaxableValue += Number(match['Taxable Value'] || 0);
+                    totalIgst += Number(match['IGST'] || 0);
+                    totalCgst += Number(match['CGST'] || 0);
+                    totalSgst += Number(match['SGST'] || 0);
+                });
+                
+                const rowTaxableValue = Number(row['Taxable Value'] || 0);
+                const rowIgst = Number(row['IGST'] || 0);
+                const rowCgst = Number(row['CGST'] || 0);
+                const rowSgst = Number(row['SGST'] || 0);
+                
+                if (Math.abs(rowTaxableValue - totalTaxableValue) <= diffAllowed &&
+                    Math.abs(rowIgst - totalIgst) <= diffAllowed &&
+                    Math.abs(rowCgst - totalCgst) <= diffAllowed &&
+                    Math.abs(rowSgst - totalSgst) <= diffAllowed) {
+                    return isDetailedReconciliation ? 'Match - GSTN' : 'Match';
+                }
+                
+                return 'Unmatch';
+            } else {
+                // GSTN not found
+                return 'Unmatch - GSTN Not Exist';
+            }
+        }
+        
+        // Display summary
+        function displaySummary() {
+            const summaryContainer = document.getElementById('summary-container');
+            
+            // Group data by match criteria
+            const gstr2bCriteria = {};
+            const gstr3bCriteria = {};
+            
+            gstr2bData.forEach(row => {
+                const criteria = row['Match Criteria'];
+                if (!gstr2bCriteria[criteria]) {
+                    gstr2bCriteria[criteria] = {
+                        count: 0,
+                        taxableValue: 0,
+                        igst: 0,
+                        cgst: 0,
+                        sgst: 0,
+                        invoiceValue: 0
+                    };
+                }
+                
+                gstr2bCriteria[criteria].count++;
+                gstr2bCriteria[criteria].taxableValue += Number(row['Taxable Value'] || 0);
+                gstr2bCriteria[criteria].igst += Number(row['IGST'] || 0);
+                gstr2bCriteria[criteria].cgst += Number(row['CGST'] || 0);
+                gstr2bCriteria[criteria].sgst += Number(row['SGST'] || 0);
+                gstr2bCriteria[criteria].invoiceValue += Number(row['Invoice Value'] || 0);
+            });
+            
+            gstr3bData.forEach(row => {
+                const criteria = row['Match Criteria'];
+                if (!gstr3bCriteria[criteria]) {
+                    gstr3bCriteria[criteria] = {
+                        count: 0,
+                        taxableValue: 0,
+                        igst: 0,
+                        cgst: 0,
+                        sgst: 0,
+                        invoiceValue: 0
+                    };
+                }
+                
+                gstr3bCriteria[criteria].count++;
+                gstr3bCriteria[criteria].taxableValue += Number(row['Taxable Value'] || 0);
+                gstr3bCriteria[criteria].igst += Number(row['IGST'] || 0);
+                gstr3bCriteria[criteria].cgst += Number(row['CGST'] || 0);
+                gstr3bCriteria[criteria].sgst += Number(row['SGST'] || 0);
+                gstr3bCriteria[criteria].invoiceValue += Number(row['Invoice Value'] || 0);
+            });
+            
+            // Create summary table
+            let html = '<table class="data-table">';
+            
+            // Header
+            html += `
+                <thead>
+                    <tr>
+                        <th rowspan="2">Match Criteria</th>
+                        <th colspan="6">GSTR-2B</th>
+                        <th colspan="6">GSTR-3B</th>
+                    </tr>
+                    <tr>
+                        <th>Count</th>
+                        <th>Taxable Value</th>
+                        <th>IGST</th>
+                        <th>CGST</th>
+                        <th>SGST</th>
+                        <th>Invoice Value</th>
+                        <th>Count</th>
+                        <th>Taxable Value</th>
+                        <th>IGST</th>
+                        <th>CGST</th>
+                        <th>SGST</th>
+                        <th>Invoice Value</th>
+                    </tr>
+                </thead>
+            `;
+            
+            // Body
+            html += '<tbody>';
+            
+            // Get all unique criteria from both datasets
+            const allCriteria = new Set([
+                ...Object.keys(gstr2bCriteria),
+                ...Object.keys(gstr3bCriteria)
+            ]);
+            
+            // Sort criteria for better display
+            const criteriaOrder = [
+                'Match - GSTN, Invoice No., Date',
+                'Match - GSTN, Invoice No.',
+                'Match - GSTN, Date',
+                'Match - GSTN',
+                'Match',
+                'Unmatch - Amt Diff',
+                'Unmatch - GSTN Not Exist',
+                'Unmatch'
+            ];
+            
+            const sortedCriteria = Array.from(allCriteria).sort((a, b) => {
+                const aIndex = criteriaOrder.indexOf(a);
+                const bIndex = criteriaOrder.indexOf(b);
+                
+                if (aIndex !== -1 && bIndex !== -1) {
+                    return aIndex - bIndex;
+                } else if (aIndex !== -1) {
+                    return -1;
+                } else if (bIndex !== -1) {
+                    return 1;
+                } else {
+                    return a.localeCompare(b);
+                }
+            });
+            
+            // Add rows for each criteria
+            sortedCriteria.forEach(criteria => {
+                const gstr2b = gstr2bCriteria[criteria] || {
+                    count: 0,
+                    taxableValue: 0,
+                    igst: 0,
+                    cgst: 0,
+                    sgst: 0,
+                    invoiceValue: 0
+                };
+                
+                const gstr3b = gstr3bCriteria[criteria] || {
+                    count: 0,
+                    taxableValue: 0,
+                    igst: 0,
+                    cgst: 0,
+                    sgst: 0,
+                    invoiceValue: 0
+                };
+                
+                // Color based on criteria
+                let rowClass = '';
+                if (criteria.includes('Match')) {
+                    rowClass = 'match-full';
+                } else if (criteria.includes('Amt Diff')) {
+                    rowClass = 'match-partial';
+                } else {
+                    rowClass = 'unmatch';
+                }
+                
+                html += `
+                    <tr class="${rowClass}">
+                        <td>${criteria}</td>
+                        <td>${gstr2b.count}</td>
+                        <td>${gstr2b.taxableValue.toFixed(2)}</td>
+                        <td>${gstr2b.igst.toFixed(2)}</td>
+                        <td>${gstr2b.cgst.toFixed(2)}</td>
+                        <td>${gstr2b.sgst.toFixed(2)}</td>
+                        <td>${gstr2b.invoiceValue.toFixed(2)}</td>
+                        <td>${gstr3b.count}</td>
+                        <td>${gstr3b.taxableValue.toFixed(2)}</td>
+                        <td>${gstr3b.igst.toFixed(2)}</td>
+                        <td>${gstr3b.cgst.toFixed(2)}</td>
+                        <td>${gstr3b.sgst.toFixed(2)}</td>
+                        <td>${gstr3b.invoiceValue.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+            
+            // Calculate totals
+            const gstr2bTotal = {
+                count: 0,
+                taxableValue: 0,
+                igst: 0,
+                cgst: 0,
+                sgst: 0,
+                invoiceValue: 0
+            };
+            
+            const gstr3bTotal = {
+                count: 0,
+                taxableValue: 0,
+                igst: 0,
+                cgst: 0,
+                sgst: 0,
+                invoiceValue: 0
+            };
+            
+            Object.values(gstr2bCriteria).forEach(criteria => {
+                gstr2bTotal.count += criteria.count;
+                gstr2bTotal.taxableValue += criteria.taxableValue;
+                gstr2bTotal.igst += criteria.igst;
+                gstr2bTotal.cgst += criteria.cgst;
+                gstr2bTotal.sgst += criteria.sgst;
+                gstr2bTotal.invoiceValue += criteria.invoiceValue;
+            });
+            
+            Object.values(gstr3bCriteria).forEach(criteria => {
+                gstr3bTotal.count += criteria.count;
+                gstr3bTotal.taxableValue += criteria.taxableValue;
+                gstr3bTotal.igst += criteria.igst;
+                gstr3bTotal.cgst += criteria.cgst;
+                gstr3bTotal.sgst += criteria.sgst;
+                gstr3bTotal.invoiceValue += criteria.invoiceValue;
+            });
+            
+            // Add total row
+            html += `
+                <tr style="font-weight: bold; background-color: #e8f4f8;">
+                    <td>Total</td>
+                    <td>${gstr2bTotal.count}</td>
+                    <td>${gstr2bTotal.taxableValue.toFixed(2)}</td>
+                    <td>${gstr2bTotal.igst.toFixed(2)}</td>
+                    <td>${gstr2bTotal.cgst.toFixed(2)}</td>
+                    <td>${gstr2bTotal.sgst.toFixed(2)}</td>
+                    <td>${gstr2bTotal.invoiceValue.toFixed(2)}</td>
+                    <td>${gstr3bTotal.count}</td>
+                    <td>${gstr3bTotal.taxableValue.toFixed(2)}</td>
+                    <td>${gstr3bTotal.igst.toFixed(2)}</td>
+                    <td>${gstr3bTotal.cgst.toFixed(2)}</td>
+                    <td>${gstr3bTotal.sgst.toFixed(2)}</td>
+                    <td>${gstr3bTotal.invoiceValue.toFixed(2)}</td>
+                </tr>
+            `;
+            
+            html += '</tbody></table>';
+            summaryContainer.innerHTML = html;
+        }
+        
+        // Prepare custom view data
+        function prepareCustomViewData() {
+            customViewData = [];
+            
+            // Convert data to required format
+            const combinedData = [...gstr2bData, ...gstr3bData].map(row => {
+                return {
+                    'Match Criteria': row['Match Criteria'] || '',
+                    'Date': row['Invoice Date'] || '',
+                    'Invoice Number': row['Invoice Number'] || '',
+                    'Party Name': row['Name of Supplier'] || '',
+                    'GSTN': row['GSTN'] || '',
+                    'Taxable Value': Number(row['Taxable Value'] || 0),
+                    'IGST': Number(row['IGST'] || 0),
+                    'CGST': Number(row['CGST'] || 0),
+                    'SGST': Number(row['SGST'] || 0),
+                    'Invoice Value': Number(row['Invoice Value'] || 0),
+                    'Source': row['Source'] || (gstr2bData.includes(row) ? 'GSTR-2B' : 'GSTR-3B')
+                };
+            });
+            
+            customViewData = combinedData;
+        }
+        
+        // Show custom view
+        function showCustomView() {
+            if (customViewData.length === 0) {
+                alert('Please reconcile data first.');
+                return;
+            }
+            
+            const container = document.getElementById('custom-view-container');
+            const modal = document.getElementById('custom-view-modal');
+            
+            // Create table
+            let html = '<table class="data-table">';
+            
+            // Header
+            html += '<thead><tr>';
+            ['Match Criteria', 'Date', 'Invoice Number', 'Party Name', 'GSTN', 'Taxable Value', 'IGST', 'CGST', 'SGST', 'Invoice Value', 'Source'].forEach(header => {
+                html += `<th>${header}</th>`;
+            });
+            html += '</tr></thead>';
+            
+            // Body
+            html += '<tbody>';
+            customViewData.forEach(row => {
+                let rowClass = '';
+                if (row['Match Criteria'].includes('Match - GSTN')) {
+                    rowClass = 'match-full';
+                } else if (row['Match Criteria'] === 'Match') {
+                    rowClass = 'match-full';
+                } else if (row['Match Criteria'].includes('Amt Diff')) {
+                    rowClass = 'match-partial';
+                } else {
+                    rowClass = 'unmatch';
+                }
+                
+                html += `<tr class="${rowClass}">`;
+                ['Match Criteria', 'Date', 'Invoice Number', 'Party Name', 'GSTN', 'Taxable Value', 'IGST', 'CGST', 'SGST', 'Invoice Value', 'Source'].forEach(header => {
+                    const value = row[header];
+                    const isNumber = ['Taxable Value', 'IGST', 'CGST', 'SGST', 'Invoice Value'].includes(header);
+                    html += `<td>${isNumber ? Number(value).toFixed(2) : value}</td>`;
+                });
+                html += '</tr>';
+            });
+            html += '</tbody></table>';
+            
+            container.innerHTML = html;
+            modal.style.display = 'flex';
+        }
+        
+        // Prepare GSTN-wise data
+        function prepareGstnWiseData() {
+            gstnWiseData = {};
+            
+            // Group by GSTN
+            [...gstr2bData, ...gstr3bData].forEach(row => {
+                const gstn = row['GSTN'] || '';
+                if (!gstnWiseData[gstn]) {
+                    gstnWiseData[gstn] = {
+                        name: row['Name of Supplier'] || '',
+                        gstr2b: [],
+                        gstr3b: []
+                    };
+                }
+                
+                // Add to appropriate array
+                if (gstr2bData.includes(row)) {
+                    gstnWiseData[gstn].gstr2b.push(row);
+                } else {
+                    gstnWiseData[gstn].gstr3b.push(row);
+                }
+            });
+        }
+        
+        // Show GSTN view
+        function showGstnView() {
+            if (Object.keys(gstnWiseData).length === 0) {
+                alert('Please reconcile data first.');
+                return;
+            }
+            
+            const container = document.getElementById('gstn-view-container');
+            const modal = document.getElementById('gstn-view-modal');
+            
+            // Create GSTN groups
+            let html = '';
+            
+            // Sort GSTNs
+            const sortedGstns = Object.keys(gstnWiseData).sort();
+            
+            sortedGstns.forEach(gstn => {
+                const data = gstnWiseData[gstn];
+                const matches = data.gstr2b.filter(row => row['Match Criteria'].includes('Match')).length +
+                               data.gstr3b.filter(row => row['Match Criteria'].includes('Match')).length;
+                const unmatches = data.gstr2b.filter(row => row['Match Criteria'].includes('Unmatch')).length +
+                                 data.gstr3b.filter(row => row['Match Criteria'].includes('Unmatch')).length;
+                
+                html += `
+                    <div class="gstn-group">
+                        <div class="gstn-header" onclick="toggleGstnContent(this)">
+                            <div>
+                                <strong>GSTN:</strong> ${gstn} <span style="margin-left: 10px; font-style: italic;">${data.name}</span>
+                            </div>
+                            <div>
+                                <span class="badge match-full" style="padding: 2px 6px; border-radius: 4px; margin-right: 5px;">Matched: ${matches}</span>
+                                <span class="badge unmatch" style="padding: 2px 6px; border-radius: 4px;">Unmatched: ${unmatches}</span>
+                                <i class="fas fa-chevron-down" style="margin-left: 10px;"></i>
+                            </div>
+                        </div>
+                        <div class="gstn-content">
+                            <h3 style="margin-bottom: 10px;">GSTR-2B Entries</h3>
+                            ${renderGstnTable(data.gstr2b)}
+                            <h3 style="margin: 15px 0 10px;">GSTR-3B Entries</h3>
+                            ${renderGstnTable(data.gstr3b)}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            modal.style.display = 'flex';
+        }
+        
+        // Render GSTN table
+        function renderGstnTable(data) {
+            if (data.length === 0) {
+                return '<p>No entries found.</p>';
+            }
+            
+            let html = '<div class="table-responsive"><table class="data-table">';
+            
+            // Header
+            html += '<thead><tr>';
+            ['Match Criteria', 'Invoice Date', 'Invoice Number', 'Taxable Value', 'IGST', 'CGST', 'SGST', 'Invoice Value'].forEach(header => {
+                html += `<th>${header}</th>`;
+            });
+            html += '</tr></thead>';
+            
+            // Body
+            html += '<tbody>';
+            data.forEach(row => {
+                let rowClass = '';
+                if (row['Match Criteria'].includes('Match')) {
+                    rowClass = 'match-full';
+                } else {
+                    rowClass = 'unmatch';
+                }
+                
+                html += `<tr class="${rowClass}">`;
+                html += `<td>${row['Match Criteria'] || ''}</td>`;
+                html += `<td>${row['Invoice Date'] || ''}</td>`;
+                html += `<td>${row['Invoice Number'] || ''}</td>`;
+                html += `<td>${Number(row['Taxable Value'] || 0).toFixed(2)}</td>`;
+                html += `<td>${Number(row['IGST'] || 0).toFixed(2)}</td>`;
+                html += `<td>${Number(row['CGST'] || 0).toFixed(2)}</td>`;
+                html += `<td>${Number(row['SGST'] || 0).toFixed(2)}</td>`;
+                html += `<td>${Number(row['Invoice Value'] || 0).toFixed(2)}</td>`;
+                html += '</tr>';
+            });
+            html += '</tbody></table></div>';
+            
+            return html;
+        }
+        
+        // Toggle GSTN content
+        function toggleGstnContent(element) {
+            const content = element.nextElementSibling;
+            const icon = element.querySelector('i');
+            
+            if (content.classList.contains('open')) {
+                content.classList.remove('open');
+                icon.className = 'fas fa-chevron-down';
+            } else {
+                content.classList.add('open');
+                icon.className = 'fas fa-chevron-up';
+            }
+        }
+        
+        // Show column manager
+        function showColumnManager() {
+            const modal = document.getElementById('column-manager-modal');
+            const gstr2bList = document.getElementById('gstr2b-column-list');
+            const gstr3bList = document.getElementById('gstr3b-column-list');
+            
+            // Clear lists
+            gstr2bList.innerHTML = '';
+            gstr3bList.innerHTML = '';
+            
+            // Populate GSTR-2B columns
+            if (columnOrder.gstr2b.length > 0) {
+                columnOrder.gstr2b.forEach((column, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'column-option';
+                    item.draggable = true;
+                    item.setAttribute('data-index', index);
+                    
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.checked = visibleColumns.gstr2b[column] !== false;
+                    checkbox.setAttribute('data-column', column);
+                    
+                    const label = document.createElement('label');
+                    label.textContent = column;
+                    
+                    item.appendChild(checkbox);
+                    item.appendChild(label);
+                    gstr2bList.appendChild(item);
+                    
+                    // Add drag and drop
+                    setupDragDrop(item, gstr2bList);
+                });
+            }
+            
+            // Populate GSTR-3B columns
+            if (columnOrder.gstr3b.length > 0) {
+                columnOrder.gstr3b.forEach((column, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'column-option';
+                    item.draggable = true;
+                    item.setAttribute('data-index', index);
+                    
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.checked = visibleColumns.gstr3b[column] !== false;
+                    checkbox.setAttribute('data-column', column);
+                    
+                    const label = document.createElement('label');
+                    label.textContent = column;
+                    
+                    item.appendChild(checkbox);
+                    item.appendChild(label);
+                    gstr3bList.appendChild(item);
+                    
+                    // Add drag and drop
+                    setupDragDrop(item, gstr3bList);
+                });
+            }
+            
+            modal.style.display = 'flex';
+        }
+        
+        // Setup drag and drop for column manager
+        function setupDragDrop(item, container) {
+            let draggedItem = null;
+            
+            item.addEventListener('dragstart', function() {
+                draggedItem = this;
+                setTimeout(() => this.style.opacity = '0.4', 0);
+            });
+            
+            item.addEventListener('dragend', function() {
+                this.style.opacity = '1';
+                draggedItem = null;
+            });
+            
+            container.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                
+                if (!draggedItem) return;
+                
+                const children = Array.from(this.children);
+                const draggedIndex = children.indexOf(draggedItem);
+                
+                // Find item under cursor
+                const mouseY = e.clientY;
+                let closestItem = null;
+                let minDistance = Infinity;
+                
+                children.forEach(child => {
+                    if (child === draggedItem) return;
+                    
+                    const rect = child.getBoundingClientRect();
+                    const midPoint = rect.top + rect.height / 2;
+                    const distance = Math.abs(mouseY - midPoint);
+                    
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        closestItem = child;
+                    }
+                });
+                
+                if (closestItem) {
+                    const closestIndex = children.indexOf(closestItem);
+                    
+                    if (draggedIndex < closestIndex) {
+                        this.insertBefore(draggedItem, closestItem.nextElementSibling);
+                    } else {
+                        this.insertBefore(draggedItem, closestItem);
+                    }
+                }
+            });
+        }
+        
+        // Apply column settings
+        function applyColumnSettings() {
+            // Update GSTR-2B columns
+            const gstr2bList = document.getElementById('gstr2b-column-list');
+            const gstr3bList = document.getElementById('gstr3b-column-list');
+            
+            // Update column order for GSTR-2B
+            columnOrder.gstr2b = [];
+            Array.from(gstr2bList.children).forEach(item => {
+                const column = item.querySelector('input').getAttribute('data-column');
+                columnOrder.gstr2b.push(column);
+            });
+            
+            // Update column order for GSTR-3B
+            columnOrder.gstr3b = [];
+            Array.from(gstr3bList.children).forEach(item => {
+                const column = item.querySelector('input').getAttribute('data-column');
+                columnOrder.gstr3b.push(column);
+            });
+            
+            // Update visible columns for GSTR-2B
+            Array.from(gstr2bList.querySelectorAll('input')).forEach(checkbox => {
+                const column = checkbox.getAttribute('data-column');
+                visibleColumns.gstr2b[column] = checkbox.checked;
+            });
+            
+            // Update visible columns for GSTR-3B
+            Array.from(gstr3bList.querySelectorAll('input')).forEach(checkbox => {
+                const column = checkbox.getAttribute('data-column');
+                visibleColumns.gstr3b[column] = checkbox.checked;
+            });
+            
+            // Save to localStorage
+            localStorage.setItem('columnOrder', JSON.stringify(columnOrder));
+            localStorage.setItem('visibleColumns', JSON.stringify(visibleColumns));
+            
+            // Redisplay data
+            displayData();
+            
+            // Close modal
+            document.getElementById('column-manager-modal').style.display = 'none';
+        }
+        
+        // Download reconciled data
+        function downloadReconciled() {
+            const workbook = new ExcelJS.Workbook();
+            
+            // GSTR-2B Sheet
+            const ws1 = workbook.addWorksheet('GSTR-2B');
+            
+            // Add headers
+            const headers1 = columnOrder.gstr2b.filter(col => visibleColumns.gstr2b[col]);
+            ws1.addRow(headers1);
+            
+            // Format header row
+            ws1.getRow(1).font = { bold: true };
+            ws1.getRow(1).fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: 'FFE0FFFF' }
+            };
+            
+            // Add data
+            gstr2bData.forEach(row => {
+                const rowData = headers1.map(header => row[header]);
+                const excelRow = ws1.addRow(rowData);
+                
+                // Apply styling based on match criteria
+                const matchCriteria = row['Match Criteria'] || '';
+                let fillColor = '';
+                
+                if (matchCriteria.includes('Match')) {
+                    fillColor = 'FFD4EDDA'; // Green
+                } else if (matchCriteria.includes('Amt Diff')) {
+                    fillColor = 'FFFFF3CD'; // Yellow
+                } else {
+                    fillColor = 'FFF8D7DA'; // Red
+                }
+                
+                excelRow.eachCell(cell => {
+                    cell.fill = {
+                        type: 'pattern',
+                        pattern: 'solid',
+                        fgColor: { argb: fillColor }
+                    };
+                });
+            });
+            
+            // Auto size columns
+            ws1.columns.forEach(column => {
+                column.width = 15;
+            });
+            
+            // GSTR-3B Sheet
+            const ws2 = workbook.addWorksheet('GSTR-3B');
+            
+            // Add headers
+            const headers2 = columnOrder.gstr3b.filter(col => visibleColumns.gstr3b[col]);
+            ws2.addRow(headers2);
+            
+            // Format header row
+            ws2.getRow(1).font = { bold: true };
+            ws2.getRow(1).fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: 'FFE0FFFF' }
+            };
+            
+            // Add data
+            gstr3bData.forEach(row => {
+                const rowData = headers2.map(header => row[header]);
+                const excelRow = ws2.addRow(rowData);
+                
+                // Apply styling based on match criteria
+                const matchCriteria = row['Match Criteria'] || '';
+                let fillColor = '';
+                
+                if (matchCriteria.includes('Match')) {
+                    fillColor = 'FFD4EDDA'; // Green
+                } else if (matchCriteria.includes('Amt Diff')) {
+                    fillColor = 'FFFFF3CD'; // Yellow
+                } else {
+                    fillColor = 'FFF8D7DA'; // Red
+                }
+                
+                excelRow.eachCell(cell => {
+                    cell.fill = {
+                        type: 'pattern',
+                        pattern: 'solid',
+                        fgColor: { argb: fillColor }
+                    };
+                });
+            });
+            
+            // Auto size columns
+            ws2.columns.forEach(column => {
+                column.width = 15;
+            });
+            
+            // Summary Sheet
+            const ws3 = workbook.addWorksheet('Summary');
+            
+            // Group data by match criteria
+            const gstr2bCriteria = {};
+            const gstr3bCriteria = {};
+            
+            gstr2bData.forEach(row => {
+                const criteria = row['Match Criteria'];
+                if (!gstr2bCriteria[criteria]) {
+                    gstr2bCriteria[criteria] = {
+                        count: 0,
+                        taxableValue: 0,
+                        igst: 0,
+                        cgst: 0,
+                        sgst: 0,
+                        invoiceValue: 0
+                    };
+                }
+                
+                gstr2bCriteria[criteria].count++;
+                gstr2bCriteria[criteria].taxableValue += Number(row['Taxable Value'] || 0);
+                gstr2bCriteria[criteria].igst += Number(row['IGST'] || 0);
+                gstr2bCriteria[criteria].cgst += Number(row['CGST'] || 0);
+                gstr2bCriteria[criteria].sgst += Number(row['SGST'] || 0);
+                gstr2bCriteria[criteria].invoiceValue += Number(row['Invoice Value'] || 0);
+            });
+            
+            gstr3bData.forEach(row => {
+                const criteria = row['Match Criteria'];
+                if (!gstr3bCriteria[criteria]) {
+                    gstr3bCriteria[criteria] = {
+                        count: 0,
+                        taxableValue: 0,
+                        igst: 0,
+                        cgst: 0,
+                        sgst: 0,
+                        invoiceValue: 0
+                    };
+                }
+                
+                gstr3bCriteria[criteria].count++;
+                gstr3bCriteria[criteria].taxableValue += Number(row['Taxable Value'] || 0);
+                gstr3bCriteria[criteria].igst += Number(row['IGST'] || 0);
+                gstr3bCriteria[criteria].cgst += Number(row['CGST'] || 0);
+                gstr3bCriteria[criteria].sgst += Number(row['SGST'] || 0);
+                gstr3bCriteria[criteria].invoiceValue += Number(row['Invoice Value'] || 0);
+            });
+            
+            // Add headers
+            ws3.addRow(['Match Criteria', 'Count', 'Taxable Value', 'IGST', 'CGST', 'SGST', 'Invoice Value', 'Count', 'Taxable Value', 'IGST', 'CGST', 'SGST', 'Invoice Value']);
+            ws3.addRow(['', 'GSTR-2B', 'GSTR-2B', 'GSTR-2B', 'GSTR-2B', 'GSTR-2B', 'GSTR-2B', 'GSTR-3B', 'GSTR-3B', 'GSTR-3B', 'GSTR-3B', 'GSTR-3B', 'GSTR-3B']);
+            
+            // Merge cells and format headers
+            ws3.mergeCells('A1:A2');
+            ws3.mergeCells('B1:G1');
+            ws3.mergeCells('H1:M1');
+            
+            ws3.getRow(1).font = { bold: true };
+            ws3.getRow(2).font = { bold: true };
+            ws3.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0FFFF' } };
+            ws3.getRow(2).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0FFFF' } };
+            
+            // Get all unique criteria from both datasets
+            const allCriteria = new Set([
+                ...Object.keys(gstr2bCriteria),
+                ...Object.keys(gstr3bCriteria)
+            ]);
+            
+            // Sort criteria for better display
+            const criteriaOrder = [
+                'Match - GSTN, Invoice No., Date',
+                'Match - GSTN, Invoice No.',
+                'Match - GSTN, Date',
+                'Match - GSTN',
+                'Match',
+                'Unmatch - Amt Diff',
+                'Unmatch - GSTN Not Exist',
+                'Unmatch'
+            ];
+            
+            const sortedCriteria = Array.from(allCriteria).sort((a, b) => {
+                const aIndex = criteriaOrder.indexOf(a);
+                const bIndex = criteriaOrder.indexOf(b);
+                
+                if (aIndex !== -1 && bIndex !== -1) {
+                    return aIndex - bIndex;
+                } else if (aIndex !== -1) {
+                    return -1;
+                } else if (bIndex !== -1) {
+                    return 1;
+                } else {
+                    return a.localeCompare(b);
+                }
+            });
+            
+            // Add rows for each criteria
+            sortedCriteria.forEach(criteria => {
+                const gstr2b = gstr2bCriteria[criteria] || {
+                    count: 0,
+                    taxableValue: 0,
+                    igst: 0,
+                    cgst: 0,
+                    sgst: 0,
+                    invoiceValue: 0
+                };
+                
+                const gstr3b = gstr3bCriteria[criteria] || {
+                    count: 0,
+                    taxableValue: 0,
+                    igst: 0,
+                    cgst: 0,
+                    sgst: 0,
+                    invoiceValue: 0
+                };
+                
+                const row = ws3.addRow([
+                    criteria,
+                    gstr2b.count,
+                    gstr2b.taxableValue,
+                    gstr2b.igst,
+                    gstr2b.cgst,
+                    gstr2b.sgst,
+                    gstr2b.invoiceValue,
+                    gstr3b.count,
+                    gstr3b.taxableValue,
+                    gstr3b.igst,
+                    gstr3b.cgst,
+                    gstr3b.sgst,
+                    gstr3b.invoiceValue
+                ]);
+                
+                // Color based on criteria
+                let fillColor = '';
+                if (criteria.includes('Match')) {
+                    fillColor = 'FFD4EDDA'; // Green
+                } else if (criteria.includes('Amt Diff')) {
+                    fillColor = 'FFFFF3CD'; // Yellow
+                } else {
+                    fillColor = 'FFF8D7DA'; // Red
+                }
+                
+                row.eachCell(cell => {
+                    cell.fill = {
+                        type: 'pattern',
+                        pattern: 'solid',
+                        fgColor: { argb: fillColor }
+                    };
+                });
+            });
+            
+            // Calculate totals
+            const gstr2bTotal = {
+                count: 0,
+                taxableValue: 0,
+                igst: 0,
+                cgst: 0,
+                sgst: 0,
+                invoiceValue: 0
+            };
+            
+            const gstr3bTotal = {
+                count: 0,
+                taxableValue: 0,
+                igst: 0,
+                cgst: 0,
+                sgst: 0,
+                invoiceValue: 0
+            };
+            
+            Object.values(gstr2bCriteria).forEach(criteria => {
+                gstr2bTotal.count += criteria.count;
+                gstr2bTotal.taxableValue += criteria.taxableValue;
+                gstr2bTotal.igst += criteria.igst;
+                gstr2bTotal.cgst += criteria.cgst;
+                gstr2bTotal.sgst += criteria.sgst;
+                gstr2bTotal.invoiceValue += criteria.invoiceValue;
+            });
+            
+            Object.values(gstr3bCriteria).forEach(criteria => {
+                gstr3bTotal.count += criteria.count;
+                gstr3bTotal.taxableValue += criteria.taxableValue;
+                gstr3bTotal.igst += criteria.igst;
+                gstr3bTotal.cgst += criteria.cgst;
+                gstr3bTotal.sgst += criteria.sgst;
+                gstr3bTotal.invoiceValue += criteria.invoiceValue;
+            });
+            
+            // Add total row
+            const totalRow = ws3.addRow([
+                'Total',
+                gstr2bTotal.count,
+                gstr2bTotal.taxableValue,
+                gstr2bTotal.igst,
+                gstr2bTotal.cgst,
+                gstr2bTotal.sgst,
+                gstr2bTotal.invoiceValue,
+                gstr3bTotal.count,
+                gstr3bTotal.taxableValue,
+                gstr3bTotal.igst,
+                gstr3bTotal.cgst,
+                gstr3bTotal.sgst,
+                gstr3bTotal.invoiceValue
+            ]);
+            
+            totalRow.font = { bold: true };
+            totalRow.fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: 'FFE8F4F8' }
+            };
+            
+            // Auto size columns
+            ws3.columns.forEach(column => {
+                column.width = 15;
+            });
+            
+            // Custom View Sheet
+            const ws4 = workbook.addWorksheet('Custom View');
+            
+            // Add headers
+            ws4.addRow(['Match Criteria', 'Date', 'Invoice Number', 'Party Name', 'GSTN', 'Taxable Value', 'IGST', 'CGST', 'SGST', 'Invoice Value', 'Source']);
+            
+            // Format header row
+            ws4.getRow(1).font = { bold: true };
+            ws4.getRow(1).fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: 'FFE0FFFF' }
+            };
+            
+            // Add data
+            customViewData.forEach(row => {
+                const rowData = [
+                    row['Match Criteria'],
+                    row['Date'],
+                    row['Invoice Number'],
+                    row['Party Name'],
+                    row['GSTN'],
+                    row['Taxable Value'],
+                    row['IGST'],
+                    row['CGST'],
+                    row['SGST'],
+                    row['Invoice Value'],
+                    row['Source']
+                ];
+                
+                const excelRow = ws4.addRow(rowData);
+                
+                // Apply styling based on match criteria
+                const matchCriteria = row['Match Criteria'] || '';
+                let fillColor = '';
+                
+                if (matchCriteria.includes('Match')) {
+                    fillColor = 'FFD4EDDA'; // Green
+                } else if (matchCriteria.includes('Amt Diff')) {
+                    fillColor = 'FFFFF3CD'; // Yellow
+                } else {
+                    fillColor = 'FFF8D7DA'; // Red
+                }
+                
+                excelRow.eachCell(cell => {
+                    cell.fill = {
+                        type: 'pattern',
+                        pattern: 'solid',
+                        fgColor: { argb: fillColor }
+                    };
+                });
+            });
+            
+            // Auto size columns
+            ws4.columns.forEach(column => {
+                column.width = 15;
+            });
+            
+            // Generate and download
+            workbook.xlsx.writeBuffer().then(buffer => {
+                const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'GST_Reconciliation_Result.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+        }
+        
+        // Send email report
+        function sendEmailReport() {
+            const senderEmail = document.getElementById('sender-email').value.trim();
+            const receiverEmail = document.getElementById('receiver-email').value.trim();
+            const subject = document.getElementById('email-subject').value.trim();
+            const filterType = document.getElementById('filter-type').value;
+            const statusElement = document.getElementById('email-status');
+            
+            // Validate email fields
+            if (!senderEmail || !receiverEmail) {
+                statusElement.textContent = 'Please provide both sender and receiver email addresses.';
+                statusElement.style.color = 'red';
+                return;
+            }
+            
+            // Validate email formats
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(senderEmail) || !emailRegex.test(receiverEmail)) {
+                statusElement.textContent = 'Please provide valid email addresses.';
+                statusElement.style.color = 'red';
+                return;
+            }
+            
+            // Filter data based on selected type
+            let filteredData = [];
+            if (filterType === 'matched') {
+                filteredData = customViewData.filter(row => row['Match Criteria'].includes('Match') && !row['Match Criteria'].includes('Unmatch'));
+            } else if (filterType === 'unmatched') {
+                filteredData = customViewData.filter(row => row['Match Criteria'].includes('Unmatch'));
+            } else {
+                filteredData = customViewData;
+            }
+            
+            // Create email body
+            let emailBody = `
+GST Reconciliation Report
+------------------------
+
+Date: ${new Date().toLocaleDateString()}
+Report Type: ${document.getElementById('filter-type').options[document.getElementById('filter-type').selectedIndex].text}
+Total Entries: ${filteredData.length}
+
+`;
+
+            // Add table header
+            emailBody += formatEmailTableRow([
+                'Match Criteria',
+                'Date',
+                'Invoice Number',
+                'Party Name',
+                'GSTN',
+                'Taxable Value',
+                'IGST',
+                'CGST',
+                'SGST',
+                'Invoice Value'
+            ]);
+            
+            emailBody += '-'.repeat(180) + '\n';
+            
+            // Add data rows
+            filteredData.forEach(row => {
+                emailBody += formatEmailTableRow([
+                    row['Match Criteria'],
+                    row['Date'],
+                    row['Invoice Number'],
+                    row['Party Name'],
+                    row['GSTN'],
+                    row['Taxable Value'].toFixed(2),
+                    row['IGST'].toFixed(2),
+                    row['CGST'].toFixed(2),
+                    row['SGST'].toFixed(2),
+                    row['Invoice Value'].toFixed(2)
+                ]);
+            });
+            
+            // Add summary
+            emailBody += '\n\nSummary:\n';
+            emailBody += '---------\n';
+            
+            const matchCount = filteredData.filter(row => row['Match Criteria'].includes('Match') && !row['Match Criteria'].includes('Unmatch')).length;
+            const unmatchCount = filteredData.filter(row => row['Match Criteria'].includes('Unmatch')).length;
+            
+            emailBody += `Matched Entries: ${matchCount}\n`;
+            emailBody += `Unmatched Entries: ${unmatchCount}\n`;
+            emailBody += `Total Entries: ${filteredData.length}\n`;
+            
+            // Create mailto link with encoded subject and body
+            const mailtoLink = `mailto:${receiverEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
+            
+            // Open default email client
+            window.location.href = mailtoLink;
+            
+            statusElement.textContent = 'Email opened in your default email client.';
+            statusElement.style.color = 'green';
+        }
+        
+        // Format email table row
+        function formatEmailTableRow(columns) {
+            const paddedColumns = columns.map((col, index) => {
+                const str = String(col || '');
+                // Different padding based on column type
+                const padding = [20, 15, 15, 25, 20, 15, 10, 10, 10, 15][index] || 15;
+                return str.padEnd(padding).substring(0, padding);
+            });
+            
+            return paddedColumns.join(' | ') + '\n';
+        }
     </script>
 </body>
 </html>
