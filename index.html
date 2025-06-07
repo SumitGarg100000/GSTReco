@@ -20,9 +20,11 @@
             background: white;
             border-radius: 15px;
             box-shadow: 0 15px 30px rgba(0,0,0,0.15);
-            max-width: 794px;
+            max-width: 794px; /* A4 width in pixels at 96 DPI */
             margin: 0 auto;
             border: 2px solid #f1f5f9;
+            width: 100%;
+            box-sizing: border-box;
         }
         
         .header {
@@ -77,7 +79,7 @@
         .floor-grid {
             padding: 20px 15px;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(2, 1fr); /* Force 2 columns in desktop mode */
             gap: 15px;
             font-size: 0.9rem;
         }
@@ -287,7 +289,7 @@
                 print-color-adjust: exact !important;
             }
             .floor-grid {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: repeat(2, 1fr); /* Maintain 2 columns for print */
                 gap: 10px;
                 padding: 10px;
             }
@@ -331,11 +333,24 @@
         
         @media (max-width: 768px) {
             .floor-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: 1fr; /* Single column for mobile */
                 padding: 20px 10px;
             }
             .building-name {
                 font-size: 2rem;
+            }
+            .floor-card {
+                max-width: 100%;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .floor-grid {
+                grid-template-columns: repeat(2, 1fr); /* Ensure 2 columns in desktop mode */
+                gap: 15px;
+            }
+            .floor-card {
+                max-width: 370px; /* Adjusted to fit within 794px with padding and gap */
             }
         }
     </style>
@@ -358,7 +373,7 @@
         <div class="floor-grid">
             <div class="floor-card parking">
                 <div class="floor-button">
-                    <div class="press-text">PRESS</div>
+                    <div class="press juventud="PRESS"></div>
                     <div class="floor-number">G</div>
                 </div>
                 <div class="residents">
