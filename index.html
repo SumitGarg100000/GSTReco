@@ -13,14 +13,14 @@
             background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #06b6d4 100%);
             min-height: 100vh;
             margin: 0;
-            padding: 10px; /* Reduced padding for print */
+            padding: 10px;
         }
         
         .poster-container {
             background: white;
-            border-radius: 15px; /* Slightly smaller radius */
-            box-shadow: 0 15px 30px rgba(0,0,0,0.15); /* Reduced shadow */
-            max-width: 794px; /* A4 width in pixels at 96 DPI */
+            border-radius: 15px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+            max-width: 794px;
             margin: 0 auto;
             border: 2px solid #f1f5f9;
         }
@@ -28,7 +28,7 @@
         .header {
             background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #06b6d4 100%);
             color: white;
-            padding: 20px 15px; /* Reduced padding */
+            padding: 20px 15px;
             text-align: center;
             position: relative;
             overflow: hidden;
@@ -50,7 +50,7 @@
         }
         
         .press-icon {
-            font-size: 2.5rem; /* Reduced icon size */
+            font-size: 2.5rem;
             margin-bottom: 10px;
             animation: pulse 2s infinite;
             text-shadow: 0 0 15px rgba(255,255,255,0.3);
@@ -63,7 +63,7 @@
         
         .building-name {
             font-family: 'Noto Sans Devanagari', 'Mukti', sans-serif;
-            font-size: 2.5rem; /* Reduced font size */
+            font-size: 2.5rem;
             font-weight: 900;
             margin-bottom: 5px;
             text-shadow: 1px 1px 6px rgba(0,0,0,0.3);
@@ -75,20 +75,20 @@
         }
         
         .floor-grid {
-            padding: 20px 15px; /* Reduced padding */
+            padding: 20px 15px;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Smaller min-width for columns */
-            gap: 15px; /* Reduced gap */
-            font-size: 0.9rem; /* Slightly smaller base font size */
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            font-size: 0.9rem;
         }
         
         .floor-card {
-            border-radius: 10px; /* Smaller radius */
-            padding: 15px; /* Reduced padding */
+            border-radius: 10px;
+            padding: 15px;
             position: relative;
             overflow: hidden;
             transition: all 0.3s ease;
-            border: 2px solid transparent; /* Thinner border */
+            border: 2px solid transparent;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         
@@ -114,7 +114,7 @@
         }
         
         .floor-button {
-            width: 60px; /* Smaller button */
+            width: 60px;
             height: 60px;
             border-radius: 50%;
             display: flex;
@@ -146,7 +146,7 @@
         }
         
         .press-text {
-            font-size: 8px; /* Smaller text */
+            font-size: 8px;
             margin-bottom: 2px;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -154,7 +154,7 @@
         }
         
         .floor-number {
-            font-size: 16px; /* Smaller number */
+            font-size: 16px;
             font-weight: 800;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
         }
@@ -164,7 +164,7 @@
         }
         
         .residents h3 {
-            font-size: 14px; /* Smaller heading */
+            font-size: 14px;
             font-weight: 700;
             margin-bottom: 8px;
             color: #1e293b;
@@ -172,7 +172,7 @@
         }
         
         .residents p {
-            font-size: 12px; /* Smaller text */
+            font-size: 12px;
             color: #374151;
             margin: 5px 0;
             font-weight: 500;
@@ -180,7 +180,7 @@
         
         .floor-info {
             margin-top: 8px;
-            font-size: 10px; /* Smaller info text */
+            font-size: 10px;
             opacity: 0.8;
             display: flex;
             align-items: center;
@@ -189,6 +189,14 @@
         }
         
         /* Floor-specific colors */
+        .parking {
+            background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 50%, #9ca3af 100%);
+            border-color: #4b5563;
+        }
+        .parking .floor-button {
+            background: linear-gradient(135deg, #374151 0%, #4b5563 50%, #6b7280 100%);
+        }
+        
         .ugf { 
             background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 50%, #93c5fd 100%);
             border-color: #3b82f6;
@@ -233,8 +241,8 @@
             background: linear-gradient(135deg, #1f2937 0%, #374151 50%, #4b5563 100%);
             color: white;
             text-align: center;
-            padding: 15px; /* Reduced padding */
-            font-size: 10px; /* Smaller text */
+            padding: 15px;
+            font-size: 10px;
             border-top: 2px solid #6b7280;
         }
         
@@ -259,37 +267,33 @@
             .poster-container {
                 box-shadow: none;
                 border-radius: 0;
-                max-width: 794px; /* A4 width */
+                max-width: 794px;
                 border: none;
                 width: 100%;
                 height: auto;
-                /* Ensure content fits within A4 dimensions */
-                min-height: 1123px; /* A4 height */
+                min-height: 1123px;
                 box-sizing: border-box;
             }
-            /* Force background colors to print */
             * {
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
             .header, .floor-card, .floor-button, .footer {
-                background: inherit !important; /* Preserve gradients */
-                color: inherit !important; /* Preserve text colors */
+                background: inherit !important;
+                color: inherit !important;
             }
-            /* Ensure text gradients are preserved */
             .building-name {
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
-            /* Adjust grid for print */
             .floor-grid {
-                grid-template-columns: repeat(2, 1fr); /* Two columns to fit A4 */
+                grid-template-columns: repeat(2, 1fr);
                 gap: 10px;
                 padding: 10px;
             }
             .floor-card {
                 padding: 10px;
-                border: 2px solid !important; /* Ensure borders print */
+                border: 2px solid !important;
             }
             .floor-button {
                 width: 50px;
@@ -352,6 +356,22 @@
         </div>
         
         <div class="floor-grid">
+            <div class="floor-card parking">
+                <div class="floor-button">
+                    <div class="press-text">PRESS</div>
+                    <div class="floor-number">G</div>
+                </div>
+                <div class="residents">
+                    <h3>Parking</h3>
+                    <p><strong>Resident Parking</strong></p>
+                    <p><strong>Visitor Parking</strong></p>
+                    <div class="floor-info">
+                        <i class="fas fa-parking"></i>
+                        <span>Parking Level</span>
+                    </div>
+                </div>
+            </div>
+            
             <div class="floor-card ugf">
                 <div class="floor-button">
                     <div class="press-text">PRESS</div>
